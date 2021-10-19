@@ -2049,6 +2049,11 @@ boolbase@^1.0.0:
   resolved "https://registry.yarnpkg.com/boolbase/-/boolbase-1.0.0.tgz#68dff5fbe60c51eb37725ea9e3ed310dcc1e776e"
   integrity sha1-aN/1++YMUes3cl6p4+0xDcwed24=
 
+bootstrap-icons@^1.6.1:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/bootstrap-icons/-/bootstrap-icons-1.6.1.tgz#66c87beff34840efa5f248b3091c82d9348864e8"
+  integrity sha512-MNpF89+njCdVJePDRbCd2DrUusqIyNsPlBrdKqBEXAvFZpwb+Gc8k2VlyF2ueiDQn1PoeTSg9UqQNgx8tGqHAA==
+
 bootstrap@^4.5.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-4.6.0.tgz#97b9f29ac98f98dfa43bf7468262d84392552fd7"

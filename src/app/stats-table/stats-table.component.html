@@ -11,22 +11,48 @@
         </tr>
     </thead>
     <tbody>
-        <ng-container *ngFor="let item of segments; let i = index">
-            <tr>
-                <th scope="row">{{ i }}</th>
+        <ng-container *ngFor="let item of getChannels()">
+            <tr [class.error]="!item.node1_policy || !item.node2_policy">
+                <th scope="row">{{ item.channel_id }}</th>
                 <ng-template [ngIf]="ringData.getViewMode() == 'tg'" [ngIfElse]="elseBlock">
-                    <td>{{ segments[i][1] }}</td>
-                    <td>{{ segments[i+1][1] }}</td>
+                    <td>{{ getUsername(item.node1_pub) }}</td>
+                    <td>{{ getUsername(item.node2_pub) }}</td>
                 </ng-template>
                 <ng-template #elseBlock>
-                    <td>{{ segments[i][0] }}</td>
-                    <td>{{ segments[i+1][0] }}</td>
+                    <td>{{ getAlias(item.node1_pub) }}</td>
+                    <td>{{ getAlias(item.node2_pub) }}</td>
                 </ng-template>
-                <td>5</td>
-                <td>100</td>
-                <td>5</td>
-                <td>100</td>
+                <td *ngIf="item.node1_policy && item.node1_policy.disabled == false">{{ item.node1_policy.fee_base_msat }}</td>
+                <td *ngIf="item.node1_policy && item.node1_policy.disabled == false">{{ item.node1_policy.fee_rate_milli_msat }}</td>
+                <td *ngIf="item.node2_policy && item.node2_policy.disabled == false">{{ item.node2_policy.fee_base_msat }}</td>
+                <td *ngIf="item.node2_policy && item.node2_policy.disabled == false">{{ item.node2_policy.fee_rate_milli_msat }}</td>
             </tr>
         </ng-container>
     </tbody>
 </table>
+<!-- <form class="form-inline">
+    <label class="sr-only" for="inlineFormInputGroupUsername2">Pubkey</label>
+    <div class="input-group mb-2 mr-sm-2">
+      <div class="input-group-prepend">
+        <div class="input-group-text"><i class="bi bi-key"></i></div>
+      </div>
+      <input type="text" class="form-control" id="inlineFormInputGroupUsername2" placeholder="Node public key">
+    </div>
+  
+    <label class="sr-only" for="inlineFormInputGroupUsername2">Username</label>
+    <div class="input-group mb-2 mr-sm-2">
+      <div class="input-group-prepend">
+        <div class="input-group-text">@</div>
+      </div>
+      <input type="text" class="form-control" id="inlineFormInputGroupUsername2" placeholder="TG Username">
+    </div>
+  
+    <button type="submit" class="btn btn-primary mb-2">Add</button>
+  </form> -->
+  <form>
+    <div class="form-group">
+      <label for="pubkeys">Pubkeys</label>
+      <textarea class="form-control" id="pubkeys" rows="3" [(ngModel)]="pubkeysText" [ngModelOptions]="{standalone: true}"></textarea>
+      <button (click)="processPubkeys()" class="btn btn-primary mb-2">Process</button>
+    </div>
+  </form>

@@ -9,6 +9,7 @@ import { RingDataService } from '../services/ring-data.service';
 export class StatsTableComponent implements OnInit {
   segments: string[][];
   viewMode: string;
+  pubkeysText = '';
 
   constructor(
     public ringData: RingDataService
@@ -22,5 +23,29 @@ export class StatsTableComponent implements OnInit {
 
   getSegments() {
     return this.ringData.getSegments();
+  }
+
+  getChannels() {
+    return this.ringData.getChannels();
+  }
+
+  getAlias(pubkey:string) {
+    return this.ringData.getAliasByPubkey(pubkey);
+  }
+
+  getUsername(pubkey:string) {
+    return this.ringData.getTgUserByPubkey(pubkey);
+  }
+
+  processPubkeys() {
+    let segmentLines = this.pubkeysText.split('\n');
+    let segments:any = [];
+    for (let line of segmentLines) {
+      segments.push(line.split(','));
+    }
+
+    this.ringData.setSegments(segments);
+    this.ringData.repopulate();
+    //console.log(segments);
   }
 }
