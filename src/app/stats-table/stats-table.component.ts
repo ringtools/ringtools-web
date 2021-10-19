@@ -48,4 +48,19 @@ export class StatsTableComponent implements OnInit {
     this.ringData.repopulate();
     //console.log(segments);
   }
+
+  processGroupnodes() {
+    let segmentLines = this.pubkeysText.split('\n');
+    let segments:any = [];
+    for (let line of segmentLines.slice(1)) {
+      let parts = line.split(',');
+      segments.push([parts[2], parts[0]]);
+    }
+
+    console.log(segments);
+
+    this.ringData.setSegments(segments);
+    this.ringData.repopulate();
+    //console.log(segments);
+  }
 }

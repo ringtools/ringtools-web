@@ -53,6 +53,7 @@
     <div class="form-group">
       <label for="pubkeys">Pubkeys</label>
       <textarea class="form-control" id="pubkeys" rows="3" [(ngModel)]="pubkeysText" [ngModelOptions]="{standalone: true}"></textarea>
-      <button (click)="processPubkeys()" class="btn btn-primary mb-2">Process</button>
+      <button (click)="processPubkeys()" class="btn btn-primary mb-2">Process Pubkeys</button>
+      <button (click)="processGroupnodes()" class="btn btn-primary mb-2">Process Groupnodes</button>
     </div>
   </form>

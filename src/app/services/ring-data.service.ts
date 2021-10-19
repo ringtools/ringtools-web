@@ -59,6 +59,8 @@ export class RingDataService {
   populateChannels() {
     for (let [key, node] of this.getSegments().entries()) {
       this.getNodeInfo(node[0]).subscribe((data: any) => {
+        if (!data)
+          return;
         this.nodeNames.set(node[0], data.node.alias);
 
         for (let edge of data.channels) {
