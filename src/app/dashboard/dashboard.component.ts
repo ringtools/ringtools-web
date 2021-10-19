@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { RingDataService } from '../services/ring-data.service';
 
 @Component({
@@ -8,9 +9,11 @@ import { RingDataService } from '../services/ring-data.service';
 })
 export class DashboardComponent implements OnInit {
   viewMode = 'tg';
+  fileUrl:any;
 
   constructor(
-    private ringData: RingDataService
+    private ringData: RingDataService,
+    private sanitizer: DomSanitizer
     ){}
 
   ngOnInit(): void {
@@ -18,5 +21,17 @@ export class DashboardComponent implements OnInit {
 
   viewChange(event:any) {
     this.ringData.setViewMode(event);
+  }
+
+  downloadChannelsTxt() {
+    let data = '';
+    
+    for (let channel of this.ringData.getChannels()) {
+      data += channel.channel_id + "\r\n";
+    }
+
+    const blob = new Blob([data], { type: 'application/octet-stream' });
+
+    this.fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(window.URL.createObjectURL(blob));
   }
 }

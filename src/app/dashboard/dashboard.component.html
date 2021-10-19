@@ -18,7 +18,7 @@
             
             <app-stats-table></app-stats-table>
 
-        <a href="#">Download igniter.sh</a> | <a href="#">Download channels.txt</a>
+        <a href="#">Download igniter.sh</a> | <a [href]="fileUrl" download="channels.txt" (click)="downloadChannelsTxt()">Download channels.txt</a>
     </div>
     </div>
 </div>
