@@ -1,0 +1,24 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6">
+            <app-dynamic-ring></app-dynamic-ring>
+        </div>
+
+        <div class="col-md-6 participants">
+            <h2>Ring participants
+                <div class="btn-group btn-small small btn-group-toggle" ngbRadioGroup name="names" [(ngModel)]="viewMode" (ngModelChange)="viewChange($event)"> 
+                    <label ngbButtonLabel class="btn-primary btn-sm">
+                      <input ngbButton type="radio" value="node"> Nodename
+                    </label>
+                    <label ngbButtonLabel class="btn-primary btn-sm">
+                      <input ngbButton type="radio" value="tg"> TG username
+                    </label>
+                  </div>
+            </h2>
+            
+            <app-stats-table></app-stats-table>
+
+        <a href="#">Download igniter.sh</a> | <a href="#">Download channels.txt</a>
+    </div>
+    </div>
+</div>

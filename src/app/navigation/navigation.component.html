@@ -1,0 +1,22 @@
+<nav class="navbar fixed-top navbar-light bg-light navbar-expand-lg ">
+    <div class="container-fluid">
+
+        <a class="navbar-brand" href="#">SR RoF webtools</a>
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01"
+                aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation"
+                (click)="isMenuCollapsed = !isMenuCollapsed">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" [ngbCollapse]="isMenuCollapsed">
+                <ul class="navbar-nav">
+                    <li routerLinkActive="active" *ngFor="let menuItem of links" class="nav-item">
+                        <a [routerLink]="[menuItem.route]" class="nav-link">
+                            {{menuItem.title}}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>

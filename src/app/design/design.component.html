@@ -1,0 +1,18 @@
+<div class="container-fluid">
+    <div class="row">
+        <div *ngIf="visNetworkData" class="col-md-12">
+            <h2>Network</h2>
+            <h3>Ring Designer</h3>
+            <div
+              class="network-canvas"
+              [visNetwork]="visNetwork"
+              [visNetworkData]="visNetworkData"
+              [visNetworkOptions]="visNetworkOptions"
+              (initialized)="networkInitialized()"
+            ></div>
+          </div>
+          <div class="col-md-12">
+          <code>Hier komt node info voor {{ selectedNode|json }}</code>
+        </div>
+    </div>
+</div>

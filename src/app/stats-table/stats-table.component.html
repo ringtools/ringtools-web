@@ -1,0 +1,32 @@
+<table class="table table-sm table-striped small">
+    <thead>
+        <tr>
+            <th scope="col">Channel ID</th>
+            <th scope="col">Node 1</th>
+            <th scope="col">Node 2</th>
+            <th scope="col">N1 Base fee</th>
+            <th scope="col">N1 Fee rate</th>
+            <th scope="col">N2 Base fee</th>
+            <th scope="col">N2 Fee rate</th>
+        </tr>
+    </thead>
+    <tbody>
+        <ng-container *ngFor="let item of segments; let i = index">
+            <tr>
+                <th scope="row">{{ i }}</th>
+                <ng-template [ngIf]="ringData.getViewMode() == 'tg'" [ngIfElse]="elseBlock">
+                    <td>{{ segments[i][1] }}</td>
+                    <td>{{ segments[i+1][1] }}</td>
+                </ng-template>
+                <ng-template #elseBlock>
+                    <td>{{ segments[i][0] }}</td>
+                    <td>{{ segments[i+1][0] }}</td>
+                </ng-template>
+                <td>5</td>
+                <td>100</td>
+                <td>5</td>
+                <td>100</td>
+            </tr>
+        </ng-container>
+    </tbody>
+</table>
