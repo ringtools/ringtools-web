@@ -21,7 +21,7 @@ export {
 
 @NgModule({
   declarations: [
-    VisNetworkDirective
+    VisNetworkDirective,
   ],
   imports: [
     CommonModule

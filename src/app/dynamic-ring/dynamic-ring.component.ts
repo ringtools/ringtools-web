@@ -33,4 +33,9 @@ export class DynamicRingComponent implements OnInit {
   getSegments() {
     return this.ringData.getSegments();
   }
+
+  getStartOffset(i: number) {
+    let ret =  100/(this.getSegments().length)*i;
+    return `${ret}%`
+  }
 }

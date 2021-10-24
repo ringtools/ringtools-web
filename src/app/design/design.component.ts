@@ -1,9 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { DragulaService } from 'ng2-dragula';
 import { DataSet } from 'vis-data';
 import { Data, Edge, Options, Node } from 'vis-network';
 import { RingDataService } from '../services/ring-data.service';
 import { VisNetworkService } from '../vis/network/vis-network.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-design',
@@ -11,6 +13,8 @@ import { VisNetworkService } from '../vis/network/vis-network.service';
   styleUrls: ['./design.component.scss']
 })
 export class DesignComponent implements OnInit, OnDestroy {
+  Participants = 'PARTICIPANTS'
+
   public visNetwork: string = 'networkId1';
   public visNetworkData!: Data;
   public nodes!: DataSet<Node>;
@@ -19,12 +23,24 @@ export class DesignComponent implements OnInit, OnDestroy {
   allNodes = [];
   allEdges = [];
   selectedNode = '';
+  segments: any[] = [];
+  newSegments: any[] = [];
+  participants: any;
+
+  currentNodeInfo: any;
+  subs = new Subscription();
 
   constructor(
     private visNetworkService: VisNetworkService,
+    private dragulaService: DragulaService,
     private ringData: RingDataService,
     private http: HttpClient
-  ) { }
+  ) {
+
+    dragulaService.createGroup("PARTICIPANTS", {
+      removeOnSpill: true
+    });
+  }
 
   public addNode(): void {
     const lastId = this.nodes.length;
@@ -43,13 +59,15 @@ export class DesignComponent implements OnInit, OnDestroy {
       if (eventData[0] === this.visNetwork) {
         console.log(eventData[1]);
         this.selectedNode = eventData[1].nodes[0];
+
+        this.currentNodeInfo = this.ringData.getCachedNodeInfo(this.selectedNode);
       }
     });
   }
 
   buildNodes() {
     for (let node of this.ringData.getSegments()) {
-      this.ringData.getNodeInfo(node[0]).subscribe((data: any) => {
+      this.ringData.getNodeInfo(node.pub_key).subscribe((data: any) => {
 
         this.nodes.add({
           id: data.node.pub_key,
@@ -67,7 +85,10 @@ export class DesignComponent implements OnInit, OnDestroy {
               dashes: true
             };
 
-            if (edge.disabled) {
+            if (!edge.node1_policy || !edge.node2_policy) {
+              e.label = "no info";
+              e.color = "#ffcc00";
+            } else if (edge.node1_policy.disabled == "true" || edge.node2_policy.disabled == "true") {
               e.label = "disabled: true";
               e.color = "#ff0000";
             }
@@ -80,6 +101,8 @@ export class DesignComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.segments = this.ringData.getSegments();
+
     this.nodes = new DataSet<Node>();
     this.edges = new DataSet<Edge>([
     ]);
@@ -108,5 +131,88 @@ export class DesignComponent implements OnInit, OnDestroy {
 
   public ngOnDestroy(): void {
     this.visNetworkService.off(this.visNetwork, 'click');
+    this.subs.unsubscribe();
+    this.dragulaService.destroy('PARTICIPANTS');
   }
+
+  public autoDesign() {
+    console.log('auto design start');
+    let unconnectedSegments = this.ringData.getSegments().map((val) => val.pub_key);
+
+    // let newEdges = this.edges.map((val) => {
+    //   val.hidden = true;
+    //   return val;
+    // });
+
+    // console.log(newEdges);
+
+    this.edges.clear();
+
+    let newSegments:any[] = [];
+
+    let nextNode = unconnectedSegments[0];
+    let firstNode = unconnectedSegments[0];
+    let overflow = 0;
+
+    while (unconnectedSegments && overflow < (this.ringData.getSegments().length )) {
+      let nextIndex = 0;
+      let currentNode = nextNode;
+      let c:String|null = " ";
+
+      if (unconnectedSegments.length > 2) {
+
+        while (c) {
+          nextIndex = (nextIndex + 1) 
+          c = this.ringData.nodeHasChannelWith(currentNode, unconnectedSegments[nextIndex]);
+          
+          // TODO: Put in front of new unconnectedsegments so it won't be connected last
+        }
+        nextNode = unconnectedSegments[nextIndex]
+
+      } else if (unconnectedSegments.length == 2) {
+    //    console.log("LAST", currentNode, nextNode, firstNode, unconnectedSegments.length);
+        nextNode = unconnectedSegments[0]
+      } else {
+        nextNode = firstNode;
+      }
+
+      unconnectedSegments = unconnectedSegments.filter(item => item !== currentNode)
+
+      if (currentNode != nextNode) {
+        this.edges.add({ from: currentNode, to: nextNode });
+        console.log(`${currentNode} => ${nextNode}`, unconnectedSegments.length);
+
+        newSegments.push(currentNode);
+      }
+      overflow++;
+    }
+
+    console.log(newSegments, unconnectedSegments);
+    let newMap:any[] = [];
+    for (let node of newSegments) {
+      newMap.push([node, this.ringData.getTgUserByPubkey(node)])
+    }
+
+    console.log(newMap, this.participants);
+
+    this.ringData.setSegments(newMap);
+    this.segments = newMap;
+    // for (let [i, node] of segments.entries()) {
+    //  // console.log(i,node);
+    //   let nextIndex = (i + 1) % segments.length;
+
+    //   let c = " ";
+
+    //   while (c) {
+    //     c = this.ringData.nodeHasChannelWith(node, segments[nextIndex]);
+    //     nextIndex = (nextIndex + 1) % segments.length
+    //   }
+
+    //   this.edges.add({ from: node, to: segments[nextIndex] });
+
+
+    //      this.newSegments.push(node);
+    //   console.log(node, );
+  }
+
 }

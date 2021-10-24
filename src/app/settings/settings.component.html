@@ -1,1 +1,45 @@
-<p>settings works!</p>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6">
+            <form>
+                <div class="form-group">
+                    <label for="pubkeys">Pubkeys</label>
+                    <textarea class="form-control" id="pubkeys" rows="3" [(ngModel)]="pubkeysText"
+                        [ngModelOptions]="{standalone: true}"></textarea>
+                    <button (click)="processPubkeys()" class="btn btn-primary mb-2">Process Pubkeys</button>
+                    <button (click)="processGroupnodes()" class="btn btn-primary mb-2">Process Groupnodes</button>
+                </div>
+                <div class="form-group">
+                    <label for="ringName">Ringname</label>
+                    <input type="text" class="form-control" id="ringName" placeholder="Another input placeholder"
+                    [(ngModel)]="ringName"
+                    [ngModelOptions]="{standalone: true}"
+                    >
+                    <button (click)="processRingname()" class="btn btn-primary mb-2">Save Ring Name</button>
+                  </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <table class="table table-sm table-striped small">
+                <thead>
+                    <tr>
+                        <th scope="col">Public Key</th>
+                        <th scope="col">Nodename</th>
+                        <th scope="col">TG username</th>
+                        <th scope="col">Capacity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngFor="let item of getSegments()">
+                        <tr>
+                            <th scope="row">{{ item.pub_key }}</th>
+                            <td>{{ item.nodename }}</td>
+                            <td>{{ item.user_name }}</td>
+                            <td>{{ item.capacity_sat }}</td>
+                        </tr>
+                    </ng-container>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

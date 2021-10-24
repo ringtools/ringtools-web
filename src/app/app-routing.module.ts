@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { DesignComponent } from './design/design.component';
 import { SettingsComponent } from './settings/settings.component';
+import { WatcherComponent } from './watcher/watcher.component';
 
 const routes: Routes = [
   {
@@ -13,6 +14,9 @@ const routes: Routes = [
   },
   {
     path: 'design', component: DesignComponent
+  },
+  {
+    path: 'watch', component: WatcherComponent
   }
 ];
 

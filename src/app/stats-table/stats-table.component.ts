@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { CbNodeOwner } from '../model/cb_node_owner.model';
 import { RingDataService } from '../services/ring-data.service';
 
 @Component({
@@ -7,7 +8,7 @@ import { RingDataService } from '../services/ring-data.service';
   styleUrls: ['./stats-table.component.scss']
 })
 export class StatsTableComponent implements OnInit {
-  segments: string[][];
+  segments: CbNodeOwner[];
   viewMode: string;
   pubkeysText = '';
 
