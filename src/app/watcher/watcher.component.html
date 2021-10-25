@@ -30,7 +30,7 @@
                 </thead>
                 <tbody>
                     <ng-container *ngFor="let item of getParticipants(); let i = index">
-                        <tr [class.error]="!item.initiator_fee || !item.receiver_fee">
+                        <tr [class.error]="item.channel_id && (!item.initiator_fee || !item.receiver_fee)">
                             <th scope="row" [style.background-color]="getColor(i)">{{ item.channel_id }}</th>
                             <td>{{ item.initiator.node.alias }}</td>
                             <td>{{ item.receiver.node.alias }}</td>         
@@ -42,7 +42,6 @@
                     </ng-container>
                 </tbody>
             </table>
-          <button (click)="refreshParticipants()">Refresh participants</button>
     </div>
     </div>
 </div>
