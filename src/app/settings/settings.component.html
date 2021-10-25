@@ -30,7 +30,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <ng-container *ngFor="let item of getSegments()">
+                    <ng-container *ngFor="let item of cbNodeOwners$ | async">
                         <tr>
                             <th scope="row">{{ item.pub_key }}</th>
                             <td>{{ item.nodename }}</td>

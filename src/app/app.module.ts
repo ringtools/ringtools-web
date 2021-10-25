@@ -19,6 +19,10 @@ import { DragulaModule } from 'ng2-dragula';
 import { RofCircleComponent } from './rof-circle/rof-circle.component';
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { environment } from '../environments/environment';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { reducers, metaReducers } from './reducers';
 
 const config: SocketIoConfig = { 
   url: environment.WS_ENDPOINT ? environment.WS_ENDPOINT : "", 
@@ -50,7 +54,11 @@ const config: SocketIoConfig = {
     VisModule,
     NgChartsModule,
     DragulaModule.forRoot(),
-    SocketIoModule.forRoot(config)
+    SocketIoModule.forRoot(config),
+    EffectsModule.forRoot([]),
+    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
+    StoreModule.forRoot(reducers, { metaReducers }),
+    !environment.production ? StoreDevtoolsModule.instrument() : []
   ],
   providers: [],
   bootstrap: [AppComponent]

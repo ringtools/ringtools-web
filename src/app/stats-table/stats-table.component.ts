@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CbNodeOwner } from '../model/cb_node_owner.model';
 import { RingDataService } from '../services/ring-data.service';
+import * as fromRoot from '../reducers';
+import { select, Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
 
 @Component({
   selector: 'app-stats-table',
@@ -8,14 +12,22 @@ import { RingDataService } from '../services/ring-data.service';
   styleUrls: ['./stats-table.component.scss']
 })
 export class StatsTableComponent implements OnInit {
-  segments: CbNodeOwner[];
+  segments: CbNodeOwner[] | undefined;
+  cbNodeOwners$: Observable<CbNodeOwner[]>
   viewMode: string;
   pubkeysText = '';
 
   constructor(
-    public ringData: RingDataService
+    public ringData: RingDataService,
+    private store: Store<fromRoot.State>
+
   ) { 
-    this.segments = ringData.getSegments();
+    this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
+
+    this.cbNodeOwners$.subscribe((data) => {
+      this.segments = data;
+    })
+
     this.viewMode = ringData.getViewMode();
   }
 
@@ -23,7 +35,7 @@ export class StatsTableComponent implements OnInit {
   }
 
   getSegments() {
-    return this.ringData.getSegments();
+    return this.segments;
   }
 
   getChannels() {

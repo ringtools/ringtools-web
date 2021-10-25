@@ -5,7 +5,11 @@ import { DataSet } from 'vis-data';
 import { Data, Edge, Options, Node } from 'vis-network';
 import { RingDataService } from '../services/ring-data.service';
 import { VisNetworkService } from '../vis/network/vis-network.service';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { select, Store } from '@ngrx/store';
+import * as fromRoot from '../reducers';
+import { CbNodeOwner } from '../model/cb_node_owner.model';
+import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
 
 @Component({
   selector: 'app-design',
@@ -23,7 +27,9 @@ export class DesignComponent implements OnInit, OnDestroy {
   allNodes = [];
   allEdges = [];
   selectedNode = '';
-  segments: any[] = [];
+//  segments: any[] = [];
+  segments: CbNodeOwner[] = [];
+  cbNodeOwners$: Observable<CbNodeOwner[]>;
   newSegments: any[] = [];
   participants: any;
 
@@ -34,8 +40,15 @@ export class DesignComponent implements OnInit, OnDestroy {
     private visNetworkService: VisNetworkService,
     private dragulaService: DragulaService,
     private ringData: RingDataService,
+    private store: Store<fromRoot.State>,
     private http: HttpClient
   ) {
+    this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
+    
+    this.cbNodeOwners$.subscribe((data) => {
+      this.segments = data;
+    })
+
 
     dragulaService.createGroup("PARTICIPANTS", {
       removeOnSpill: true
@@ -66,7 +79,7 @@ export class DesignComponent implements OnInit, OnDestroy {
   }
 
   buildNodes() {
-    for (let node of this.ringData.getSegments()) {
+    for (let node of this.segments) {
       this.ringData.getNodeInfo(node.pub_key).subscribe((data: any) => {
 
         this.nodes.add({
@@ -101,7 +114,7 @@ export class DesignComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.segments = this.ringData.getSegments();
+    this.segments = this.segments;
 
     this.nodes = new DataSet<Node>();
     this.edges = new DataSet<Edge>([
@@ -137,7 +150,7 @@ export class DesignComponent implements OnInit, OnDestroy {
 
   public autoDesign() {
     console.log('auto design start');
-    let unconnectedSegments = this.ringData.getSegments().map((val) => val.pub_key);
+    let unconnectedSegments = this.segments.map((val) => val.pub_key);
 
     // let newEdges = this.edges.map((val) => {
     //   val.hidden = true;
@@ -154,7 +167,7 @@ export class DesignComponent implements OnInit, OnDestroy {
     let firstNode = unconnectedSegments[0];
     let overflow = 0;
 
-    while (unconnectedSegments && overflow < (this.ringData.getSegments().length )) {
+    while (unconnectedSegments && overflow < (this.segments.length )) {
       let nextIndex = 0;
       let currentNode = nextNode;
       let c:String|null = " ";

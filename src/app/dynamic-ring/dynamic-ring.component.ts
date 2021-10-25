@@ -31,7 +31,7 @@ export class DynamicRingComponent implements OnInit {
   }
 
   getSegments() {
-    return this.ringData.getSegments();
+    return [];
   }
 
   getStartOffset(i: number) {

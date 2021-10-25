@@ -8,6 +8,9 @@ import * as d3 from 'd3';
 import { Socket } from 'ngx-socket-io';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { Store } from '@ngrx/store';
+import * as fromRoot from '../reducers';
+import { addCbNodeOwner, addCbNodeOwners, clearCbNodeOwners, loadCbNodeOwners } from '../actions/cb-node-owner.actions';
 
 @Injectable({
   providedIn: 'root'
@@ -15,38 +18,11 @@ import { environment } from 'src/environments/environment';
 export class RingDataService {
   ringName = "#SRROF_500Ksats_8thRING"
 
-  segments:CbNodeOwner[] = [];
+  cbNodeOwners:CbNodeOwner[] = [];
 
   private _channelUpdate = new Subject();
   channelUpdate$ = this._channelUpdate.asObservable();
   
-//   segments = [ // format is <pubkey>,<tg username>
-//     ['0205a19356bbb7482057356aef070285a2ce6141d2448545210e9d575b57eddd37', '@dsbaars'],
-//     ['02a4ac8575fdbfeafd842b438539a889e9df5be357e6a7ddd9f6c7378600fdcf8a', '@x7b409'],
-//     ['02a84d676464a90effe12e6de21c5c2d8ff5ac7b6acda7f8c216d0f958ca547afb', '@DeToekan'],
-//     ['029f1b0921c3df73f96adfc4820f18c1af9832e3b46607064b3455274250a2db77', '@Prodigy_db'],
-//     ['021cbd1078fabaeb428eef48ea1ff118d2f970ffd14473e04f0cdaf8cd4924ffbc', 'Jan-d-VH'],
-//     ['022328fe0575587d5b67d18a134ed9887db5985ded61ac2a3391c10cabfcb6612a', 'Bråm'],
-//     ['034e0503209b75b9aaee5e23bcc4dc768341038c72bf42e1b3d13c984c9cedbbaa', 'J.'],
-//     ['03ac162fb10b9cb3af636737613e36324fef0e09bf736b089fe7f8d9542f2f2d25', 'Peter'],
-//    // ['03334c3cc8de31cf27e925209f6d51912839423d1e55b10bef5f256f802f2c88f2', 'Stef']
-// //    ['03e691f81f08c56fa876cc4ef5c9e8b727bd682cf35605be25d48607a802526053', '@kaaskoekje']
-//   ]
-
-//   segments = [ // format is <pubkey>,<tg username>
-//     ['0205a19356bbb7482057356aef070285a2ce6141d2448545210e9d575b57eddd37', '@dsbaars'],
-//     ['02a84d676464a90effe12e6de21c5c2d8ff5ac7b6acda7f8c216d0f958ca547afb', '@DeToekan'],
-//     // ['029f1b0921c3df73f96adfc4820f18c1af9832e3b46607064b3455274250a2db77', '@Prodigy_db'],
-//     ['021cbd1078fabaeb428eef48ea1ff118d2f970ffd14473e04f0cdaf8cd4924ffbc', 'Jan-d-VH'],
-//     ['034e0503209b75b9aaee5e23bcc4dc768341038c72bf42e1b3d13c984c9cedbbaa', 'J.'],
-//     // ['03ac162fb10b9cb3af636737613e36324fef0e09bf736b089fe7f8d9542f2f2d25', 'Peter'],
-//     ['03334c3cc8de31cf27e925209f6d51912839423d1e55b10bef5f256f802f2c88f2', 'Stef'],
-//     // ['02a4ac8575fdbfeafd842b438539a889e9df5be357e6a7ddd9f6c7378600fdcf8a', '@x7b409'],
-//     ['022328fe0575587d5b67d18a134ed9887db5985ded61ac2a3391c10cabfcb6612a', 'Bråm'],
-
-// //    ['03e691f81f08c56fa876cc4ef5c9e8b727bd682cf35605be25d48607a802526053', '@kaaskoekje']
-//   ]
-
   nodeNames:Map<string, string> = new Map<string,string>();
   nodeToTgMap:Map<string, string> = new Map<string,string>();
   nodeInfo:Map<string,any> = new Map<string,any>();
@@ -59,13 +35,18 @@ export class RingDataService {
 
   constructor(
     private http: HttpClient,
-    private socket: Socket
+    private socket: Socket,
+    private store: Store<fromRoot.State>
+
   ) { 
-    this.segments = this.parseCsvToType(initialring);
-    this.populateTgMap();
+    this.cbNodeOwners = this.parseCsvToType(initialring);
+
+    this.store.dispatch(loadCbNodeOwners(this.cbNodeOwners));
+
+    //this.populateTgMap();
     this.populateChannels();
     
-    let pubkeys = this.segments.map((val) => {
+    let pubkeys = this.cbNodeOwners.map((val) => {
       return val.pub_key;
     })
 
@@ -112,20 +93,20 @@ export class RingDataService {
   //   this.channelUpdateCallbacks.push(cb);
   // }
 
-  populateTgMap() {
-    for (let node of this.getSegments()) {
-      this.nodeToTgMap.set(node.pub_key, node.user_name);
-    }
-  }
+  // populateTgMap() {
+  //   for (let node of this.getSegments()) {
+  //     this.nodeToTgMap.set(node.pub_key, node.user_name);
+  //   }
+  // }
 
   repopulate() {
     this.channels = [];
-    this.populateTgMap();
+  //  this.populateTgMap();
     this.populateChannels();
 
     this.socket.emit("unsubscribe_all")
 
-    let pubkeys = this.segments.map((val) => {
+    let pubkeys = this.cbNodeOwners.map((val) => {
       return val.pub_key;
     })
 
@@ -133,12 +114,14 @@ export class RingDataService {
 
   }
 
-  getSegments() {
-    return this.segments;
-  }
+  // getSegments() {
+  //   return this.segments;
+  // }
 
   setSegments(segments:any) {
-    this.segments = segments;
+//    console.log(set segments)
+  //  this.store.dispatch(clearCbNodeOwners());
+    this.store.dispatch(loadCbNodeOwners(segments));
   }
 
   setViewMode(viewMode: string) {
@@ -196,7 +179,7 @@ export class RingDataService {
   }
 
   populateChannels() {
-    for (let [key, node] of this.getSegments().entries()) {
+    for (let [key, node] of this.cbNodeOwners.entries()) {
       this.getNodeInfo(node.pub_key).subscribe((data: any) => {
         if (!data)
           return;
@@ -205,9 +188,9 @@ export class RingDataService {
         this.nodeInfo.set(node.pub_key, data);
 
         for (let edge of data.channels) {
-          let nextIndex = (key + 1) % this.getSegments().length;
+          let nextIndex = (key + 1) % this.cbNodeOwners.length;
 
-          if (edge.node1_pub == this.getSegments()[nextIndex].pub_key || edge.node2_pub == this.getSegments()[nextIndex].pub_key) {
+          if (edge.node1_pub == this.cbNodeOwners[nextIndex].pub_key || edge.node2_pub == this.cbNodeOwners[nextIndex].pub_key) {
             edge.order = key;
             this.channels.push(edge)
           }

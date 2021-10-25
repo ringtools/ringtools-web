@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { select, Store } from '@ngrx/store';
+import { firstValueFrom, Observable } from 'rxjs';
 import { CbNodeOwner } from '../model/cb_node_owner.model';
 import { RingParticipant } from '../model/ring_participant.model';
 import { RoutingPolicy } from '../model/routing_policy.model';
 import { RingDataService } from '../services/ring-data.service';
+import * as fromRoot from '../reducers';
+import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
 
 @Component({
   selector: 'app-watcher',
@@ -13,14 +16,21 @@ import { RingDataService } from '../services/ring-data.service';
 })
 export class WatcherComponent implements OnInit {
   viewMode: string;
-  segments: CbNodeOwner[];
-
+  segments: CbNodeOwner[] = [];
+  cbNodeOwners$: Observable<CbNodeOwner[]>
+  
   participants: RingParticipant[] = new Array<RingParticipant>();
 
   constructor(
-    public ringData: RingDataService
+    public ringData: RingDataService,
+    private store: Store<fromRoot.State>
+
   ) {
-    this.segments = ringData.getSegments();
+    this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
+
+    this.cbNodeOwners$.subscribe((data) => {
+      this.segments = data;
+    })
     this.viewMode = ringData.getViewMode();
     this.createParticipants();
 
@@ -33,12 +43,12 @@ export class WatcherComponent implements OnInit {
   }
 
   getSegments() {
-    return this.ringData.getSegments();
+    return this.segments;
   }
 
   getChartSegments() {
     if (!this.participants.length) {
-      return this.segments.map((val) => {
+      return this.getSegments().map((val) => {
         return { name: val.user_name, active: false }
       })
     }
@@ -65,15 +75,15 @@ export class WatcherComponent implements OnInit {
   }
 
   async createParticipants() {
-    for (let [i, node] of this.segments.entries()) {
-      let nextIndex = (i + 1) % this.segments.length;
+    for (let [i, node] of this.getSegments().entries()) {
+      let nextIndex = (i + 1) % this.getSegments().length;
       let p: RingParticipant = {
         initiator: await firstValueFrom(this.ringData.getNodeInfo(node.pub_key)),
-        receiver: await firstValueFrom(this.ringData.getNodeInfo(this.segments[nextIndex].pub_key))
+        receiver: await firstValueFrom(this.ringData.getNodeInfo(this.getSegments()[nextIndex].pub_key))
       };
 
-      p.channel_id = this.ringData.nodeHasChannelWith(node.pub_key, this.segments[nextIndex].pub_key);
-      let t = this.ringData.getChannelPolicies(node.pub_key, this.segments[nextIndex].pub_key);
+      p.channel_id = this.ringData.nodeHasChannelWith(node.pub_key, this.getSegments()[nextIndex].pub_key);
+      let t = this.ringData.getChannelPolicies(node.pub_key, this.getSegments()[nextIndex].pub_key);
 
       p.initiator_fee = t[0];
       p.receiver_fee =  t[1];

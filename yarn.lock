@@ -1398,6 +1398,39 @@
   dependencies:
     tslib "^2.1.0"
 
+"@ngrx/effects@^12.5.1":
+  version "12.5.1"
+  resolved "https://registry.yarnpkg.com/@ngrx/effects/-/effects-12.5.1.tgz#acd0ff86d8db514e47337508dde83cc98f7a3416"
+  integrity sha512-fVNGIIntYLRWW1XWe0os2XOv03L22S4WTkX0OPZ9O6ztwuaNq0yzxWN7UeAC6H385F+g0k76KwRV78zHyP0bfQ==
+  dependencies:
+    tslib "^2.0.0"
+
+"@ngrx/entity@^12.5.1":
+  version "12.5.1"
+  resolved "https://registry.yarnpkg.com/@ngrx/entity/-/entity-12.5.1.tgz#44924af7158b3506da01c09e8a3f9b909e1d7f4a"
+  integrity sha512-bjRMMe83onhrhxu5rJo+FhaS0gFY4HbMulSjUpuh0/LJckd0Z3QUDs+UcqYW/tjG/2o2rbNDxkws6w1D0c5ksA==
+  dependencies:
+    tslib "^2.0.0"
+
+"@ngrx/schematics@^12.5.1":
+  version "12.5.1"
+  resolved "https://registry.yarnpkg.com/@ngrx/schematics/-/schematics-12.5.1.tgz#4e7a883b5ba35d4de36d2272a5a35e2e9b981650"
+  integrity sha512-kXCMOAQrPU09ZrAtUtX4U6IE2B1jgx4qc1OjQUuJzmO2j2/wFfc8ec9IR8OpAEX4utE8/CFRWWAdI/VEkzBtYQ==
+
+"@ngrx/store-devtools@^12.5.1":
+  version "12.5.1"
+  resolved "https://registry.yarnpkg.com/@ngrx/store-devtools/-/store-devtools-12.5.1.tgz#75f8ef9a4bf4a40d5343ff437651f0f3092914b5"
+  integrity sha512-SXMxVO3KzQUfB9G20gdNT5t/RcbtbaUySXLuH+b69z/eb34wH9AOYifdSdcEi8oqPjDrWYBq6a8Uh+yDHf9IfA==
+  dependencies:
+    tslib "^2.0.0"
+
+"@ngrx/store@^12.5.1":
+  version "12.5.1"
+  resolved "https://registry.yarnpkg.com/@ngrx/store/-/store-12.5.1.tgz#a7c21d7df1d017d2cb7e77804b210cc14bcf8786"
+  integrity sha512-NLVkHLVeZc7IboXSDZlFoq1QrupmwYTYKRHS6se7ZasAv/lrIjHWsVVdICKSVRBsHZYu3+dmCXmu+YgulP7iHw==
+  dependencies:
+    tslib "^2.0.0"
+
 "@ngtools/webpack@12.2.10":
   version "12.2.10"
   resolved "https://registry.yarnpkg.com/@ngtools/webpack/-/webpack-12.2.10.tgz#38d4a5ee9cc39012e9ba2f987f6c1c07b132b19e"
