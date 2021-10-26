@@ -33,11 +33,6 @@ export class NavigationComponent implements OnInit {
     private store: Store<fromRoot.State>,
   ) {
     this.ringSettings$ = this.store.select(selectRingSettings);
-
-    // this.ringSettings$.subscribe((data) => {
-    //   this.ringSettings = data;
-    // })
-
   }
 
   ngOnInit(): void {

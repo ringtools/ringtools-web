@@ -7,15 +7,12 @@ import * as d3 from 'd3';
 import { Socket } from 'ngx-socket-io';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { select, Store } from '@ngrx/store';
+import { Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
-import { addCbNodeOwner, addCbNodeOwners, clearCbNodeOwners, loadCbNodeOwners } from '../actions/cb-node-owner.actions';
-import { selectAllNodeInfo, selectAllNodeInfoPubkey } from '../reducers/node-info.reducer';
-import { selectAllCbNodeOwners } from '../reducers/cb-node-owner.reducer';
+import { loadCbNodeOwners } from '../actions/cb-node-owner.actions';
 import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
 import { upsertNodeInfo } from '../actions/node-info.actions';
 import { upsertChannel } from '../actions/channel.actions';
-import { selectNodeInfos } from '../selectors/node-info.selectors';
 import { selectSettings } from '../selectors/setting.selectors';
 import { SettingState } from '../reducers/setting.reducer';
 import { setRingName, setViewMode } from '../actions/setting.actions';
@@ -47,7 +44,6 @@ export class RingDataService {
     private http: HttpClient,
     private socket: Socket,
     private store: Store<fromRoot.State>
-
   ) {
 
     this.store.select(selectCbNodeOwners).subscribe((res) => {
@@ -115,11 +111,6 @@ export class RingDataService {
     this._channelUpdate.next([n1, n2]);
   }
 
-  // populateTgMap() {
-  //   for (let node of this.getSegments()) {
-  //     this.nodeToTgMap.set(node.pub_key, node.user_name);
-  //   }
-  // }
 
   repopulate() {
     this.channels = [];
@@ -132,10 +123,7 @@ export class RingDataService {
     })
 
     this.socket.emit("subscribe_pubkey", { data: pubkeys })
-
   }
-
-
 
   setSegments(segments: any) {
     this.store.dispatch(loadCbNodeOwners(segments));

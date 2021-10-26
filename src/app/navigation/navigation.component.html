@@ -1,6 +1,5 @@
 <nav class="navbar fixed-top navbar-light bg-light navbar-expand-lg ">
     <div class="container-fluid">
-
         <a class="navbar-brand" href="#">SR RoF webtools</a>
         <div class="container-fluid">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01"
@@ -18,14 +17,12 @@
                 </ul>
             </div>
         </div>
-      
-            <div ngbDropdown class="d-inline-block">
-                <button class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle>{{ getRingName() }}</button>
-                <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-                  <button ngbDropdownItem *ngFor="let item of ringSettings$ | async" (click)="loadSettings(item)">{{ item.cleanRingName }}</button>
-                </div>
-              </div>
-            
-      
+        <div ngbDropdown class="d-inline-block">
+            <button class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle>{{ getRingName() }}</button>
+            <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                <button ngbDropdownItem *ngFor="let item of ringSettings$ | async" (click)="loadSettings(item)">{{
+                    item.cleanRingName }}</button>
+            </div>
+        </div>
     </div>
 </nav>

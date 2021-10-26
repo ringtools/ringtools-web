@@ -29,26 +29,26 @@ export class CbNodeOwnerEffects {
   // ), { dispatch: false })
 
 
-  afterNodeUpdate = createEffect(() => this.actions$.pipe(
-    ofType(upsertNodeInfo),
-    tap(action => {
-      console.log(action);
-    })
-  ), { dispatch: false })
+  // afterNodeUpdate = createEffect(() => this.actions$.pipe(
+  //   ofType(upsertNodeInfo),
+  //   tap(action => {
+  //     console.log(action);
+  //   })
+  // ), { dispatch: false })
 
-  afterChannelUpdate = createEffect(() => this.actions$.pipe(
-    ofType(upsertChannel),
-    tap(action => {
-      console.log(action);
-    })
-  ), { dispatch: false })
+  // afterChannelUpdate = createEffect(() => this.actions$.pipe(
+  //   ofType(upsertChannel),
+  //   tap(action => {
+  //     console.log(action);
+  //   })
+  // ), { dispatch: false })
 
-  afterRingSetting = createEffect(() => this.actions$.pipe(
-    ofType(upsertRingSetting),
-    tap(action => {
-      console.log(action);
-    })
-  ), { dispatch: false })
+  // afterRingSetting = createEffect(() => this.actions$.pipe(
+  //   ofType(upsertRingSetting),
+  //   tap(action => {
+  //     console.log(action);
+  //   })
+  // ), { dispatch: false })
 
   constructor(
     private actions$: Actions,

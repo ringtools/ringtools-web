@@ -27,7 +27,6 @@ export class DesignComponent implements OnInit, OnDestroy {
   allNodes = [];
   allEdges = [];
   selectedNode = '';
-//  segments: any[] = [];
   segments: CbNodeOwner[] = [];
   cbNodeOwners$: Observable<CbNodeOwner[]>;
   newSegments: any[] = [];
@@ -158,13 +157,6 @@ export class DesignComponent implements OnInit, OnDestroy {
     console.log('auto design start');
     let unconnectedSegments = this.segments.map((val) => val.pub_key);
 
-    // let newEdges = this.edges.map((val) => {
-    //   val.hidden = true;
-    //   return val;
-    // });
-
-    // console.log(newEdges);
-
     this.edges.clear();
 
     let newSegments:any[] = [];
@@ -189,7 +181,6 @@ export class DesignComponent implements OnInit, OnDestroy {
         nextNode = unconnectedSegments[nextIndex]
 
       } else if (unconnectedSegments.length == 2) {
-    //    console.log("LAST", currentNode, nextNode, firstNode, unconnectedSegments.length);
         nextNode = unconnectedSegments[0]
       } else {
         nextNode = firstNode;
@@ -216,24 +207,9 @@ export class DesignComponent implements OnInit, OnDestroy {
 
     this.ringData.setSegments(newMap);
     this.segments = newMap;
-    // for (let [i, node] of segments.entries()) {
-    //  // console.log(i,node);
-    //   let nextIndex = (i + 1) % segments.length;
-
-    //   let c = " ";
-
-    //   while (c) {
-    //     c = this.ringData.nodeHasChannelWith(node, segments[nextIndex]);
-    //     nextIndex = (nextIndex + 1) % segments.length
-    //   }
-
-    //   this.edges.add({ from: node, to: segments[nextIndex] });
-
-
-    //      this.newSegments.push(node);
-    //   console.log(node, );
   }
 
+  /* @TODO: Implemnent graph export, right-click save should work as well */
   exportGraph() {
     //this.visNetworkService.vis
   }

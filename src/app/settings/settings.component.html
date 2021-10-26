@@ -11,7 +11,7 @@
                 <div class="form-group">
                     <label for="pubkeys">Import groupnodes from 🧀 CheeseRobot ₿</label>
                     <textarea class="form-control" id="pubkeys" rows="3" [(ngModel)]="pubkeysText"
-                        [ngModelOptions]="{standalone: true}" spellcheck="false" ></textarea>
+                        [ngModelOptions]="{standalone: true}" spellcheck="false"></textarea>
                     <button (click)="processGroupnodes()" class="btn btn-primary mb-2">Import Groupnodes</button>
                 </div>
             </form>
@@ -38,23 +38,21 @@
                 </tbody>
             </table>
             <button (click)="saveRingSettings()" class="btn btn-primary mb-2">Save Ring Settings</button>
-
             <h3>Saved Rings</h3>
             <ul class="list-group">
-                <li class="list-group-item d-flex justify-content-between align-items-center"  *ngFor="let item of ringSettings$ | async">
-                  {{ item.cleanRingName }}
-                  <div class="btn-group btn-small small btn-group-toggle" ngbRadioGroup
-                    >
-                    <label ngbButtonLabel class="btn-success btn-sm">
-                        <input ngbButton type="radio" value="node" (click)="loadSettings(item)"> Load
-                    </label>
-                    <label ngbButtonLabel class="btn-danger btn-sm">
-                        <input ngbButton type="radio" value="tg" (click)="removeSettings(item)"> Remove
-                    </label>
-                </div>
+                <li class="list-group-item d-flex justify-content-between align-items-center"
+                    *ngFor="let item of ringSettings$ | async">
+                    {{ item.cleanRingName }}
+                    <div class="btn-group btn-small small btn-group-toggle" ngbRadioGroup>
+                        <label ngbButtonLabel class="btn-success btn-sm">
+                            <input ngbButton type="radio" value="node" (click)="loadSettings(item)"> Load
+                        </label>
+                        <label ngbButtonLabel class="btn-danger btn-sm">
+                            <input ngbButton type="radio" value="tg" (click)="removeSettings(item)"> Remove
+                        </label>
+                    </div>
                 </li>
-                
-              </ul>
+            </ul>
         </div>
     </div>
 </div>

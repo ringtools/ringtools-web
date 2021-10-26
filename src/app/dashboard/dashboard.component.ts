@@ -19,10 +19,8 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  viewChange(event:any) {
-    this.ringData.setViewMode(event);
-  }
 
+  /* @TODO: Move to service and add igniter.sh generation */
   downloadChannelsTxt() {
     let data = '';
     

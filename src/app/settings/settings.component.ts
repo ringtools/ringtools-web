@@ -8,7 +8,7 @@ import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
 import { Observable } from 'rxjs';
 import { loadCbNodeOwners } from '../actions/cb-node-owner.actions';
 import { RingSetting } from '../model/ring-setting.model';
-import { addRingSetting, deleteRingSetting, removeRingSetting, upsertRingSetting } from '../actions/ring-setting.actions';
+import { removeRingSetting, upsertRingSetting } from '../actions/ring-setting.actions';
 import { selectRingSettings } from '../selectors/ring-setting.selectors';
 
 @Component({
@@ -63,11 +63,7 @@ export class SettingsComponent implements OnInit {
 
   processGroupnodes() {
     let segments = this.ringData.parseCsvToType(this.pubkeysText);
-
     this.store.dispatch(loadCbNodeOwners(segments))
-
-    //this.ringData.setSegments(segments);
-    // this.ringData.repopulate();
   }
 
   processRingname() {
@@ -83,9 +79,7 @@ export class SettingsComponent implements OnInit {
         cleanRingName: this.ringData.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '').substr(1),
         id: this.ringData.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '').substr(1)
       }
-
       this.store.dispatch(upsertRingSetting({ ringSetting: ringSettings }))
-
     }
   }
 

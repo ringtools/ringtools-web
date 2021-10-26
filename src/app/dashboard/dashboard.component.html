@@ -1,24 +1,11 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-6">
-            
+            Welcome to Ringtools Web. Although there is quite some nice functionality, it is not without issues.
+            Please report them on GitHub if you encounter them, enjoy!
         </div>
-
-        <div class="col-md-6 participants">
-            <h2>Ring participants
-                <div class="btn-group btn-small small btn-group-toggle" ngbRadioGroup name="names" [(ngModel)]="viewMode" (ngModelChange)="viewChange($event)"> 
-                    <label ngbButtonLabel class="btn-primary btn-sm">
-                      <input ngbButton type="radio" value="node"> Nodename
-                    </label>
-                    <label ngbButtonLabel class="btn-primary btn-sm">
-                      <input ngbButton type="radio" value="tg"> TG username
-                    </label>
-                  </div>
-            </h2>
-            
-            <app-stats-table></app-stats-table>
-
-        <a href="#">Download igniter.sh</a> | <a [href]="fileUrl" download="channels.txt" (click)="downloadChannelsTxt()">Download channels.txt</a>
+        <div class="col-md-6">
+        <a [href]="fileUrl" download="channels.txt" (click)="downloadChannelsTxt()">Download channels.txt</a>
     </div>
     </div>
 </div>

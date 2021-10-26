@@ -68,7 +68,6 @@ export class RofCircleComponent implements OnInit, OnChanges {
     this.addSlicesToTheDonut();
     this.addLabelsToTheDonut();
     this.addCenterLabel();
-    //    this.addDonutTotalLabel();
   }
 
   public updateChart(data: any[]) {
@@ -78,24 +77,19 @@ export class RofCircleComponent implements OnInit, OnChanges {
     }
 
     this.processPieData(data, false);
-//    this.addSlicesToTheDonut();
     this.updateState();
-//    this.removeSlices();
- //   this.updateLabels();
   }
 
   private updateState() {
     this.g.selectAll('path')
       .data(this.pie(this.pieData))
       .style("opacity", (d) => {
-//        console.log(d.data)
         if (!d.data.data.active)
           return 0.25;
         return 1;
         
       })
       .style("stroke-width", (d) => {
-        //        console.log(d.data)
                 if (!d.data.data.active)
                   return 1;
                 return 0;
@@ -255,15 +249,6 @@ export class RofCircleComponent implements OnInit, OnChanges {
       .style("fill", "#ffffff")
       .attr("xlink:href", function (d, i) { return "#donutArc" + i; })
       .text(function (d) { return d.data.name; });
-    // .enter()
-    // .append('text')
-    // .text(this.labelValueGetter)
-    // .attr('transform', (datum: any, index: any) => {
-    //   return 'translate(' + this.arc.centroid(datum) + ')';
-    // })
-    // .style('font-size', '8px')
-    // .style('text-anchor', 'middle');
-
   }
 
   private removeExistingChartFromParent() {
