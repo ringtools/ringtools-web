@@ -80,8 +80,10 @@ export class DesignComponent implements OnInit, OnDestroy {
 
   buildNodes() {
     for (let node of this.segments) {
-      this.ringData.getNodeInfo(node.pub_key).subscribe((data: any) => {
-
+      let data = this.ringData.getNodeInfo(node.pub_key)
+      if (!data)
+        break;
+        
         this.nodes.add({
           id: data.node.pub_key,
           color: data.node.color,
@@ -101,15 +103,16 @@ export class DesignComponent implements OnInit, OnDestroy {
             if (!edge.node1_policy || !edge.node2_policy) {
               e.label = "no info";
               e.color = "#ffcc00";
-            } else if (edge.node1_policy.disabled == "true" || edge.node2_policy.disabled == "true") {
-              e.label = "disabled: true";
-              e.color = "#ff0000";
-            }
+            } 
+            // else if (edge.node1_policy.disabled == "true" || edge.node2_policy.disabled == "true") {
+            //   e.label = "disabled: true";
+            //   e.color = "#ff0000";
+            // }
 
             this.edges.add(e);
           }
         }
-      });
+      
     }
   }
 
@@ -170,7 +173,7 @@ export class DesignComponent implements OnInit, OnDestroy {
     while (unconnectedSegments && overflow < (this.segments.length )) {
       let nextIndex = 0;
       let currentNode = nextNode;
-      let c:String|null = " ";
+      let c:number|null = null;
 
       if (unconnectedSegments.length > 2) {
 

@@ -21,7 +21,7 @@ export function sortByUserName(a: CbNodeOwner, b: CbNodeOwner): number {
 
 export const adapter: EntityAdapter<CbNodeOwner> = createEntityAdapter<CbNodeOwner>({
   selectId: selectCbNodeOwner,
-  sortComparer: sortByUserName,
+//  sortComparer: sortByUserName,
 });
 
 export const initialState: CbNodeOwnerState = adapter.getInitialState({
@@ -65,5 +65,6 @@ const {
   selectAll,
   selectTotal,
 } = adapter.getSelectors();
+
 
 export const selectAllCbNodeOwners = selectAll;

@@ -6,6 +6,7 @@ import { select, Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
 import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
 import { Observable } from 'rxjs';
+import { loadCbNodeOwners } from '../actions/cb-node-owner.actions';
 
 @Component({
   selector: 'app-settings',
@@ -51,8 +52,11 @@ export class SettingsComponent implements OnInit {
 
   processGroupnodes() {
     let segments = this.ringData.parseCsvToType(this.pubkeysText);
-    this.ringData.setSegments(segments);
-    this.ringData.repopulate();
+
+    this.store.dispatch(loadCbNodeOwners(segments))
+
+    //this.ringData.setSegments(segments);
+   // this.ringData.repopulate();
   }
 
   processRingname() {

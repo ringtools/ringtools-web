@@ -23,6 +23,7 @@ import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { reducers, metaReducers } from './reducers';
+import { CbNodeOwnerEffects } from './effects/cb-node-owner.effects';
 
 const config: SocketIoConfig = { 
   url: environment.WS_ENDPOINT ? environment.WS_ENDPOINT : "", 
@@ -55,7 +56,9 @@ const config: SocketIoConfig = {
     NgChartsModule,
     DragulaModule.forRoot(),
     SocketIoModule.forRoot(config),
-    EffectsModule.forRoot([]),
+    EffectsModule.forRoot([
+      CbNodeOwnerEffects
+    ]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
     StoreModule.forRoot(reducers, { metaReducers }),
     !environment.production ? StoreDevtoolsModule.instrument() : []

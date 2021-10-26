@@ -32,8 +32,8 @@
                     <ng-container *ngFor="let item of getParticipants(); let i = index">
                         <tr [class.error]="item.channel_id && (!item.initiator_fee || !item.receiver_fee)">
                             <th scope="row" [style.background-color]="getColor(i)">{{ item.channel_id }}</th>
-                            <td>{{ item.initiator.node.alias }}</td>
-                            <td>{{ item.receiver.node.alias }}</td>         
+                            <td *ngIf="item.initiator">{{ item.initiator?.node?.alias }}</td>
+                            <td *ngIf="item.receiver">{{ item.receiver?.node?.alias }}</td>         
                             <td *ngIf="item.initiator_fee">{{ item.initiator_fee.fee_base_msat }}</td>
                             <td *ngIf="item.initiator_fee">{{ item.initiator_fee.fee_rate_milli_msat }}</td>
                             <td *ngIf="item.receiver_fee">{{ item.receiver_fee.fee_base_msat }}</td>
@@ -42,6 +42,10 @@
                     </ng-container>
                 </tbody>
             </table>
+            <button (click)="createParticipants()">Refresh</button>
+            <button (click)="upsertPolicy()">Upsert Policy</button>
+
+            <pre>{{ ndata | json }}</pre>
     </div>
     </div>
 </div>

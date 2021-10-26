@@ -1,16 +1,16 @@
 import { RoutingPolicy } from "./routing_policy.model";
 
-export type ChannelEdge  = {
-    channel_id: number
-    chan_point: string
+export class ChannelEdge {
+    channel_id!: number;
+    chan_point!: string;
 
-    last_update: number
+    last_update!: number;
 
-    node1_pub: string
-    node2_pub: string
+    node1_pub!: string;
+    node2_pub!: string;
 
-    capacity: number
+    capacity!: number;
 
-    node1_policy: RoutingPolicy
-    node2_policy: RoutingPolicy
+    node1_policy!: RoutingPolicy;
+    node2_policy!: RoutingPolicy;
 }

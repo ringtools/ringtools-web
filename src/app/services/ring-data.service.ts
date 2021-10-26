@@ -8,9 +8,15 @@ import * as d3 from 'd3';
 import { Socket } from 'ngx-socket-io';
 import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Store } from '@ngrx/store';
+import { select, Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
 import { addCbNodeOwner, addCbNodeOwners, clearCbNodeOwners, loadCbNodeOwners } from '../actions/cb-node-owner.actions';
+import { selectAllNodeInfo, selectAllNodeInfoPubkey } from '../reducers/node-info.reducer';
+import { selectAllCbNodeOwners } from '../reducers/cb-node-owner.reducer';
+import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
+import { upsertNodeInfo } from '../actions/node-info.actions';
+import { upsertChannel } from '../actions/channel.actions';
+import { selectNodeInfos } from '../selectors/node-info.selectors';
 
 @Injectable({
   providedIn: 'root'
@@ -18,16 +24,16 @@ import { addCbNodeOwner, addCbNodeOwners, clearCbNodeOwners, loadCbNodeOwners } 
 export class RingDataService {
   ringName = "#SRROF_500Ksats_8thRING"
 
-  cbNodeOwners:CbNodeOwner[] = [];
+  cbNodeOwners: CbNodeOwner[] = [];
 
   private _channelUpdate = new Subject();
   channelUpdate$ = this._channelUpdate.asObservable();
-  
-  nodeNames:Map<string, string> = new Map<string,string>();
-  nodeToTgMap:Map<string, string> = new Map<string,string>();
-  nodeInfo:Map<string,any> = new Map<string,any>();
 
-  channels:any = [];
+  nodeNames: Map<string, string> = new Map<string, string>();
+  nodeToTgMap: Map<string, string> = new Map<string, string>();
+  nodeInfo: Map<string, NodeInfo|undefined> = new Map<string, NodeInfo|undefined>();
+
+  channels: any = [];
 
   viewMode = 'tg';
   colorScale!: any; // D3 color provider
@@ -38,24 +44,37 @@ export class RingDataService {
     private socket: Socket,
     private store: Store<fromRoot.State>
 
-  ) { 
+  ) {
     this.cbNodeOwners = this.parseCsvToType(initialring);
 
     this.store.dispatch(loadCbNodeOwners(this.cbNodeOwners));
 
-    //this.populateTgMap();
-    this.populateChannels();
-    
-    let pubkeys = this.cbNodeOwners.map((val) => {
-      return val.pub_key;
+    this.store.select(selectCbNodeOwners).subscribe((res) => {
+      let pubkeys = res.map((val) => {
+        return val.pub_key;
+      })
+      this.socket.emit("subscribe_pubkey", { data: pubkeys })
     })
 
-    this.socket.emit("subscribe_pubkey", { data: pubkeys })
+    // this.store.select(selectNodeInfos).subscribe((res) => {
+    //   console.log('node', res)
+    // });
 
-    this.socket.on("pubkey", (data) => {
+    // this.store.select(selectAllCbNodeOwners).subscribe((cb) => {
+    //   console.log('cb', cb);
+    // })
+
+    //this.populateTgMap();
+    //    this.populateChannels();
+
+    this.socket.on("pubkey", (data:NodeInfo) => {
+      this.store.dispatch(upsertNodeInfo({ nodeInfo: data }));
+
       this.nodeInfo.set(data.node.pub_key, data);
     });
     this.socket.on("channel", (data) => {
+      this.store.dispatch(upsertChannel({ channel: data }));
+
       this.updateChannel(data);
     });
 
@@ -70,21 +89,23 @@ export class RingDataService {
   updateChannel(channelData) {
     let n1 = this.nodeInfo.get(channelData.node1_pub);
 
-    let n1Channels = n1.channels.filter((data) => {
+    let n1Channels = n1?.channels.filter((data) => {
       return data.channel_id != channelData.channel_id
     })
 
     let n2 = this.nodeInfo.get(channelData.node2_pub);
 
-    let n2Channels = n2.channels.filter((data) => {
+    let n2Channels = n2?.channels.filter((data) => {
       return data.channel_id != channelData.channel_id
     })
 
-    n1.channels.push(channelData);
-    n2.channels.push(channelData);
+    n1?.channels.push(channelData);
+    n2?.channels.push(channelData);
 
-    this.nodeInfo.set(n1.node.pub_key, n1);
-    this.nodeInfo.set(n2.node.pub_key, n2);
+    if (n1)
+      this.nodeInfo.set(n1.node.pub_key, n1);
+    if (n2)
+      this.nodeInfo.set(n2.node.pub_key, n2);
 
     this._channelUpdate.next([n1, n2]);
   }
@@ -101,7 +122,7 @@ export class RingDataService {
 
   repopulate() {
     this.channels = [];
-  //  this.populateTgMap();
+    //  this.populateTgMap();
     this.populateChannels();
 
     this.socket.emit("unsubscribe_all")
@@ -118,9 +139,10 @@ export class RingDataService {
   //   return this.segments;
   // }
 
-  setSegments(segments:any) {
-//    console.log(set segments)
-  //  this.store.dispatch(clearCbNodeOwners());
+  setSegments(segments: any) {
+    //    console.log(set segments)
+    //  this.store.dispatch(clearCbNodeOwners());
+    console.log(segments);
     this.store.dispatch(loadCbNodeOwners(segments));
   }
 
@@ -140,47 +162,52 @@ export class RingDataService {
     this.ringName = ringName;
   }
 
-  getNodeInfo(pubkey: string) {
+  getNodeInfoApi(pubkey: string) {
     return this.http.get<NodeInfo>(`${environment.REST_ENDPOINT}/node/${pubkey}`);
   }
 
-  // getNode(pubkey: string) {
-  //   this.getNodeInfo(pubkey).
-  // }
+  getNodeInfo(pubkey: string) {
+    return this.nodeInfo.get(pubkey);
+  }
 
   getCachedNodeInfo(pubkey: string) {
     return this.nodeInfo.get(pubkey);
   }
 
-  nodeHasChannelWith(pubkey:string, channelWith:string) {
+  nodeHasChannelWith(pubkey: string, channelWith: string) {
     let n = this.nodeInfo.get(pubkey);
-    let ret = null;
-    for (let edge of n.channels) {
-      if (edge.node1_pub == channelWith || edge.node2_pub == channelWith) {
-        ret = edge.channel_id;
+    let ret:number|null = null;
+
+    if (n) {
+      for (let edge of n.channels) {
+        if (edge.node1_pub == channelWith || edge.node2_pub == channelWith) {
+          ret = edge.channel_id;
+        }
       }
     }
-    
+
     return ret;
   }
 
-  getChannelPolicies(pubkey:string, channelWith:string) {
+  getChannelPolicies(pubkey: string, channelWith: string) {
     let n = this.nodeInfo.get(pubkey);
-    let ret:[RoutingPolicy,RoutingPolicy] | [undefined, undefined] = [undefined, undefined];
-    for (let edge of n.channels) {
-      if (edge.node1_pub == channelWith) {
-        ret = [edge.node2_policy, edge.node1_policy]
-      } else if (edge.node2_pub == channelWith) {
-        ret = [edge.node1_policy, edge.node2_policy]
+    let ret: [RoutingPolicy, RoutingPolicy] | [undefined, undefined] = [undefined, undefined];
+    if (n) {
+      for (let edge of n.channels) {
+        if (edge.node1_pub == channelWith) {
+          ret = [edge.node2_policy, edge.node1_policy]
+        } else if (edge.node2_pub == channelWith) {
+          ret = [edge.node1_policy, edge.node2_policy]
+        }
       }
     }
-    
+
     return ret;
   }
 
   populateChannels() {
     for (let [key, node] of this.cbNodeOwners.entries()) {
-      this.getNodeInfo(node.pub_key).subscribe((data: any) => {
+      let data = this.getNodeInfo(node.pub_key);
         if (!data)
           return;
         this.nodeNames.set(node.pub_key, data.node.alias);
@@ -191,11 +218,11 @@ export class RingDataService {
           let nextIndex = (key + 1) % this.cbNodeOwners.length;
 
           if (edge.node1_pub == this.cbNodeOwners[nextIndex].pub_key || edge.node2_pub == this.cbNodeOwners[nextIndex].pub_key) {
-            edge.order = key;
+//            edge.order = key;
             this.channels.push(edge)
           }
         }
-      })
+      
     };
   }
 
@@ -203,9 +230,9 @@ export class RingDataService {
    * CSV
    * @returns 
    */
-  parseCsvToType(contents:string) {
+  parseCsvToType(contents: string) {
     let segmentLines = contents.split('\n');
-    let segments:CbNodeOwner[] = [];
+    let segments: CbNodeOwner[] = [];
     for (let line of segmentLines.slice(1)) {
       let parts = line.split(',');
       if (parts.length > 1) {
@@ -231,16 +258,16 @@ export class RingDataService {
    * Get channels in correct order
    */
   getChannels() {
-    return this.channels.sort((first:any, second:any) => {
+    return this.channels.sort((first: any, second: any) => {
       return first.order < second.order;
     });
   }
 
-  getTgUserByPubkey(pubkey:string) {
+  getTgUserByPubkey(pubkey: string) {
     return this.nodeToTgMap.get(pubkey);
   }
 
-  getAliasByPubkey(pubkey:string) {
+  getAliasByPubkey(pubkey: string) {
     return this.nodeNames.get(pubkey);
   }
 }
