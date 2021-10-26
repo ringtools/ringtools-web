@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NodeInfo } from '../model/node_info.model';
 import { RoutingPolicy } from '../model/routing_policy.model';
-import initialring from '../data/initialring.txt';
 import { CbNodeOwner } from '../model/cb_node_owner.model';
 import * as d3 from 'd3';
 import { Socket } from 'ngx-socket-io';
@@ -17,6 +16,10 @@ import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
 import { upsertNodeInfo } from '../actions/node-info.actions';
 import { upsertChannel } from '../actions/channel.actions';
 import { selectNodeInfos } from '../selectors/node-info.selectors';
+import { selectSettings } from '../selectors/setting.selectors';
+import { SettingState } from '../reducers/setting.reducer';
+import { setRingName, setViewMode } from '../actions/setting.actions';
+import { RingSetting } from '../model/ring-setting.model';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +39,7 @@ export class RingDataService {
   channels: any = [];
 
   viewMode = 'tg';
+  settings!: SettingState;
   colorScale!: any; // D3 color provider
 
 
@@ -45,9 +49,6 @@ export class RingDataService {
     private store: Store<fromRoot.State>
 
   ) {
-    //    this.cbNodeOwners = this.parseCsvToType(initialring);
-
-//    this.store.dispatch(loadCbNodeOwners(this.cbNodeOwners));
 
     this.store.select(selectCbNodeOwners).subscribe((res) => {
       let pubkeys = res.map((val) => {
@@ -55,6 +56,10 @@ export class RingDataService {
       })
       this.socket.emit("subscribe_pubkey", { data: pubkeys })
     })
+
+    this.store.select(selectSettings).subscribe((settings) => {
+      this.settings = settings;
+    });
 
     // this.store.select(selectNodeInfos).subscribe((res) => {
     //   console.log('node', res)
@@ -110,10 +115,6 @@ export class RingDataService {
     this._channelUpdate.next([n1, n2]);
   }
 
-  // registerChannelUpdateListener(cb) {
-  //   this.channelUpdateCallbacks.push(cb);
-  // }
-
   // populateTgMap() {
   //   for (let node of this.getSegments()) {
   //     this.nodeToTgMap.set(node.pub_key, node.user_name);
@@ -122,7 +123,6 @@ export class RingDataService {
 
   repopulate() {
     this.channels = [];
-    //  this.populateTgMap();
     this.populateChannels();
 
     this.socket.emit("unsubscribe_all")
@@ -135,31 +135,26 @@ export class RingDataService {
 
   }
 
-  // getSegments() {
-  //   return this.segments;
-  // }
+
 
   setSegments(segments: any) {
-    //    console.log(set segments)
-    //  this.store.dispatch(clearCbNodeOwners());
-    console.log(segments);
     this.store.dispatch(loadCbNodeOwners(segments));
   }
 
   setViewMode(viewMode: string) {
-    this.viewMode = viewMode;
+    this.store.dispatch(setViewMode(viewMode));
   }
 
   getViewMode() {
-    return this.viewMode;
+    return this.settings.viewMode;
   }
 
   getRingName() {
-    return this.ringName;
+    return this.settings.ringName;
   }
 
   setRingName(ringName: string) {
-    this.ringName = ringName;
+    this.store.dispatch(setRingName(ringName));
   }
 
   getNodeInfoApi(pubkey: string) {
@@ -218,7 +213,6 @@ export class RingDataService {
           let nextIndex = (key + 1) % this.cbNodeOwners.length;
 
           if (edge.node1_pub == this.cbNodeOwners[nextIndex].pub_key || edge.node2_pub == this.cbNodeOwners[nextIndex].pub_key) {
-//            edge.order = key;
             this.channels.push(edge)
           }
         }
@@ -269,5 +263,10 @@ export class RingDataService {
 
   getAliasByPubkey(pubkey: string) {
     return this.nodeNames.get(pubkey);
+  }
+
+  loadSettings(item: RingSetting) {
+    this.setRingName(item.ringName);
+    this.store.dispatch(loadCbNodeOwners(item.ringParticipants))
   }
 }

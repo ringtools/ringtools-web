@@ -34,13 +34,6 @@ const config: SocketIoConfig = {
   }  
 };
 
-
-export function localStorageSyncReducer(reducer: ActionReducer<any>): ActionReducer<any> {
-  return localStorageSync({keys: ['todos']})(reducer);
-}
-
-
-
 @NgModule({
   declarations: [
     AppComponent,

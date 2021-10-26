@@ -6,16 +6,17 @@
 
         <div class="col-md-8 participants">
             <h2>Ring participants
-                <div class="btn-group btn-small small btn-group-toggle" ngbRadioGroup name="names" [(ngModel)]="viewMode" (ngModelChange)="viewChange($event)"> 
+                <div class="btn-group btn-small small btn-group-toggle" ngbRadioGroup name="names"
+                    [(ngModel)]="viewMode" (ngModelChange)="viewChange($event)">
                     <label ngbButtonLabel class="btn-primary btn-sm">
-                      <input ngbButton type="radio" value="node"> Nodename
+                        <input ngbButton type="radio" value="node"> Nodename
                     </label>
                     <label ngbButtonLabel class="btn-primary btn-sm">
-                      <input ngbButton type="radio" value="tg"> TG username
+                        <input ngbButton type="radio" value="tg"> TG username
                     </label>
-                  </div>
+                </div>
             </h2>
-            
+
             <table class="table table-sm table-striped small">
                 <thead>
                     <tr>
@@ -38,20 +39,21 @@
                             </ng-template>
                             <ng-template #elseBlock>
                                 <td *ngIf="item.initiator">{{ item.initiator?.node?.alias }}</td>
-                                <td *ngIf="item.receiver">{{ item.receiver?.node?.alias }}</td> 
-                            </ng-template>       
-                            <td *ngIf="item.initiator_fee">{{ item.initiator_fee.fee_base_msat }}</td>
-                            <td *ngIf="item.initiator_fee">{{ item.initiator_fee.fee_rate_milli_msat }}</td>
-                            <td *ngIf="item.receiver_fee">{{ item.receiver_fee.fee_base_msat }}</td>
-                            <td *ngIf="item.receiver_fee">{{ item.receiver_fee.fee_rate_milli_msat }}</td>
+                                <td *ngIf="item.receiver">{{ item.receiver?.node?.alias }}</td>
+                            </ng-template>
+                            <td><span *ngIf="item.initiator_fee">{{ item.initiator_fee.fee_base_msat }}</span></td>
+                            <td><span *ngIf="item.initiator_fee">{{ item.initiator_fee.fee_rate_milli_msat }}</span>
+                            </td>
+                            <td><span *ngIf="item.receiver_fee">{{ item.receiver_fee.fee_base_msat }}</span></td>
+                            <td><span *ngIf="item.receiver_fee">{{ item.receiver_fee.fee_rate_milli_msat }}</span></td>
                         </tr>
                     </ng-container>
                 </tbody>
             </table>
-            <button (click)="createParticipants()">Refresh</button>
+            <!--<button (click)="createParticipants()">Refresh</button>
             <button (click)="upsertPolicy()">Upsert Policy</button>
 
-            <pre>{{ ndata | json }}</pre>
-    </div>
+            <pre>{{ ndata | json }}</pre>-->
+        </div>
     </div>
 </div>

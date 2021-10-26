@@ -10,7 +10,8 @@ import { environment } from '../../environments/environment';
 import { cbNodeOwnerFeatureKey, cbNodeReducer } from './cb-node-owner.reducer';
 import { channelReducer } from './channel.reducer';
 import { nodeInfoReducer } from './node-info.reducer';
-
+import { ringSettingReducer, ringSettingsFeatureKey } from './ring-setting.reducer';
+import { settingFeatureKey, settingReducer } from './setting.reducer';
 
 export interface State {
 
@@ -19,13 +20,15 @@ export interface State {
 export const reducers: ActionReducerMap<State> = {
   cbNodeOwner: cbNodeReducer,
   channel: channelReducer,
-  nodeInfo: nodeInfoReducer
+  nodeInfo: nodeInfoReducer,
+  ringSettings: ringSettingReducer,
+  setting: settingReducer
 };
 
 export function localStorageSyncReducer(reducer: ActionReducer<any>): ActionReducer<any> {
   return localStorageSync(
     {
-      keys: [cbNodeOwnerFeatureKey],
+      keys: [ringSettingsFeatureKey, cbNodeOwnerFeatureKey, settingFeatureKey],
       rehydrate: true
     })(reducer);
 }

@@ -7,6 +7,9 @@ import * as fromRoot from '../reducers';
 import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
 import { Observable } from 'rxjs';
 import { loadCbNodeOwners } from '../actions/cb-node-owner.actions';
+import { RingSetting } from '../model/ring-setting.model';
+import { addRingSetting, deleteRingSetting, removeRingSetting, upsertRingSetting } from '../actions/ring-setting.actions';
+import { selectRingSettings } from '../selectors/ring-setting.selectors';
 
 @Component({
   selector: 'app-settings',
@@ -15,22 +18,30 @@ import { loadCbNodeOwners } from '../actions/cb-node-owner.actions';
 })
 export class SettingsComponent implements OnInit {
   segments: CbNodeOwner[] | undefined;
-  pubkeysText:any = '';
-  ringName:any = '';
+  pubkeysText: any = '';
+  ringName: any = '';
   cbNodeOwners$: Observable<CbNodeOwner[]>;
+  ringSettings$: Observable<RingSetting[]>;
+  ringSettings: RingSetting[] = [];
 
   constructor(
     public ringData: RingDataService,
     private store: Store<fromRoot.State>
   ) {
+    this.ringSettings$ = this.store.select(selectRingSettings);
+
+    this.ringSettings$.subscribe((data) => {
+      this.ringSettings = data;
+    })
+
     this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
-    
+
     this.cbNodeOwners$.subscribe((data) => {
       this.segments = data;
     })
     this.pubkeysText = ringInfo;
     this.ringName = ringData.getRingName();
-   }
+  }
 
   ngOnInit(): void {
   }
@@ -41,7 +52,7 @@ export class SettingsComponent implements OnInit {
 
   processPubkeys() {
     let segmentLines = this.pubkeysText.split('\n');
-    let segments:any = [];
+    let segments: any = [];
     for (let line of segmentLines) {
       segments.push(line.split(','));
     }
@@ -56,11 +67,33 @@ export class SettingsComponent implements OnInit {
     this.store.dispatch(loadCbNodeOwners(segments))
 
     //this.ringData.setSegments(segments);
-   // this.ringData.repopulate();
+    // this.ringData.repopulate();
   }
 
   processRingname() {
 
     this.ringData.setRingName(this.ringName);
+  }
+
+  saveRingSettings() {
+    if (this.segments) {
+      let ringSettings: RingSetting = {
+        ringName: this.ringData.getRingName(),
+        ringParticipants: this.segments,
+        cleanRingName: this.ringData.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '').substr(1),
+        id: this.ringData.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '').substr(1)
+      }
+
+      this.store.dispatch(upsertRingSetting({ ringSetting: ringSettings }))
+
+    }
+  }
+
+  loadSettings(item) {
+    this.ringData.loadSettings(item);
+  }
+
+  removeSettings(item) {
+    this.store.dispatch(removeRingSetting({ ringSetting: item.cleanRingName }))
   }
 }

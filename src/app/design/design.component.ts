@@ -132,6 +132,9 @@ export class DesignComponent implements OnInit, OnDestroy {
       manipulation: {
         enabled: true,
       },
+      layout: {
+        randomSeed: 681154853
+      },
       edges: {
         arrows: {
           // to: {
