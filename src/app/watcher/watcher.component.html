@@ -32,8 +32,14 @@
                     <ng-container *ngFor="let item of getParticipants(); let i = index">
                         <tr [class.error]="item.channel_id && (!item.initiator_fee || !item.receiver_fee)">
                             <th scope="row" [style.background-color]="getColor(i)">{{ item.channel_id }}</th>
-                            <td *ngIf="item.initiator">{{ item.initiator?.node?.alias }}</td>
-                            <td *ngIf="item.receiver">{{ item.receiver?.node?.alias }}</td>         
+                            <ng-template [ngIf]="ringData.getViewMode() == 'tg'" [ngIfElse]="elseBlock">
+                                <td>{{ getUsername(item.initiator) }}</td>
+                                <td>{{ getUsername(item.receiver) }}</td>
+                            </ng-template>
+                            <ng-template #elseBlock>
+                                <td *ngIf="item.initiator">{{ item.initiator?.node?.alias }}</td>
+                                <td *ngIf="item.receiver">{{ item.receiver?.node?.alias }}</td> 
+                            </ng-template>       
                             <td *ngIf="item.initiator_fee">{{ item.initiator_fee.fee_base_msat }}</td>
                             <td *ngIf="item.initiator_fee">{{ item.initiator_fee.fee_rate_milli_msat }}</td>
                             <td *ngIf="item.receiver_fee">{{ item.receiver_fee.fee_base_msat }}</td>

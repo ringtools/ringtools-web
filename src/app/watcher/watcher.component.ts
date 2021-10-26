@@ -11,6 +11,7 @@ import { upsertChannel } from '../actions/channel.actions';
 import { ChannelEdge } from '../model/channel_edge.model';
 import { selectAllNodeInfoPubkey, selectNodeInfoId } from '../reducers/node-info.reducer';
 import { selectNodeByPubKey, selectNodeInfos, selectNodeInfosPubkey } from '../selectors/node-info.selectors';
+import { NodeInfo } from '../model/node_info.model';
 
 @Component({
   selector: 'app-watcher',
@@ -66,7 +67,7 @@ export class WatcherComponent implements OnInit {
     }
 //(val.channel_id && val.initiator_fee && val.receiver_fee ? 1 : 0) 
     let ret = this.participants.map((val, i) => {
-      let isOk:boolean = Boolean(val.channel_id && val.initiator_fee && val.receiver_fee)
+      let isOk:boolean = Boolean(val.channel_id)
      // console.log(val.initiator.node.alias, isOk);
       return { name: val.initiator?.node.alias, active: isOk  }
     });
@@ -107,6 +108,15 @@ export class WatcherComponent implements OnInit {
         this.participants.push(p);
       }
     }
+  }
+
+  getUsername(node: NodeInfo | undefined) {
+    if (!node)
+      return;
+
+    return this.segments.find((val) => {
+      return val.pub_key == node.node.pub_key
+    })?.user_name
   }
 
   refreshParticipants() {

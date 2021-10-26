@@ -19,11 +19,12 @@ import { DragulaModule } from 'ng2-dragula';
 import { RofCircleComponent } from './rof-circle/rof-circle.component';
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { environment } from '../environments/environment';
-import { StoreModule } from '@ngrx/store';
+import { ActionReducer, MetaReducer, StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { reducers, metaReducers } from './reducers';
 import { CbNodeOwnerEffects } from './effects/cb-node-owner.effects';
+import { localStorageSync } from 'ngrx-store-localstorage';
 
 const config: SocketIoConfig = { 
   url: environment.WS_ENDPOINT ? environment.WS_ENDPOINT : "", 
@@ -32,6 +33,13 @@ const config: SocketIoConfig = {
     reconnection: true 
   }  
 };
+
+
+export function localStorageSyncReducer(reducer: ActionReducer<any>): ActionReducer<any> {
+  return localStorageSync({keys: ['todos']})(reducer);
+}
+
+
 
 @NgModule({
   declarations: [

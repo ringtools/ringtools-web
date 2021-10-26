@@ -106,7 +106,7 @@ export class RofCircleComponent implements OnInit, OnChanges {
   private addCenterLabel() {
     this.g.append("text")
 	   .attr("text-anchor", "middle")
-		 .attr('font-size', '1.3rem')
+		 .attr('font-size', '1.2rem')
 		 .attr('dy', 10)
      .attr('fill', '#ffffff')
 	   .text(this.ringName);

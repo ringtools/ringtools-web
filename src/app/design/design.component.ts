@@ -231,4 +231,8 @@ export class DesignComponent implements OnInit, OnDestroy {
     //   console.log(node, );
   }
 
+  exportGraph() {
+    //this.visNetworkService.vis
+  }
+
 }

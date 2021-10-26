@@ -45,9 +45,9 @@ export class RingDataService {
     private store: Store<fromRoot.State>
 
   ) {
-    this.cbNodeOwners = this.parseCsvToType(initialring);
+    //    this.cbNodeOwners = this.parseCsvToType(initialring);
 
-    this.store.dispatch(loadCbNodeOwners(this.cbNodeOwners));
+//    this.store.dispatch(loadCbNodeOwners(this.cbNodeOwners));
 
     this.store.select(selectCbNodeOwners).subscribe((res) => {
       let pubkeys = res.map((val) => {

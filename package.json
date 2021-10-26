@@ -38,6 +38,7 @@
     "keycharm": "^0.4.0",
     "ng2-charts": "^3.0.0-rc.5",
     "ng2-dragula": "^2.1.1",
+    "ngrx-store-localstorage": "^12.0.1",
     "ngx-socket-io": "^4.1.0",
     "raw-loader": "^4.0.2",
     "rxjs": "^7.4.0",

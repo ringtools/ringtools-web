@@ -22,6 +22,7 @@
               <li class="list-group-item" *ngFor="let s of segments">{{ s.user_name }}</li>
             </ul>
             <button class="btn btn-success" (click)="autoDesign()">Auto Design</button> <button class="btn btn-info">Check</button> <button class="btn btn-primary">Persist</button>
+            <button class="btn btn-primary" (click)="exportGraph()">Export</button>
             <code><pre>{{ currentNodeInfo|json }}</pre></code>
           </div>
           <div class="col-md-12">
