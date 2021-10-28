@@ -5,4 +5,5 @@ export class CbNodeOwner {
     new: boolean = false;
     handle: string = '';
     capacity_sat: string = '';
+    order?: number;
 }

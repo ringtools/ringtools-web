@@ -20,6 +20,7 @@ export class SettingsComponent implements OnInit {
   segments: CbNodeOwner[] | undefined;
   pubkeysText: any = '';
   ringName: any = '';
+  pubsubServer: string = '';
   cbNodeOwners$: Observable<CbNodeOwner[]>;
   ringSettings$: Observable<RingSetting[]>;
   ringSettings: RingSetting[] = [];
@@ -41,6 +42,8 @@ export class SettingsComponent implements OnInit {
     })
     this.pubkeysText = ringInfo;
     this.ringName = ringData.getRingName();
+
+    this.pubsubServer = this.ringData.getPubsubServer();
   }
 
   ngOnInit(): void {
@@ -89,5 +92,9 @@ export class SettingsComponent implements OnInit {
 
   removeSettings(item) {
     this.store.dispatch(removeRingSetting({ ringSetting: item.cleanRingName }))
+  }
+
+  setPubSubServer() {
+
   }
 }

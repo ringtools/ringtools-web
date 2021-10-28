@@ -8,11 +8,13 @@ export const settingFeatureKey = 'setting';
 export interface SettingState {
   ringName: string
   viewMode: string
+  pubsubServer: string
 }
 
 export const initialState: SettingState = {
   ringName: '#SRROF_500Ksats_8thRING',
-  viewMode: 'tg'
+  viewMode: 'tg',
+  pubsubServer: 'http://umbrel:5000'
 };
 
 

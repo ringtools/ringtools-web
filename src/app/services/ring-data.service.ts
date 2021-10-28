@@ -15,8 +15,10 @@ import { upsertNodeInfo } from '../actions/node-info.actions';
 import { upsertChannel } from '../actions/channel.actions';
 import { selectSettings } from '../selectors/setting.selectors';
 import { SettingState } from '../reducers/setting.reducer';
-import { setRingName, setViewMode } from '../actions/setting.actions';
+import { setPubsubServer, setRingName, setViewMode } from '../actions/setting.actions';
 import { RingSetting } from '../model/ring-setting.model';
+import { UmbrelService } from './umbrel.service';
+import { env } from 'process';
 
 @Injectable({
   providedIn: 'root'
@@ -100,13 +102,18 @@ export class RingDataService {
       return data.channel_id != channelData.channel_id
     })
 
-    n1?.channels.push(channelData);
-    n2?.channels.push(channelData);
+    /** @TODO: Because of immutable objects this is no longer possible */
+//    n1?.channels.push(channelData);
+  //  n2?.channels.push(channelData);
 
-    if (n1)
+    if (n1) {
       this.nodeInfo.set(n1.node.pub_key, n1);
-    if (n2)
+      this.store.dispatch(upsertNodeInfo({ nodeInfo: n1 }));
+    }
+    if (n2) {
       this.nodeInfo.set(n2.node.pub_key, n2);
+      this.store.dispatch(upsertNodeInfo({ nodeInfo: n2 }));
+    }
 
     this._channelUpdate.next([n1, n2]);
   }
@@ -146,7 +153,7 @@ export class RingDataService {
   }
 
   getNodeInfoApi(pubkey: string) {
-    return this.http.get<NodeInfo>(`${environment.REST_ENDPOINT}/node/${pubkey}`);
+    return this.http.get<NodeInfo>(`${this.settings.pubsubServer}/node/${pubkey}`);
   }
 
   getNodeInfo(pubkey: string) {
@@ -186,6 +193,15 @@ export class RingDataService {
     }
 
     return ret;
+  }
+
+  setPubsubServer(pubsubServer: string) {
+    this.store.dispatch(setPubsubServer(pubsubServer))
+
+  }
+
+  getPubsubServer() {
+    return this.settings.pubsubServer;
   }
 
   populateChannels() {

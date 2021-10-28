@@ -10,6 +10,7 @@ import { select, Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
 import { CbNodeOwner } from '../model/cb_node_owner.model';
 import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
+import { loadCbNodeOwners, setCbNodeOwners } from '../actions/cb-node-owner.actions';
 
 @Component({
   selector: 'app-design',
@@ -207,6 +208,10 @@ export class DesignComponent implements OnInit, OnDestroy {
 
     this.ringData.setSegments(newMap);
     this.segments = newMap;
+  }
+
+  persistOrder() {
+    this.store.dispatch(loadCbNodeOwners(this.segments))
   }
 
   /* @TODO: Implemnent graph export, right-click save should work as well */

@@ -14,6 +14,12 @@
                         [ngModelOptions]="{standalone: true}" spellcheck="false"></textarea>
                     <button (click)="processGroupnodes()" class="btn btn-primary mb-2">Import Groupnodes</button>
                 </div>
+                <div class="form-group">
+                    <label for="ringName">LND PubSub server</label>
+                    <input type="text" class="form-control" id="pubsubServer" placeholder="PubSub Server" [(ngModel)]="pubsubServer"
+                        [ngModelOptions]="{standalone: true}">
+                    <button (click)="setPubSubServer()" class="btn btn-primary mb-2">Save server</button>
+                </div>
             </form>
         </div>
         <div class="col-md-6">

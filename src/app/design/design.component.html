@@ -1,26 +1,20 @@
 <div class="container-fluid">
-    <div class="row">
-        <div *ngIf="visNetworkData" class="col-md-8">           
-            <h3>Ring Designer</h3>
-            <div
-              class="network-canvas"
-              [visNetwork]="visNetwork"
-              [visNetworkData]="visNetworkData"
-              [visNetworkOptions]="visNetworkOptions"
-              (initialized)="networkInitialized()"
-            ></div>
-          </div>
-          <div class="col-md-4">
-            <h3>Ring order</h3>
-            <ul class="list-group" dragula="PARTICIPANTS" id="participants" [(dragulaModel)]="segments">
-              <li class="list-group-item" *ngFor="let s of segments">{{ s.user_name }}</li>
-            </ul>
-            <button class="btn btn-success" (click)="autoDesign()">Auto Design</button> <button class="btn btn-info">Check</button> <button class="btn btn-primary">Persist</button>
-            <button class="btn btn-primary" (click)="exportGraph()">Export</button>
-            <code><pre>{{ currentNodeInfo|json }}</pre></code>
-          </div>
-          <div class="col-md-12">
-          
-        </div>
+  <div class="row">
+    <div *ngIf="visNetworkData" class="col-md-8">
+      <h3>Ring Designer</h3>
+      <div class="network-canvas" [visNetwork]="visNetwork" [visNetworkData]="visNetworkData"
+        [visNetworkOptions]="visNetworkOptions" (initialized)="networkInitialized()"></div>
     </div>
+    <div class="col-md-4">
+      <h3>Ring order</h3>
+      <ul class="list-group" dragula="PARTICIPANTS" id="participants" [(dragulaModel)]="segments">
+        <li class="list-group-item" *ngFor="let s of segments">{{ s.user_name }}</li>
+      </ul>
+      
+      <button class="btn btn-primary"
+        (click)="persistOrder()">Persist</button>
+    </div>
+    <div class="col-md-12">
+    </div>
+  </div>
 </div>

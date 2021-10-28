@@ -14,4 +14,9 @@ export const setViewMode = createAction(
   (viewMode: string) => ({viewMode})
 );
 
+export const setPubsubServer = createAction(
+  '[Setting] set PubSub server',
+  (pubsubServer: string) => ({pubsubServer})
+);
+
 
