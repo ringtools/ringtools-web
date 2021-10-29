@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { RingDataService } from '../services/ring-data.service';
-import ringInfo from '../data/ring.txt';
 import { CbNodeOwner } from '../model/cb_node_owner.model';
 import { select, Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
@@ -55,7 +54,7 @@ export class SettingsComponent implements OnInit {
     this.cbNodeOwners$.subscribe((data) => {
       this.segments = data;
     })
-    this.pubkeysText = ringInfo;
+    this.pubkeysText = '';
     this.ringName = ringData.getRingName();
 
     this.pubsubServer = this.ringData.getPubsubServer();
@@ -107,6 +106,14 @@ export class SettingsComponent implements OnInit {
 
   loadSettings(item) {
     this.ringData.loadSettings(item);
+
+    let pkContents = 'user_name,nodename,pub_key,new,handle,capacity_sat\r\n';
+
+    for (let p of item.ringParticipants) {
+      pkContents += `${p.user_name},${p.nodename},${p.pub_key},${p.new},${p.handle},${p.capacity_sat}\r\n`;
+    }
+
+    this.pubkeysText = pkContents;
   }
 
   removeSettings(item) {
