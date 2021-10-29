@@ -13,23 +13,9 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private ringData: RingDataService,
-    private sanitizer: DomSanitizer
     ){}
 
   ngOnInit(): void {
   }
 
-
-  /* @TODO: Move to service and add igniter.sh generation */
-  downloadChannelsTxt() {
-    let data = '';
-    
-    for (let channel of this.ringData.getChannels()) {
-      data += channel.channel_id + "\r\n";
-    }
-
-    const blob = new Blob([data], { type: 'application/octet-stream' });
-
-    this.fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(window.URL.createObjectURL(blob));
-  }
 }

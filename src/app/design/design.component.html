@@ -10,9 +10,14 @@
       <ul class="list-group" dragula="PARTICIPANTS" id="participants" [(dragulaModel)]="segments">
         <li class="list-group-item" *ngFor="let s of segments">{{ s.user_name }}</li>
       </ul>
-      
-      <button class="btn btn-primary"
+      <div class="btn-group" role="group" aria-label="Basic example">
+        <button class="btn btn-primary"
         (click)="persistOrder()">Persist</button>
+        <button class="btn btn-success"
+        (click)="downloadChannelsTxt()">Download channels.txt</button>
+      </div>
+
+       
     </div>
     <div class="col-md-12">
     </div>

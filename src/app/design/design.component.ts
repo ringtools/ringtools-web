@@ -219,4 +219,8 @@ export class DesignComponent implements OnInit, OnDestroy {
     //this.visNetworkService.vis
   }
 
+    /* @TODO: Move to service and add igniter.sh generation */
+    downloadChannelsTxt() {
+      this.ringData.downloadChannelsTxt();
+    }
 }

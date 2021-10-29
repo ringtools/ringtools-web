@@ -1,12 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, SecurityContext } from '@angular/core';
 import { NodeInfo } from '../model/node_info.model';
 import { RoutingPolicy } from '../model/routing_policy.model';
 import { CbNodeOwner } from '../model/cb_node_owner.model';
 import * as d3 from 'd3';
 import { Socket } from 'ngx-socket-io';
 import { Subject } from 'rxjs';
-import { environment } from 'src/environments/environment';
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
 import { loadCbNodeOwners } from '../actions/cb-node-owner.actions';
@@ -17,8 +16,7 @@ import { selectSettings } from '../selectors/setting.selectors';
 import { SettingState } from '../reducers/setting.reducer';
 import { setPubsubServer, setRingName, setViewMode } from '../actions/setting.actions';
 import { RingSetting } from '../model/ring-setting.model';
-import { UmbrelService } from './umbrel.service';
-import { env } from 'process';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +31,7 @@ export class RingDataService {
 
   nodeNames: Map<string, string> = new Map<string, string>();
   nodeToTgMap: Map<string, string> = new Map<string, string>();
-  nodeInfo: Map<string, NodeInfo|undefined> = new Map<string, NodeInfo|undefined>();
+  nodeInfo: Map<string, NodeInfo | undefined> = new Map<string, NodeInfo | undefined>();
 
   channels: any = [];
 
@@ -45,6 +43,7 @@ export class RingDataService {
   constructor(
     private http: HttpClient,
     private socket: Socket,
+    private sanitizer: DomSanitizer,
     private store: Store<fromRoot.State>
   ) {
 
@@ -52,6 +51,8 @@ export class RingDataService {
       let pubkeys = res.map((val) => {
         return val.pub_key;
       })
+
+      this.cbNodeOwners = res;
       this.socket.emit("subscribe_pubkey", { data: pubkeys })
     })
 
@@ -70,7 +71,7 @@ export class RingDataService {
     //this.populateTgMap();
     //    this.populateChannels();
 
-    this.socket.on("pubkey", (data:NodeInfo) => {
+    this.socket.on("pubkey", (data: NodeInfo) => {
       this.store.dispatch(upsertNodeInfo({ nodeInfo: data }));
 
       this.nodeInfo.set(data.node.pub_key, data);
@@ -103,8 +104,8 @@ export class RingDataService {
     })
 
     /** @TODO: Because of immutable objects this is no longer possible */
-//    n1?.channels.push(channelData);
-  //  n2?.channels.push(channelData);
+    //    n1?.channels.push(channelData);
+    //  n2?.channels.push(channelData);
 
     if (n1) {
       this.nodeInfo.set(n1.node.pub_key, n1);
@@ -160,13 +161,18 @@ export class RingDataService {
     return this.nodeInfo.get(pubkey);
   }
 
+  /**
+   * @deprecated
+   * @param pubkey 
+   * @returns 
+   */
   getCachedNodeInfo(pubkey: string) {
-    return this.nodeInfo.get(pubkey);
+    return this.getNodeInfo(pubkey);
   }
 
   nodeHasChannelWith(pubkey: string, channelWith: string) {
     let n = this.nodeInfo.get(pubkey);
-    let ret:number|null = null;
+    let ret: number | null = null;
 
     if (n) {
       for (let edge of n.channels) {
@@ -207,20 +213,20 @@ export class RingDataService {
   populateChannels() {
     for (let [key, node] of this.cbNodeOwners.entries()) {
       let data = this.getNodeInfo(node.pub_key);
-        if (!data)
-          return;
-        this.nodeNames.set(node.pub_key, data.node.alias);
+      if (!data)
+        return;
+      this.nodeNames.set(node.pub_key, data.node.alias);
 
-        this.nodeInfo.set(node.pub_key, data);
+      this.nodeInfo.set(node.pub_key, data);
 
-        for (let edge of data.channels) {
-          let nextIndex = (key + 1) % this.cbNodeOwners.length;
+      for (let edge of data.channels) {
+        let nextIndex = (key + 1) % this.cbNodeOwners.length;
 
-          if (edge.node1_pub == this.cbNodeOwners[nextIndex].pub_key || edge.node2_pub == this.cbNodeOwners[nextIndex].pub_key) {
-            this.channels.push(edge)
-          }
+        if (edge.node1_pub == this.cbNodeOwners[nextIndex].pub_key || edge.node2_pub == this.cbNodeOwners[nextIndex].pub_key) {
+          this.channels.push(edge)
         }
-      
+      }
+
     };
   }
 
@@ -272,5 +278,25 @@ export class RingDataService {
   loadSettings(item: RingSetting) {
     this.setRingName(item.ringName);
     this.store.dispatch(loadCbNodeOwners(item.ringParticipants))
+  }
+
+  downloadChannelsTxt() {
+
+    if (!this.getChannels().length) {
+      this.populateChannels();
+    }
+
+    let data = '';
+
+    for (let channel of this.getChannels()) {
+      data += channel.channel_id + "\r\n";
+    }
+
+    const blob = new Blob([data], { type: 'application/octet-stream' });
+
+    let fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(window.URL.createObjectURL(blob));
+    let sanitized = this.sanitizer.sanitize(SecurityContext.RESOURCE_URL, fileUrl);
+    if (sanitized)
+      window.open(sanitized, "_blank");
   }
 }
