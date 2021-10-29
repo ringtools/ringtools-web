@@ -19,4 +19,9 @@ export const setPubsubServer = createAction(
   (pubsubServer: string) => ({pubsubServer})
 );
 
+export const setShowLogo = createAction(
+  '[Setting] set Show Logo',
+  (showLogo: boolean) => ({showLogo})
+);
+
 

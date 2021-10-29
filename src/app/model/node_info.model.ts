@@ -4,6 +4,7 @@ import { LightningNode } from "./lightning_node.model";
 export class NodeInfo {
     node!: LightningNode;
     channels!: ChannelEdge[];
+    total_capacity?: string;
 
     get id(): string {
         return this.node?.pub_key;

@@ -9,12 +9,14 @@ export interface SettingState {
   ringName: string
   viewMode: string
   pubsubServer: string
+  showLogo: boolean
 }
 
 export const initialState: SettingState = {
   ringName: '#SRROF_500Ksats_8thRING',
   viewMode: 'tg',
-  pubsubServer: 'http://umbrel:5000'
+  pubsubServer: 'http://umbrel:5000',
+  showLogo: false
 };
 
 
@@ -27,6 +29,10 @@ export const settingReducer = createReducer(
   on(SettingActions.setViewMode, 
     (state: SettingState, {viewMode}) => {
       return {...state, viewMode: viewMode }
+  }),
+  on(SettingActions.setShowLogo, 
+    (state: SettingState, {showLogo}) => {
+      return {...state, showLogo: showLogo }
   }),
 );
 

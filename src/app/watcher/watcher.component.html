@@ -1,7 +1,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-4 chart-container h-50 d-inline-block">
-            <app-rof-circle [data]="getChartSegments()" [ringName]="getRingName()"></app-rof-circle>
+            <app-rof-circle [data]="getChartSegments()" [ringName]="getRingName()" [showLogo]="settings.showLogo" id="rofvisual" [ringLabels]="getRingLabels()"></app-rof-circle>
         </div>
 
         <div class="col-md-8 participants">
@@ -32,7 +32,7 @@
                 <tbody>
                     <ng-container *ngFor="let item of getParticipants(); let i = index">
                         <tr [class.error]="item.channel_id && (!item.initiator_fee || !item.receiver_fee)">
-                            <th scope="row" [style.background-color]="getColor(i)">{{ item.channel_id }}</th>
+                            <th scope="row" [style.background-color]="getColor(i)" class="channelCol">{{ item.channel_id }}</th>
                             <ng-template [ngIf]="ringData.getViewMode() == 'tg'" [ngIfElse]="elseBlock">
                                 <td>{{ getUsername(item.initiator) }}</td>
                                 <td>{{ getUsername(item.receiver) }}</td>
@@ -50,8 +50,8 @@
                     </ng-container>
                 </tbody>
             </table>
-            <!--<button (click)="createParticipants()">Refresh</button>
-            <button (click)="upsertPolicy()">Upsert Policy</button>
+            <button (click)="downloadAsPng()" class="btn btn-primary">Download Visual</button>
+            <!--<button (click)="upsertPolicy()">Upsert Policy</button>
 
             <pre>{{ ndata | json }}</pre>-->
         </div>

@@ -30,7 +30,7 @@ export class RingDataService {
   channelUpdate$ = this._channelUpdate.asObservable();
 
   nodeNames: Map<string, string> = new Map<string, string>();
-  nodeToTgMap: Map<string, string> = new Map<string, string>();
+  nodeToTgMap: Map<string, CbNodeOwner> = new Map<string, CbNodeOwner>();
   nodeInfo: Map<string, NodeInfo | undefined> = new Map<string, NodeInfo | undefined>();
 
   channels: any = [];
@@ -53,6 +53,11 @@ export class RingDataService {
       })
 
       this.cbNodeOwners = res;
+
+      for (let o of this.cbNodeOwners) {
+        this.nodeToTgMap.set(o.pub_key, o)
+      }
+
       this.socket.emit("subscribe_pubkey", { data: pubkeys })
     })
 
@@ -88,6 +93,14 @@ export class RingDataService {
       .range(["#2c7bb6", "#ffffbf", "#d7191c"])
       // @ts-ignore
       .interpolate(d3.interpolateHcl);
+  }
+
+  getUsername(pub_key: string) {
+    let ret = this.getTgUserByPubkey(pub_key);
+    if (ret.handle == "None") {
+      return ret.user_name;
+    }
+    return `@${ret.handle}`;
   }
 
   updateChannel(channelData) {

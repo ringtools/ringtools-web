@@ -42,6 +42,7 @@
     "ngx-socket-io": "^4.1.0",
     "raw-loader": "^4.0.2",
     "rxjs": "^7.4.0",
+    "save-svg-as-png": "^1.4.17",
     "tslib": "^2.3.0",
     "val-loader": "^4.0.0",
     "vis-data": "^7.1.2",

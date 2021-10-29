@@ -6,10 +6,13 @@ import { select, Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
 import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
 import { Observable } from 'rxjs';
-import { loadCbNodeOwners } from '../actions/cb-node-owner.actions';
+import { addCbNodeOwner, loadCbNodeOwners } from '../actions/cb-node-owner.actions';
 import { RingSetting } from '../model/ring-setting.model';
 import { removeRingSetting, upsertRingSetting } from '../actions/ring-setting.actions';
 import { selectRingSettings } from '../selectors/ring-setting.selectors';
+import { selectSettings } from '../selectors/setting.selectors';
+import { SettingState } from '../reducers/setting.reducer';
+import { setShowLogo } from '../actions/setting.actions';
 
 @Component({
   selector: 'app-settings',
@@ -24,6 +27,12 @@ export class SettingsComponent implements OnInit {
   cbNodeOwners$: Observable<CbNodeOwner[]>;
   ringSettings$: Observable<RingSetting[]>;
   ringSettings: RingSetting[] = [];
+  tempNodename = '';
+  showLogo:boolean;
+
+  addPubKey;
+  addTgUsername;
+  settings: SettingState;
 
   constructor(
     public ringData: RingDataService,
@@ -34,6 +43,12 @@ export class SettingsComponent implements OnInit {
     this.ringSettings$.subscribe((data) => {
       this.ringSettings = data;
     })
+
+    this.store.select(selectSettings).subscribe((settings) => {
+      this.settings = settings;
+
+      this.showLogo = settings.showLogo;
+    });
 
     this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
 
@@ -47,6 +62,10 @@ export class SettingsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+  }
+
+  updateShowLogo(event) {
+    this.store.dispatch(setShowLogo(event));
   }
 
   getSegments() {
@@ -92,6 +111,27 @@ export class SettingsComponent implements OnInit {
 
   removeSettings(item) {
     this.store.dispatch(removeRingSetting({ ringSetting: item.cleanRingName }))
+  }
+
+  addCbNodeOwner() {
+    this.ringData.getNodeInfoApi(this.addPubKey).subscribe((data) => {
+
+      if (data) {
+        let no:CbNodeOwner = {
+          pub_key: this.addPubKey,
+          nodename: data.node.alias,
+          user_name: this.addTgUsername,
+          handle: this.addTgUsername,
+          capacity_sat: data.total_capacity
+        }
+
+        console.log(no);
+    
+        this.store.dispatch(addCbNodeOwner(no));
+      }
+    })
+
+
   }
 
   setPubSubServer() {

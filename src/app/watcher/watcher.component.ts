@@ -10,6 +10,9 @@ import { upsertChannel } from '../actions/channel.actions';
 import { ChannelEdge } from '../model/channel_edge.model';
 import { selectNodeInfos  } from '../selectors/node-info.selectors';
 import { NodeInfo } from '../model/node_info.model';
+import * as svg from 'save-svg-as-png';
+import { selectSettings } from '../selectors/setting.selectors';
+import { SettingState } from '../reducers/setting.reducer';
 
 @Component({
   selector: 'app-watcher',
@@ -20,6 +23,8 @@ export class WatcherComponent implements OnInit {
   viewMode: string;
   segments: CbNodeOwner[] = [];
   cbNodeOwners$: Observable<CbNodeOwner[]>
+  ringLabels: string[];
+  settings: SettingState;
 
   participants: RingParticipant[] = new Array<RingParticipant>();
   ndata = '';
@@ -30,11 +35,21 @@ export class WatcherComponent implements OnInit {
   ) {
     this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
 
+    this.store.select(selectSettings).subscribe((settings) => {
+      this.settings = settings;
+      this.viewMode = settings.viewMode;
+    });
+
     this.cbNodeOwners$.subscribe((data) => {
       this.segments = data;
+
+      this.ringLabels = this.segments.map((val) => {
+        if (this.viewMode == "node")
+          return val.nodename;
+        return this.ringData.getUsername(val.pub_key)
+      })
     })
     this.viewMode = ringData.getViewMode();
-
 
 
 
@@ -56,13 +71,16 @@ export class WatcherComponent implements OnInit {
 
   getChartSegments() {
     if (!this.participants.length) {
-      return this.getSegments().map((val) => {
-        return { name: val.user_name, active: false }
+      return this.getSegments().map((val, i) => {
+        if (this.viewMode == "node")
+          return { name: val.nodename, active: false }
+        else
+          return { name: val.user_name, active: false }
       })
     }
     let ret = this.participants.map((val, i) => {
       let isOk: boolean = Boolean(val.channel_id)
-      return { name: val.initiator?.node.alias, active: isOk }
+      return { name: this.ringLabels[i], active: isOk }
     });
 
     return ret;
@@ -77,7 +95,14 @@ export class WatcherComponent implements OnInit {
   }
 
   viewChange(event: any) {
+    console.log("viewchange", event);
     this.ringData.setViewMode(event);
+
+    this.ringLabels = this.segments.map((val) => {
+      if (this.viewMode == "node")
+        return val.nodename;
+      return this.ringData.getUsername(val.pub_key)
+    })
   }
 
   createParticipants() {
@@ -107,9 +132,14 @@ export class WatcherComponent implements OnInit {
     if (!node)
       return;
 
-    return this.segments.find((val) => {
+    let ret = this.segments.find((val) => {
       return val.pub_key == node.node.pub_key
-    })?.user_name
+    })
+
+    if (ret.handle == "None") {
+      return ret.user_name;
+    }
+    return `@${ret.handle}`;
   }
 
   refreshParticipants() {
@@ -169,6 +199,38 @@ export class WatcherComponent implements OnInit {
   getColor(i) {
     let scale = this.ringData.getColorScale()(i);
     return scale;
+  }
+
+  getRingLabels() {
+    return this.ringLabels;
+  }
+
+  downloadAsPng() {
+    svg.saveSvgAsPng(document.getElementById("rofvisual").children[0], "ring-of-fire-visual.png", {
+      backgroundColor: "#000",
+      scale: 1.5,
+      // fonts: [
+      //   {
+      //     url: '/assets/fonts/lato-v20-latin-regular.woff2',
+      //     format: 'application/font-woff2',
+      //     text: "@font-face { font-family: 'Lato'; font-style: normal; font-weight: 400; src: url('/assets/fonts/lato-v20-latin-regular.eot');  url('/assets/fonts/lato-v20-latin-regular.woff2') format('woff2');"
+      //   }
+      // ],
+    })
+  }
+
+  downloadAsSvg() {
+    svg.saveSvgAsPng(document.getElementById("rofvisual").children[0], "ring-of-fire-visual.png", {
+      backgroundColor: "#000",
+      scale: 1.5,
+      // fonts: [
+      //   {
+      //     url: '/assets/fonts/lato-v20-latin-regular.woff2',
+      //     format: 'application/font-woff2',
+      //     text: "@font-face { font-family: 'Lato'; font-style: normal; font-weight: 400; src: url('/assets/fonts/lato-v20-latin-regular.eot');  url('/assets/fonts/lato-v20-latin-regular.woff2') format('woff2');"
+      //   }
+      // ],
+    })
   }
 
 }

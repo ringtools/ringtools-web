@@ -1,14 +1,32 @@
 <div class="container-fluid">
   <div class="row">
     <div *ngIf="visNetworkData" class="col-md-8">
-      <h3>Ring Designer</h3>
+      <h3>Ring Designer
+        <div class="btn-group btn-small small btn-group-toggle" ngbRadioGroup name="names"
+                    [(ngModel)]="viewMode" (ngModelChange)="viewChange($event)">
+                    <label ngbButtonLabel class="btn-primary btn-sm">
+                        <input ngbButton type="radio" value="node"> Nodename
+                    </label>
+                    <label ngbButtonLabel class="btn-primary btn-sm">
+                        <input ngbButton type="radio" value="tg"> TG username
+                    </label>
+                </div>
+      </h3>
       <div class="network-canvas" [visNetwork]="visNetwork" [visNetworkData]="visNetworkData"
         [visNetworkOptions]="visNetworkOptions" (initialized)="networkInitialized()"></div>
     </div>
     <div class="col-md-4">
       <h3>Ring order</h3>
       <ul class="list-group" dragula="PARTICIPANTS" id="participants" [(dragulaModel)]="segments">
-        <li class="list-group-item" *ngFor="let s of segments">{{ s.user_name }}</li>
+        <li class="list-group-item" *ngFor="let s of segments">
+          <ng-template [ngIf]="viewMode == 'tg'" [ngIfElse]="elseBlock">
+            {{ s.user_name }}
+        </ng-template>
+        <ng-template #elseBlock>
+          {{ s.nodename }}
+        </ng-template>
+         
+        </li>
       </ul>
       <div class="btn-group" role="group" aria-label="Basic example">
         <button class="btn btn-primary"
