@@ -41,6 +41,7 @@
                             <th scope="col">Nodename</th>
                             <th scope="col">TG username</th>
                             <th scope="col">Capacity</th>
+                            <th scope="col">&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -62,6 +63,10 @@
                                 <td>{{ item.nodename }}</td>
                                 <td>{{ item.user_name }}</td>
                                 <td>{{ item.capacity_sat }}</td>
+                                <td><button class="btn btn-danger btn-small btn-sm delete-btn" (click)="removeCbNodeOwner(item)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                </td>
                             </tr>
                         </ng-container>
 

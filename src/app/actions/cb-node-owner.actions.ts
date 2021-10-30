@@ -18,6 +18,11 @@ export const loadCbNodeOwners = createAction(
   (cbNodeOwners: CbNodeOwner[]) => ({cbNodeOwners})
 );
 
+export const removeCbNodeOwner = createAction(
+  '[CbNodeOwner] Remove CbNodeOwner',
+  (cbNodeOwner: CbNodeOwner) => ({cbNodeOwner})
+);
+
 export const setCbNodeOwners = createAction(
   '[CbNodeOwner] Set CbNodeOwners',
   (cbNodeOwners: CbNodeOwner[]) => ({cbNodeOwners})

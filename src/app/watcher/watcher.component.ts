@@ -215,7 +215,10 @@ export class WatcherComponent implements OnInit {
   }
 
   downloadAsPng() {
-    svg.saveSvgAsPng(document.getElementById("rofvisual").children[0], "ring-of-fire-visual.png", {
+    let ringName = this.ringData.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '').trim();
+
+
+    svg.saveSvgAsPng(document.getElementById("rofvisual").children[0], `${ringName}.png`, {
       backgroundColor: "#000",
       scale: 1.5,
       // fonts: [

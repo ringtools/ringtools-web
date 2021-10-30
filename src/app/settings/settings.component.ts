@@ -5,7 +5,7 @@ import { select, Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
 import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
 import { Observable } from 'rxjs';
-import { addCbNodeOwner, loadCbNodeOwners } from '../actions/cb-node-owner.actions';
+import { addCbNodeOwner, loadCbNodeOwners, removeCbNodeOwner } from '../actions/cb-node-owner.actions';
 import { RingSetting } from '../model/ring-setting.model';
 import { removeRingSetting, upsertRingSetting } from '../actions/ring-setting.actions';
 import { selectRingSettings } from '../selectors/ring-setting.selectors';
@@ -137,6 +137,12 @@ export class SettingsComponent implements OnInit {
         this.store.dispatch(addCbNodeOwner(no));
       }
     })
+
+
+  }
+
+  removeCbNodeOwner(nodeOwner: CbNodeOwner) {
+    this.store.dispatch(removeCbNodeOwner(nodeOwner));
 
 
   }
