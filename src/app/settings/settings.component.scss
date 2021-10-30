@@ -23,3 +23,9 @@
     padding: 0.075rem 0.25rem;
     font-size: 0.625rem;
 }
+
+.node_key{
+  text-overflow: ellipsis;
+  max-width: 1px;
+  overflow: hidden;
+}

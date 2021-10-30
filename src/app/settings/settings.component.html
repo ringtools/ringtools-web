@@ -1,6 +1,6 @@
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12 col-lg-4" >
             <form>
                 <div class="form-group">
                     <label for="ringName">Ringname</label>
@@ -31,7 +31,7 @@
                   </div>
             </form>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-12 col-lg-8">
             <form>
                 <table class="table table-sm table-striped small">
                     <thead>
@@ -57,8 +57,8 @@
                                         <img src="/assets/1ml.png" class="service-icon">
                                     </a>
                                 </th>
-                                <th scope="row">
-                                    {{ item.pub_key }}
+                                <th scope="row" class="node_key">
+                                    <p>{{ item.pub_key }}</p>
                                 </th>
                                 <td>{{ item.nodename }}</td>
                                 <td>{{ item.user_name }}</td>
@@ -75,7 +75,7 @@
                                 Manual add
                             </th>
 
-                            <th scope="row" class="no-padding">
+                            <th scope="row" class="no-padding" colspan="2">
                                 <div class="form-check">
                                     <input class="form-check-input position-static" type="text" id="pubkey"
                                         [(ngModel)]="addPubKey" name="pubKey">
