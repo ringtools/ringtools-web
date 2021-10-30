@@ -37,7 +37,7 @@ export class RingDataService {
   nodeInfo: Map<string, NodeInfo | undefined> = new Map<string, NodeInfo | undefined>();
 
   channels: any = [];
-  isLoaded:boolean = false;
+  isLoaded: boolean = false;
   viewMode = 'tg';
   settings!: SettingState;
   colorScale!: any; // D3 color provider
@@ -319,6 +319,15 @@ export class RingDataService {
       data += channel.channel_id + "\r\n";
     }
 
+    const blob = new Blob([data], { type: 'application/octet-stream' });
+
+    let fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(window.URL.createObjectURL(blob));
+    let sanitized = this.sanitizer.sanitize(SecurityContext.RESOURCE_URL, fileUrl);
+    if (sanitized)
+      window.open(sanitized, "_blank");
+  }
+
+  downloadFile(data) {
     const blob = new Blob([data], { type: 'application/octet-stream' });
 
     let fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(window.URL.createObjectURL(blob));

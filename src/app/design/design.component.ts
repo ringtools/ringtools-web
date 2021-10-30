@@ -277,4 +277,21 @@ export class DesignComponent implements OnInit, OnDestroy {
   downloadChannelsTxt() {
     this.ringData.downloadChannelsTxt();
   }
+
+  downloadIgniterPubkeys() {
+    let igniterText = 'declare pub_keys=(\r\n';
+
+    for (let s of this.segments) {
+      let handle = s.handle;
+
+      if (handle == 'None')
+        handle = s.user_name
+
+      igniterText += `    ${s.pub_key} # ${handle}\r\n`
+    }
+
+    igniterText += ')'
+
+    this.ringData.downloadFile(igniterText);
+  }
 }
