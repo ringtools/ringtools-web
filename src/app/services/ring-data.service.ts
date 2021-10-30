@@ -332,12 +332,41 @@ export class RingDataService {
       data += channel.channel_id + "\r\n";
     }
 
-    const blob = new Blob([data], { type: 'application/octet-stream' });
+    let element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+    element.setAttribute('download', 'channels.txt');
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element)
+  }
 
-    let fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(window.URL.createObjectURL(blob));
-    let sanitized = this.sanitizer.sanitize(SecurityContext.RESOURCE_URL, fileUrl);
-    if (sanitized)
-      window.open(sanitized, "_blank");
+  downloadPubkeysTgTxt() {
+
+    if (!this.getChannels().length) {
+      this.populateChannels();
+    }
+
+    let data = '';
+
+    for (let no of this.cbNodeOwners) {
+      data += `${no.pub_key},${this.getUsername(no.pub_key)}\r\n`;
+    }
+
+    // const blob = new Blob([data], { type: 'application/octet-stream' });
+
+    // let fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(window.URL.createObjectURL(blob));
+    // let sanitized = this.sanitizer.sanitize(SecurityContext.RESOURCE_URL, fileUrl);
+
+    //if (sanitized) {
+      let element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+      element.setAttribute('download', 'pubkeys.txt');
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element)
+  //  }
   }
 
   downloadFile(data) {

@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <div class="row">
-    <div *ngIf="visNetworkData" class="col-md-8">
+    <div *ngIf="visNetworkData" class="col-md-10">
       <h3>Ring Designer
         <div class="btn-group btn-small small btn-group-toggle" ngbRadioGroup name="names"
                     [(ngModel)]="viewMode" (ngModelChange)="viewChange($event)">
@@ -15,7 +15,7 @@
       <div class="network-canvas" [visNetwork]="visNetwork" [visNetworkData]="visNetworkData"
         [visNetworkOptions]="visNetworkOptions" (initialized)="networkInitialized()"></div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-2">
       <h3>Ring order</h3>
       <ul class="list-group" dragula="PARTICIPANTS" id="participants" [(dragulaModel)]="segments">
         <li class="list-group-item" *ngFor="let s of segments">
@@ -28,18 +28,12 @@
          
         </li>
       </ul>
-      <div class="btn-group" role="group" aria-label="Basic example">
-        <button class="btn btn-primary"
-        (click)="persistOrder()">Persist</button>
-        <button class="btn btn-success"
-        (click)="downloadChannelsTxt()">Download channels.txt</button>
-        <button class="btn btn-secondary"
-        (click)="downloadIgniterPubkeys()">Download igniter.sh pubkeys</button>
-      </div>
 
-       
-    </div>
-    <div class="col-md-12">
+      <button type="button" class="btn btn-warning btn-lg btn-block" (click)="persistOrder()">Persist channel order</button>
+      <button type="button" class="btn btn-primary btn-lg btn-block" (click)="downloadChannelsTxt()">Download channels.txt</button>
+      <button type="button" class="btn btn-success btn-lg btn-block" (click)="downloadPubKeysTxt()">Download pubkeys.txt</button>
+      <button type="button" class="btn btn-secondary btn-lg btn-block" (click)="downloadIgniterPubkeys()">Download igniter.sh pubkeys</button>
+
     </div>
   </div>
 </div>
