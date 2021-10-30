@@ -17,6 +17,7 @@ import { SettingState } from '../reducers/setting.reducer';
 import { setPubsubServer, setRingName, setViewMode } from '../actions/setting.actions';
 import { RingSetting } from '../model/ring-setting.model';
 import { DomSanitizer } from '@angular/platform-browser';
+import { upsertRingSetting } from '../actions/ring-setting.actions';
 
 @Injectable({
   providedIn: 'root'
@@ -305,6 +306,18 @@ export class RingDataService {
   loadSettings(item: RingSetting) {
     this.setRingName(item.ringName);
     this.store.dispatch(loadCbNodeOwners(item.ringParticipants))
+  }
+
+  saveRingSettings(segments) {
+    if (segments) {
+      let ringSettings: RingSetting = {
+        ringName: this.getRingName(),
+        ringParticipants: segments,
+        cleanRingName: this.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''),
+        id: this.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
+      }
+      this.store.dispatch(upsertRingSetting({ ringSetting: ringSettings }))
+    }
   }
 
   downloadChannelsTxt() {

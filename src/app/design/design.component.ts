@@ -266,6 +266,7 @@ export class DesignComponent implements OnInit, OnDestroy {
 
   persistOrder() {
     this.store.dispatch(loadCbNodeOwners(this.segments))
+    this.ringData.saveRingSettings(this.segments);
   }
 
   /* @TODO: Implemnent graph export, right-click save should work as well */
