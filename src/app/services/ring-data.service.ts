@@ -29,12 +29,15 @@ export class RingDataService {
   private _channelUpdate = new Subject();
   channelUpdate$ = this._channelUpdate.asObservable();
 
+  private _isReady = new Subject();
+  isReady$ = this._isReady.asObservable();
+
   nodeNames: Map<string, string> = new Map<string, string>();
   nodeToTgMap: Map<string, CbNodeOwner> = new Map<string, CbNodeOwner>();
   nodeInfo: Map<string, NodeInfo | undefined> = new Map<string, NodeInfo | undefined>();
 
   channels: any = [];
-
+  isLoaded:boolean = false;
   viewMode = 'tg';
   settings!: SettingState;
   colorScale!: any; // D3 color provider
@@ -79,7 +82,14 @@ export class RingDataService {
     this.socket.on("pubkey", (data: NodeInfo) => {
       this.store.dispatch(upsertNodeInfo({ nodeInfo: data }));
 
+
       this.nodeInfo.set(data.node.pub_key, data);
+
+      if (this.nodeInfo.size == this.cbNodeOwners.length) {
+        this.isLoaded = true;
+        this._isReady.next(this.isLoaded);
+      }
+
     });
     this.socket.on("channel", (data) => {
       this.store.dispatch(upsertChannel({ channel: data }));
@@ -93,6 +103,10 @@ export class RingDataService {
       .range(["#2c7bb6", "#ffffbf", "#d7191c"])
       // @ts-ignore
       .interpolate(d3.interpolateHcl);
+  }
+
+  getIsLoaded() {
+    return this.isLoaded;
   }
 
   getUsername(pub_key: string) {

@@ -25,6 +25,7 @@ export class WatcherComponent implements OnInit {
   cbNodeOwners$: Observable<CbNodeOwner[]>
   ringLabels: string[];
   settings: SettingState;
+  isReady:boolean = false;
 
   participants: RingParticipant[] = new Array<RingParticipant>();
   ndata = '';
@@ -51,11 +52,13 @@ export class WatcherComponent implements OnInit {
     })
     this.viewMode = ringData.getViewMode();
 
-
-
-    this.cbNodeOwners$.pipe(take(1)).subscribe((d) => {
+    if (this.ringData.isLoaded) {
       this.createParticipants();
-    })
+    } else {
+      this.ringData.isReady$.pipe(take(1)).subscribe((d) => {
+        this.createParticipants();
+      })
+    }
 
     this.ringData.channelUpdate$.subscribe((data) => {
       this.refreshParticipants();
@@ -67,6 +70,10 @@ export class WatcherComponent implements OnInit {
 
   getSegments() {
     return this.segments;
+  }
+
+  getIsReady() {
+    return this.ringData.getIsLoaded();
   }
 
   getChartSegments() {
@@ -95,7 +102,6 @@ export class WatcherComponent implements OnInit {
   }
 
   viewChange(event: any) {
-    console.log("viewchange", event);
     this.ringData.setViewMode(event);
 
     this.ringLabels = this.segments.map((val) => {
@@ -126,6 +132,9 @@ export class WatcherComponent implements OnInit {
         this.participants.push(p);
       }
     }
+
+//     this.isReady = true;
+   // console.log("initialization ready");
   }
 
   getUsername(node: NodeInfo | undefined) {

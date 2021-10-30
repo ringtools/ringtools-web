@@ -193,7 +193,13 @@ export class DesignComponent implements OnInit, OnDestroy {
       }
     };
 
-    this.buildNodes();
+    if (this.ringData.isLoaded) {
+      this.buildNodes();
+    } else {
+      this.ringData.isReady$.subscribe(() => {
+        this.buildNodes();
+      });
+    }
   }
 
   public ngOnDestroy(): void {
