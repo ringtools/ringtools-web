@@ -222,6 +222,10 @@ export class DesignComponent implements OnInit, OnDestroy {
     }
   }
 
+  isRingLeader(no) {
+    return this.ringData.getRingLeader() == no
+  }
+
   public ngOnDestroy(): void {
     this.visNetworkService.off(this.visNetwork, 'click');
     this.subs.unsubscribe();
