@@ -1,5 +1,6 @@
 /* tslint:disable */
 import { EventEmitter, Injectable } from '@angular/core';
+import { DataSet, Node } from 'vis-network';
 import {
   BoundingBox,
   ClusterOptions,
@@ -572,6 +573,42 @@ export class VisNetworkService {
     } else {
       throw new Error(`Network with id ${visNetwork} not found.`);
     }
+  }
+
+  public bestFit(visNetwork: string, nodes: DataSet<Node>) {
+
+    this.networks[visNetwork].moveTo({scale:1}); 
+    this.networks[visNetwork].stopSimulation();
+     
+    var bigBB = { top: Infinity, left: Infinity, right: -Infinity, bottom: -Infinity }
+    nodes.getIds().forEach( (i) => {
+      var bb = this.networks[visNetwork].getBoundingBox(i);
+      if (bb.top < bigBB.top) bigBB.top = bb.top;
+      if (bb.left < bigBB.left) bigBB.left = bb.left;
+      if (bb.right > bigBB.right) bigBB.right = bb.right;
+      if (bb.bottom > bigBB.bottom) bigBB.bottom = bb.bottom;  
+    })
+    
+    // @ts-ignore
+    var canvasWidth = this.networks[visNetwork].canvas.body.container.clientWidth;
+    // @ts-ignore
+    var canvasHeight = this.networks[visNetwork].canvas.body.container.clientHeight; 
+  
+    var scaleX = canvasWidth/(bigBB.right - bigBB.left);
+    var scaleY = canvasHeight/(bigBB.bottom - bigBB.top);
+    var scale = scaleX;
+    if (scale * (bigBB.bottom - bigBB.top) > canvasHeight ) scale = scaleY;
+  
+    if (scale>1) scale = 0.9*scale;
+   
+    this.networks[visNetwork].moveTo({
+      scale: scale,
+      position: {
+        x: (bigBB.right + bigBB.left)/2,
+        y: (bigBB.bottom + bigBB.top)/2
+      }
+    })
+    
   }
 
   /**
