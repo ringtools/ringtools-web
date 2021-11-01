@@ -12,6 +12,8 @@ import * as d3 from 'd3';
 export class RofCircleComponent implements OnInit, OnChanges {
   @Input() data: any[] = [];
   @Input() ringName: string = '';
+  @Input() showLogo: boolean = false;
+  @Input() ringLabels: string[] = [];
 
   hostElement: any; // Native element hosting the SVG container
   svg: any; // Top level SVG element
@@ -43,31 +45,48 @@ export class RofCircleComponent implements OnInit, OnChanges {
     .sort(null);
   arc: any;
 
+  ringLabelData = [];
+
   constructor(
     private elRef: ElementRef
   ) {
     this.hostElement = this.elRef.nativeElement;
-   }
+  }
 
   ngOnInit(): void {
+
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.data) {
       this.updateChart(changes.data.currentValue);
     }
+
+    if (changes.ringLabels) {
+      this.updateLabels(changes.ringLabels.currentValue);
+    }
   }
 
   private createChart(data: any[]) {
     this.processPieData(data);
+    
     this.removeExistingChartFromParent();
     this.setChartDimensions();
     this.setColorScale();
     this.addGraphicsElement();
     this.setupArcGenerator();
+    
+
     this.addSlicesToTheDonut();
     this.addLabelsToTheDonut();
-    this.addCenterLabel();
+    this.defineMarkers();
+
+    if (this.showLogo) {
+      this.addCenterLogo();
+      this.addCircleArrow();
+    } else {
+      this.addCenterLabel();
+    }
   }
 
   public updateChart(data: any[]) {
@@ -87,24 +106,120 @@ export class RofCircleComponent implements OnInit, OnChanges {
         if (!d.data.data.active)
           return 0.25;
         return 1;
-        
+
       })
       .style("stroke-width", (d) => {
-                if (!d.data.data.active)
-                  return 1;
-                return 0;
-                
-              });
+        if (!d.data.data.active)
+          return 1;
+        return 0;
+
+      });
   }
 
   private addCenterLabel() {
     this.g.append("text")
-	   .attr("text-anchor", "middle")
-		 .attr('font-size', '1.2rem')
-		 .attr('dy', 10)
-     .attr('fill', '#ffffff')
-	   .text(this.ringName);
-     
+      .attr("text-anchor", "middle")
+      .attr('font-size', '1.2rem')
+      .attr('dy', 10)
+      .attr('fill', '#ffffff')
+      .text(this.ringName);
+
+  }
+
+  private addCenterLogo() {
+    let w = 350;
+    let h = 350;
+
+    this.g.append("image")
+      .attr("xlink:href", "/assets/roflogo.png")
+      .attr("width", w).attr("height", h)
+      .attr("x", -w/2).attr("y", -h/2)
+  }
+
+  private addCircleArrow() {
+    this.innerRadius = 140;
+    this.radius = 140;
+    let width = 350;
+    let pi = Math.PI;
+
+    let circleArrow = d3.arc()
+      .innerRadius(width * 0.75 / 2)
+      .outerRadius(width * 0.75 / 2 + 15)
+      .startAngle(80 * (pi / 180))
+      .endAngle(-80 * (pi / 180))
+
+    this.g
+      .append('path')
+      .attr('d', circleArrow)
+      // .attr('marker-start', (d, i) => {
+      //   return 'url(#arrowhead)'
+      // })
+      .attr('marker-end', (d, i) => {
+        return 'url(#arrowhead)'
+      })
+      .style("fill", "#fff");
+  }
+
+  private defineMarkers() {
+    let markerBoxWidth = 20
+    let markerBoxHeight = 20
+    const refX = markerBoxWidth / 2;
+    const refY = markerBoxHeight / 2;
+    const arrowPoints = [[0, 0], [0, 20], [20, 10]];
+
+    let defs = this.g.append("svg:defs");
+
+    defs.append("svg:marker")
+      .attr("id", "marker_arrow")
+      .attr("refX", refX)
+      .attr("refY", refY)
+      .attr("markerWidth", markerBoxWidth)
+      .attr("markerHeight", markerBoxHeight)
+      .attr("markerUnits", "strokeWidth")
+      .attr("orient", "auto-start-reverse")
+      .attr('viewBox', [0, 0, markerBoxWidth, markerBoxHeight])
+      .append("path")
+      /* @ts-ignore */
+      .attr("d", d3.line()(arrowPoints))
+      .style("fill", "#fff")
+      .append("svg:marker")
+      .attr("id", "chevron")
+      .attr('viewBox', [0, 0, markerBoxWidth, markerBoxHeight])
+      .attr("refX", refX)
+      .attr("refY", refY)
+      .attr("markerUnits", "userSpaceOnUse")
+      .attr("markerWidth", markerBoxWidth)
+      .attr("markerHeight", markerBoxHeight)
+      .attr("orient", "auto")
+      .append("path")
+      /* @ts-ignore */
+      .attr("d", 'M0 0 10 0 20 10 10 20 0 20 10 10Z')
+      .style("fill", "#fff")
+    // .append("marker")
+    // .attr("id", "start")
+    // .attr("viewBox", "0 -5 10 10")
+    // .attr("refX", -5)
+    // .attr("refY", 0)
+    // .attr("markerWidth", 6)
+    // .attr("markerHeight", 6)
+    // .attr("orient", "auto")
+    // .append("path")
+    // .attr("d", "M0,0L10,-5L10,5");
+
+    defs.append("marker")
+      .attr("id", "arrowhead")
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 5)
+      .attr("refY", -2)
+      .attr("markerUnits", "strokeWidth")
+      .attr("markerWidth", 36)
+      .attr("markerHeight", 36)
+      .attr("orient", "75deg")
+      .append("path")
+      .attr("d", "M0,-5L10,0L0,5")
+      .style("fill", "#fff")
+//      .attr("transform", "rotate(90)")
+      ;
   }
 
   private processPieData(data: any, initial = true) {
@@ -171,12 +286,28 @@ export class RofCircleComponent implements OnInit, OnChanges {
           return 0.25;
         return 1;
       })
-      .attr("stroke-width", (datum) => { 
+      .attr("stroke-width", (datum) => {
         return Number(!datum.data.data.active) * 2
       })
-      .attr("stroke", (datum) => { 
+      .attr("stroke", (datum) => {
         return !datum.data.data.active ? "yellow" : 'yellow'
       })
+  }
+
+  private updateLabels(data: any[]) {
+
+    this.labels.each((datum, index, n) => {
+      d3.select(n[index])
+      .text(data[index]);
+    });
+
+  //   this.labels = this.g
+  //     .selectAll('.donutText')
+  // //    .transition().duration(1750)
+  //     // .data(this.pieData)
+  //     .enter().append("text")
+  //     .append("textPath")
+  //     .text("replace")
   }
 
   private addLabelsToTheDonut() {
@@ -248,7 +379,10 @@ export class RofCircleComponent implements OnInit, OnChanges {
       .style("text-anchor", "middle")
       .style("fill", "#ffffff")
       .attr("xlink:href", function (d, i) { return "#donutArc" + i; })
-      .text(function (d) { return d.data.name; });
+      .text( (d) => { 
+//        console.log('called for', d, this.ringLabelData)
+        return d.data.name; 
+      });
   }
 
   private removeExistingChartFromParent() {

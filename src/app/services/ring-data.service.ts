@@ -1,12 +1,11 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, SecurityContext } from '@angular/core';
 import { NodeInfo } from '../model/node_info.model';
 import { RoutingPolicy } from '../model/routing_policy.model';
 import { CbNodeOwner } from '../model/cb_node_owner.model';
 import * as d3 from 'd3';
 import { Socket } from 'ngx-socket-io';
 import { Subject } from 'rxjs';
-import { environment } from 'src/environments/environment';
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
 import { loadCbNodeOwners } from '../actions/cb-node-owner.actions';
@@ -15,8 +14,10 @@ import { upsertNodeInfo } from '../actions/node-info.actions';
 import { upsertChannel } from '../actions/channel.actions';
 import { selectSettings } from '../selectors/setting.selectors';
 import { SettingState } from '../reducers/setting.reducer';
-import { setRingName, setViewMode } from '../actions/setting.actions';
+import { setPubsubServer, setRingName, setViewMode } from '../actions/setting.actions';
 import { RingSetting } from '../model/ring-setting.model';
+import { DomSanitizer } from '@angular/platform-browser';
+import { upsertRingSetting } from '../actions/ring-setting.actions';
 
 @Injectable({
   providedIn: 'root'
@@ -29,12 +30,15 @@ export class RingDataService {
   private _channelUpdate = new Subject();
   channelUpdate$ = this._channelUpdate.asObservable();
 
+  private _isReady = new Subject();
+  isReady$ = this._isReady.asObservable();
+
   nodeNames: Map<string, string> = new Map<string, string>();
-  nodeToTgMap: Map<string, string> = new Map<string, string>();
-  nodeInfo: Map<string, NodeInfo|undefined> = new Map<string, NodeInfo|undefined>();
+  nodeToTgMap: Map<string, CbNodeOwner> = new Map<string, CbNodeOwner>();
+  nodeInfo: Map<string, NodeInfo | undefined> = new Map<string, NodeInfo | undefined>();
 
   channels: any = [];
-
+  isLoaded: boolean = false;
   viewMode = 'tg';
   settings!: SettingState;
   colorScale!: any; // D3 color provider
@@ -43,6 +47,7 @@ export class RingDataService {
   constructor(
     private http: HttpClient,
     private socket: Socket,
+    private sanitizer: DomSanitizer,
     private store: Store<fromRoot.State>
   ) {
 
@@ -50,6 +55,13 @@ export class RingDataService {
       let pubkeys = res.map((val) => {
         return val.pub_key;
       })
+
+      this.cbNodeOwners = res;
+
+      for (let o of this.cbNodeOwners) {
+        this.nodeToTgMap.set(o.pub_key, o)
+      }
+
       this.socket.emit("subscribe_pubkey", { data: pubkeys })
     })
 
@@ -68,10 +80,17 @@ export class RingDataService {
     //this.populateTgMap();
     //    this.populateChannels();
 
-    this.socket.on("pubkey", (data:NodeInfo) => {
+    this.socket.on("pubkey", (data: NodeInfo) => {
       this.store.dispatch(upsertNodeInfo({ nodeInfo: data }));
 
+
       this.nodeInfo.set(data.node.pub_key, data);
+
+      if (this.nodeInfo.size == this.cbNodeOwners.length) {
+        this.isLoaded = true;
+        this._isReady.next(this.isLoaded);
+      }
+
     });
     this.socket.on("channel", (data) => {
       this.store.dispatch(upsertChannel({ channel: data }));
@@ -87,6 +106,18 @@ export class RingDataService {
       .interpolate(d3.interpolateHcl);
   }
 
+  getIsLoaded() {
+    return this.isLoaded;
+  }
+
+  getUsername(pub_key: string) {
+    let ret = this.getTgUserByPubkey(pub_key);
+    if (ret.handle == "None") {
+      return ret.user_name;
+    }
+    return `@${ret.handle}`;
+  }
+
   updateChannel(channelData) {
     let n1 = this.nodeInfo.get(channelData.node1_pub);
 
@@ -100,13 +131,18 @@ export class RingDataService {
       return data.channel_id != channelData.channel_id
     })
 
-    n1?.channels.push(channelData);
-    n2?.channels.push(channelData);
+    /** @TODO: Because of immutable objects this is no longer possible */
+    //    n1?.channels.push(channelData);
+    //  n2?.channels.push(channelData);
 
-    if (n1)
+    if (n1) {
       this.nodeInfo.set(n1.node.pub_key, n1);
-    if (n2)
+      this.store.dispatch(upsertNodeInfo({ nodeInfo: n1 }));
+    }
+    if (n2) {
       this.nodeInfo.set(n2.node.pub_key, n2);
+      this.store.dispatch(upsertNodeInfo({ nodeInfo: n2 }));
+    }
 
     this._channelUpdate.next([n1, n2]);
   }
@@ -146,20 +182,25 @@ export class RingDataService {
   }
 
   getNodeInfoApi(pubkey: string) {
-    return this.http.get<NodeInfo>(`${environment.REST_ENDPOINT}/node/${pubkey}`);
+    return this.http.get<NodeInfo>(`${this.settings.pubsubServer}/node/${pubkey}`);
   }
 
   getNodeInfo(pubkey: string) {
     return this.nodeInfo.get(pubkey);
   }
 
+  /**
+   * @deprecated
+   * @param pubkey 
+   * @returns 
+   */
   getCachedNodeInfo(pubkey: string) {
-    return this.nodeInfo.get(pubkey);
+    return this.getNodeInfo(pubkey);
   }
 
   nodeHasChannelWith(pubkey: string, channelWith: string) {
     let n = this.nodeInfo.get(pubkey);
-    let ret:number|null = null;
+    let ret: number | null = null;
 
     if (n) {
       for (let edge of n.channels) {
@@ -188,23 +229,32 @@ export class RingDataService {
     return ret;
   }
 
+  setPubsubServer(pubsubServer: string) {
+    this.store.dispatch(setPubsubServer(pubsubServer))
+
+  }
+
+  getPubsubServer() {
+    return this.settings.pubsubServer;
+  }
+
   populateChannels() {
     for (let [key, node] of this.cbNodeOwners.entries()) {
       let data = this.getNodeInfo(node.pub_key);
-        if (!data)
-          return;
-        this.nodeNames.set(node.pub_key, data.node.alias);
+      if (!data)
+        return;
+      this.nodeNames.set(node.pub_key, data.node.alias);
 
-        this.nodeInfo.set(node.pub_key, data);
+      this.nodeInfo.set(node.pub_key, data);
 
-        for (let edge of data.channels) {
-          let nextIndex = (key + 1) % this.cbNodeOwners.length;
+      for (let edge of data.channels) {
+        let nextIndex = (key + 1) % this.cbNodeOwners.length;
 
-          if (edge.node1_pub == this.cbNodeOwners[nextIndex].pub_key || edge.node2_pub == this.cbNodeOwners[nextIndex].pub_key) {
-            this.channels.push(edge)
-          }
+        if (edge.node1_pub == this.cbNodeOwners[nextIndex].pub_key || edge.node2_pub == this.cbNodeOwners[nextIndex].pub_key) {
+          this.channels.push(edge)
         }
-      
+      }
+
     };
   }
 
@@ -256,5 +306,75 @@ export class RingDataService {
   loadSettings(item: RingSetting) {
     this.setRingName(item.ringName);
     this.store.dispatch(loadCbNodeOwners(item.ringParticipants))
+  }
+
+  saveRingSettings(segments) {
+    if (segments) {
+      let ringSettings: RingSetting = {
+        ringName: this.getRingName(),
+        ringParticipants: segments,
+        cleanRingName: this.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''),
+        id: this.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
+      }
+      this.store.dispatch(upsertRingSetting({ ringSetting: ringSettings }))
+    }
+  }
+
+  downloadChannelsTxt() {
+
+    if (!this.getChannels().length) {
+      this.populateChannels();
+    }
+
+    let data = '';
+
+    for (let channel of this.getChannels()) {
+      data += channel.channel_id + "\r\n";
+    }
+
+    let element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+    element.setAttribute('download', 'channels.txt');
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element)
+  }
+
+  downloadPubkeysTgTxt() {
+
+    if (!this.getChannels().length) {
+      this.populateChannels();
+    }
+
+    let data = '';
+
+    for (let no of this.cbNodeOwners) {
+      data += `${no.pub_key},${this.getUsername(no.pub_key)}\r\n`;
+    }
+
+    // const blob = new Blob([data], { type: 'application/octet-stream' });
+
+    // let fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(window.URL.createObjectURL(blob));
+    // let sanitized = this.sanitizer.sanitize(SecurityContext.RESOURCE_URL, fileUrl);
+
+    //if (sanitized) {
+      let element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+      element.setAttribute('download', 'pubkeys.txt');
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element)
+  //  }
+  }
+
+  downloadFile(data) {
+    const blob = new Blob([data], { type: 'application/octet-stream' });
+
+    let fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(window.URL.createObjectURL(blob));
+    let sanitized = this.sanitizer.sanitize(SecurityContext.RESOURCE_URL, fileUrl);
+    if (sanitized)
+      window.open(sanitized, "_blank");
   }
 }

@@ -1,15 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { RingDataService } from '../services/ring-data.service';
-import ringInfo from '../data/ring.txt';
 import { CbNodeOwner } from '../model/cb_node_owner.model';
 import { select, Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
 import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
 import { Observable } from 'rxjs';
-import { loadCbNodeOwners } from '../actions/cb-node-owner.actions';
+import { addCbNodeOwner, loadCbNodeOwners, removeCbNodeOwner } from '../actions/cb-node-owner.actions';
 import { RingSetting } from '../model/ring-setting.model';
 import { removeRingSetting, upsertRingSetting } from '../actions/ring-setting.actions';
 import { selectRingSettings } from '../selectors/ring-setting.selectors';
+import { selectSettings } from '../selectors/setting.selectors';
+import { SettingState } from '../reducers/setting.reducer';
+import { setShowLogo } from '../actions/setting.actions';
 
 @Component({
   selector: 'app-settings',
@@ -20,9 +22,16 @@ export class SettingsComponent implements OnInit {
   segments: CbNodeOwner[] | undefined;
   pubkeysText: any = '';
   ringName: any = '';
+  pubsubServer: string = '';
   cbNodeOwners$: Observable<CbNodeOwner[]>;
   ringSettings$: Observable<RingSetting[]>;
   ringSettings: RingSetting[] = [];
+  tempNodename = '';
+  showLogo:boolean;
+
+  addPubKey;
+  addTgUsername;
+  settings: SettingState;
 
   constructor(
     public ringData: RingDataService,
@@ -34,16 +43,28 @@ export class SettingsComponent implements OnInit {
       this.ringSettings = data;
     })
 
+    this.store.select(selectSettings).subscribe((settings) => {
+      this.settings = settings;
+
+      this.showLogo = settings.showLogo;
+    });
+
     this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
 
     this.cbNodeOwners$.subscribe((data) => {
       this.segments = data;
     })
-    this.pubkeysText = ringInfo;
+    this.pubkeysText = '';
     this.ringName = ringData.getRingName();
+
+    this.pubsubServer = this.ringData.getPubsubServer();
   }
 
   ngOnInit(): void {
+  }
+
+  updateShowLogo(event) {
+    this.store.dispatch(setShowLogo(event));
   }
 
   getSegments() {
@@ -72,22 +93,53 @@ export class SettingsComponent implements OnInit {
   }
 
   saveRingSettings() {
-    if (this.segments) {
-      let ringSettings: RingSetting = {
-        ringName: this.ringData.getRingName(),
-        ringParticipants: this.segments,
-        cleanRingName: this.ringData.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '').substr(1),
-        id: this.ringData.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '').substr(1)
-      }
-      this.store.dispatch(upsertRingSetting({ ringSetting: ringSettings }))
-    }
+    this.ringData.saveRingSettings(this.segments);
   }
 
   loadSettings(item) {
     this.ringData.loadSettings(item);
+
+    let pkContents = 'user_name,nodename,pub_key,new,handle,capacity_sat\r\n';
+
+    for (let p of item.ringParticipants) {
+      pkContents += `${p.user_name},${p.nodename},${p.pub_key},${p.new},${p.handle},${p.capacity_sat}\r\n`;
+    }
+
+    this.pubkeysText = pkContents;
   }
 
   removeSettings(item) {
     this.store.dispatch(removeRingSetting({ ringSetting: item.cleanRingName }))
+  }
+
+  addCbNodeOwner() {
+    this.ringData.getNodeInfoApi(this.addPubKey).subscribe((data) => {
+
+      if (data) {
+        let no:CbNodeOwner = {
+          pub_key: this.addPubKey,
+          nodename: data.node.alias,
+          user_name: this.addTgUsername,
+          handle: this.addTgUsername,
+          capacity_sat: data.total_capacity
+        }
+
+        console.log(no);
+    
+        this.store.dispatch(addCbNodeOwner(no));
+      }
+    })
+
+
+  }
+
+  removeCbNodeOwner(nodeOwner: CbNodeOwner) {
+    this.store.dispatch(removeCbNodeOwner(nodeOwner));
+
+
+  }
+
+  setPubSubServer() {
+
   }
 }

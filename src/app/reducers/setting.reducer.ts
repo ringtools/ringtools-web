@@ -8,11 +8,15 @@ export const settingFeatureKey = 'setting';
 export interface SettingState {
   ringName: string
   viewMode: string
+  pubsubServer: string
+  showLogo: boolean
 }
 
 export const initialState: SettingState = {
   ringName: '#SRROF_500Ksats_8thRING',
-  viewMode: 'tg'
+  viewMode: 'tg',
+  pubsubServer: 'https://ringtools.djuri.nl',
+  showLogo: false
 };
 
 
@@ -25,6 +29,10 @@ export const settingReducer = createReducer(
   on(SettingActions.setViewMode, 
     (state: SettingState, {viewMode}) => {
       return {...state, viewMode: viewMode }
+  }),
+  on(SettingActions.setShowLogo, 
+    (state: SettingState, {showLogo}) => {
+      return {...state, showLogo: showLogo }
   }),
 );
 

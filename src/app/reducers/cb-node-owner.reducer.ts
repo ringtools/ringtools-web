@@ -47,6 +47,10 @@ export const cbNodeReducer = createReducer(
     (state: CbNodeOwnerState, {cbNodeOwners}) => {
       return adapter.setMany(cbNodeOwners, state)
   }),
+  on(CbNodeOwnerActions.removeCbNodeOwner,
+    (state: CbNodeOwnerState, {cbNodeOwner}) => {
+      return adapter.removeOne(cbNodeOwner.pub_key, state)
+    }),
   on(CbNodeOwnerActions.clearCbNodeOwners,
     state => {
       return adapter.removeAll({...state, selectCbNodeOwner: null })

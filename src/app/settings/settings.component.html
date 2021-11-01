@@ -14,29 +14,86 @@
                         [ngModelOptions]="{standalone: true}" spellcheck="false"></textarea>
                     <button (click)="processGroupnodes()" class="btn btn-primary mb-2">Import Groupnodes</button>
                 </div>
+                <!-- <div class="form-group">
+                    <label for="ringName">LND PubSub server</label>
+                    <input type="text" class="form-control" id="pubsubServer" placeholder="PubSub Server" [(ngModel)]="pubsubServer"
+                        [ngModelOptions]="{standalone: true}">
+                    <button (click)="setPubSubServer()" class="btn btn-primary mb-2">Save server</button>
+                </div> -->
+
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="showSrRofLogo" [(ngModel)]="showLogo"
+                    (ngModelChange)="updateShowLogo($event)"
+                    [ngModelOptions]="{standalone: true}">
+                    <label class="form-check-label" for="showSrRofLogo">
+                      Show SR RoF logo
+                    </label>
+                  </div>
             </form>
         </div>
         <div class="col-md-6">
-            <table class="table table-sm table-striped small">
-                <thead>
-                    <tr>
-                        <th scope="col">Public Key</th>
-                        <th scope="col">Nodename</th>
-                        <th scope="col">TG username</th>
-                        <th scope="col">Capacity</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <ng-container *ngFor="let item of cbNodeOwners$ | async">
+            <form>
+                <table class="table table-sm table-striped small">
+                    <thead>
                         <tr>
-                            <th scope="row">{{ item.pub_key }}</th>
-                            <td>{{ item.nodename }}</td>
-                            <td>{{ item.user_name }}</td>
-                            <td>{{ item.capacity_sat }}</td>
+                            <th colspan="2" scope="col"></th>
+                            <th scope="col">Public Key</th>
+                            <th scope="col">Nodename</th>
+                            <th scope="col">TG username</th>
+                            <th scope="col">Capacity</th>
+                            <th scope="col">&nbsp;</th>
                         </tr>
-                    </ng-container>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngFor="let item of cbNodeOwners$ | async">
+                            <tr>
+                                <th>
+                                    <a [attr.href]="'https://amboss.space/node/' +  item.pub_key" target="_blank">
+                                        <img src="/assets/amboss.png" class="service-icon">
+                                    </a>
+                                </th>
+                                <th>
+                                    <a [attr.href]="'https://1ml.com/node/' + item.pub_key" target="_blank">
+                                        <img src="/assets/1ml.png" class="service-icon">
+                                    </a>
+                                </th>
+                                <th scope="row">
+                                    {{ item.pub_key }}
+                                </th>
+                                <td>{{ item.nodename }}</td>
+                                <td>{{ item.user_name }}</td>
+                                <td>{{ item.capacity_sat }}</td>
+                                <td><button class="btn btn-danger btn-small btn-sm delete-btn" (click)="removeCbNodeOwner(item)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                </td>
+                            </tr>
+                        </ng-container>
+
+                        <tr>
+                            <th colspan="2">
+                                Manual add
+                            </th>
+
+                            <th scope="row" class="no-padding">
+                                <div class="form-check">
+                                    <input class="form-check-input position-static" type="text" id="pubkey"
+                                        [(ngModel)]="addPubKey" name="pubKey">
+                                </div>
+                            </th>
+                            <td>{{ tempNodename }}</td>
+                            <td class="no-padding">
+                                <div class="form-check">
+                                    <input class="form-check-input position-static" type="text" id="TG username"
+                                        [(ngModel)]="addTgUsername" name="tgUserName">
+                                </div>
+                            </td>
+                            <td><button class="btn btn-primary btn-small btn-sm" (click)="addCbNodeOwner()">Add</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
             <button (click)="saveRingSettings()" class="btn btn-primary mb-2">Save Ring Settings</button>
             <h3>Saved Rings</h3>
             <ul class="list-group">

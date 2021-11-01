@@ -1,11 +1,39 @@
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-md-6">
-            Welcome to Ringtools Web. Although there is quite some nice functionality, it is not without issues.
-            Please report them on GitHub if you encounter them, enjoy!
-        </div>
-        <div class="col-md-6">
-        <a [href]="fileUrl" download="channels.txt" (click)="downloadChannelsTxt()">Download channels.txt</a>
+  <div class="row">
+    <div class="col-md-8">
+      <p>Welcome to Ringtools Web. Although there is quite some nice functionality, it is not without issues.
+        Please report them on <a href="https://github.com/dsbaars/srrof-ringtools-web/issues" target="_blank"><i
+            class="bi bi-github"></i> GitHub</a> if you encounter them, enjoy!</p>
+      <h4>How does this work</h4>
+      <p>
+        Ring Participants and their information (loaded from the CSV) will be stored in your browser (LocalStorage)<br>
+        Node information based on the public key of the nodes will be retrieved from LND node without any channels, this
+        might result in slower updates because of less gossip.</p>
+      <h4>Known issues</h4>
+      <ul>
+        <li>Channel updates broke after implementing ngrx state.</li>
+      </ul>
+      <h4>Acknowledgements</h4>
+      <ul>
+        <li>Based on the work by <a href="https://github.com/StijnBTC/Ringtools" target="_blank">@stijnbtc</a></li>
+        <li>Motivated by the amazing <a href="https://satoshiradio.nl/" target="_blank">Satoshi Radio community</a></li>
+      </ul>
     </div>
+    <div class="col-md-4">
+      <img src="/assets/rofcrop.png" width="95%" class="roflogo">
     </div>
+  </div>
+</div>
+
+<div class="container-fluid">
+  <div class="row text-center">
+    <div class="col-lg-12"> 
+      <a href="https://github.com/dsbaars/srrof-ringtools-web/issues" target="_blank"><i
+          class="bi bi-github"></i>
+        GitHub</a> | <a href="https://ln.bitcoinbeach.com/de_joeri" target="_blank"><i
+          class="bi bi-currency-bitcoin"></i>
+          Donate</a>
+    </div>
+
+  </div>
 </div>

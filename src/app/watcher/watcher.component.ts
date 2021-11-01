@@ -10,6 +10,9 @@ import { upsertChannel } from '../actions/channel.actions';
 import { ChannelEdge } from '../model/channel_edge.model';
 import { selectNodeInfos  } from '../selectors/node-info.selectors';
 import { NodeInfo } from '../model/node_info.model';
+import * as svg from 'save-svg-as-png';
+import { selectSettings } from '../selectors/setting.selectors';
+import { SettingState } from '../reducers/setting.reducer';
 
 @Component({
   selector: 'app-watcher',
@@ -20,6 +23,9 @@ export class WatcherComponent implements OnInit {
   viewMode: string;
   segments: CbNodeOwner[] = [];
   cbNodeOwners$: Observable<CbNodeOwner[]>
+  ringLabels: string[];
+  settings: SettingState;
+  isReady:boolean = false;
 
   participants: RingParticipant[] = new Array<RingParticipant>();
   ndata = '';
@@ -30,17 +36,29 @@ export class WatcherComponent implements OnInit {
   ) {
     this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
 
+    this.store.select(selectSettings).subscribe((settings) => {
+      this.settings = settings;
+      this.viewMode = settings.viewMode;
+    });
+
     this.cbNodeOwners$.subscribe((data) => {
       this.segments = data;
+
+      this.ringLabels = this.segments.map((val) => {
+        if (this.viewMode == "node")
+          return val.nodename;
+        return this.ringData.getUsername(val.pub_key)
+      })
     })
     this.viewMode = ringData.getViewMode();
 
-
-
-
-    this.cbNodeOwners$.pipe(take(1)).subscribe((d) => {
+    if (this.ringData.isLoaded) {
       this.createParticipants();
-    })
+    } else {
+      this.ringData.isReady$.pipe(take(1)).subscribe((d) => {
+        this.createParticipants();
+      })
+    }
 
     this.ringData.channelUpdate$.subscribe((data) => {
       this.refreshParticipants();
@@ -54,15 +72,22 @@ export class WatcherComponent implements OnInit {
     return this.segments;
   }
 
+  getIsReady() {
+    return this.ringData.getIsLoaded();
+  }
+
   getChartSegments() {
     if (!this.participants.length) {
-      return this.getSegments().map((val) => {
-        return { name: val.user_name, active: false }
+      return this.getSegments().map((val, i) => {
+        if (this.viewMode == "node")
+          return { name: val.nodename, active: false }
+        else
+          return { name: val.user_name, active: false }
       })
     }
     let ret = this.participants.map((val, i) => {
       let isOk: boolean = Boolean(val.channel_id)
-      return { name: val.initiator?.node.alias, active: isOk }
+      return { name: this.ringLabels[i], active: isOk }
     });
 
     return ret;
@@ -78,6 +103,12 @@ export class WatcherComponent implements OnInit {
 
   viewChange(event: any) {
     this.ringData.setViewMode(event);
+
+    this.ringLabels = this.segments.map((val) => {
+      if (this.viewMode == "node")
+        return val.nodename;
+      return this.ringData.getUsername(val.pub_key)
+    })
   }
 
   createParticipants() {
@@ -101,15 +132,23 @@ export class WatcherComponent implements OnInit {
         this.participants.push(p);
       }
     }
+
+//     this.isReady = true;
+   // console.log("initialization ready");
   }
 
   getUsername(node: NodeInfo | undefined) {
     if (!node)
       return;
 
-    return this.segments.find((val) => {
+    let ret = this.segments.find((val) => {
       return val.pub_key == node.node.pub_key
-    })?.user_name
+    })
+
+    if (ret.handle == "None") {
+      return ret.user_name;
+    }
+    return `@${ret.handle}`;
   }
 
   refreshParticipants() {
@@ -169,6 +208,41 @@ export class WatcherComponent implements OnInit {
   getColor(i) {
     let scale = this.ringData.getColorScale()(i);
     return scale;
+  }
+
+  getRingLabels() {
+    return this.ringLabels;
+  }
+
+  downloadAsPng() {
+    let ringName = this.ringData.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '').trim();
+
+
+    svg.saveSvgAsPng(document.getElementById("rofvisual").children[0], `${ringName}.png`, {
+      backgroundColor: "#000",
+      scale: 1.5,
+      // fonts: [
+      //   {
+      //     url: '/assets/fonts/lato-v20-latin-regular.woff2',
+      //     format: 'application/font-woff2',
+      //     text: "@font-face { font-family: 'Lato'; font-style: normal; font-weight: 400; src: url('/assets/fonts/lato-v20-latin-regular.eot');  url('/assets/fonts/lato-v20-latin-regular.woff2') format('woff2');"
+      //   }
+      // ],
+    })
+  }
+
+  downloadAsSvg() {
+    svg.saveSvgAsPng(document.getElementById("rofvisual").children[0], "ring-of-fire-visual.png", {
+      backgroundColor: "#000",
+      scale: 1.5,
+      // fonts: [
+      //   {
+      //     url: '/assets/fonts/lato-v20-latin-regular.woff2',
+      //     format: 'application/font-woff2',
+      //     text: "@font-face { font-family: 'Lato'; font-style: normal; font-weight: 400; src: url('/assets/fonts/lato-v20-latin-regular.eot');  url('/assets/fonts/lato-v20-latin-regular.woff2') format('woff2');"
+      //   }
+      // ],
+    })
   }
 
 }
