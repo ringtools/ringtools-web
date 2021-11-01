@@ -177,14 +177,16 @@ export class RingDataService {
   }
 
   getRingName() {
-    return this.settings.ringName;
+    return this.ringName;
   }
 
   getRingSize() {
-    return this.settings.ringSize;
+    return this.ringSize;
   }
 
-  setRingName(ringName: string) {
+  setRingName(ringName: string) 
+  {
+    this.ringName = ringName;
     this.store.dispatch(setRingName(ringName));
   }
 

@@ -41,10 +41,11 @@
         (click)="downloadIgniterPubkeys()">Download igniter.sh pubkeys</button>
       <hr />
       <form class="form-inline">
-        <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Ringleader</label>
-        <select class="form-control">
+        <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Igniter</label>
+        <select class="form-control"  [(ngModel)]="selectedIgniter" name="selectedIgniter">
+          <option [value]="undefined">Select</option>
           <ng-container  *ngFor="let s of segments">
-          <option [attr.selected]="isRingLeader(s)">
+          <option [ngValue]="s">
             <ng-template [ngIf]="viewMode == 'tg'" [ngIfElse]="elseBlock">
               {{ s.user_name }}
             </ng-template>
@@ -54,6 +55,8 @@
           </option>
         </ng-container>
         </select>
+        <button type="submit" class="btn btn-primary my-1" (click)="reorderIgniter()">Reorder</button>
+
       </form>
     </div>
   </div>

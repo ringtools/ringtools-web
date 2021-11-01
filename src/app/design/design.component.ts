@@ -42,6 +42,7 @@ export class DesignComponent implements OnInit, OnDestroy {
   subs = new Subscription();
   ringSettings$: Observable<RingSetting[]>;
   ringSettings: RingSetting;
+  selectedIgniter: any;
 
   constructor(
     private visNetworkService: VisNetworkService,
@@ -322,5 +323,17 @@ export class DesignComponent implements OnInit, OnDestroy {
     igniterText += ')'
 
     this.ringData.downloadFile(igniterText);
+  }
+
+  reorderIgniter() {
+    console.log(this.selectedIgniter)
+
+    let idx = this.segments.indexOf(this.selectedIgniter);
+    let partsUntilIgniter = this.segments.slice(0, (idx + 1));
+    let partsFromIgniter = this.segments.slice((idx+1));
+    let newOrder = partsFromIgniter.concat(partsUntilIgniter);
+
+    this.store.dispatch(loadCbNodeOwners(newOrder))
+    this.ringData.saveRingSettings(this.segments);
   }
 }

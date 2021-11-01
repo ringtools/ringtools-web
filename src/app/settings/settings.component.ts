@@ -65,6 +65,16 @@ export class SettingsComponent implements OnInit {
   ngOnInit(): void {
   }
 
+
+  parseCapacityName() {
+    let capacity:String = this.ringName.match(/_(\d+[K|M])sats_/)[1];
+
+    capacity = capacity.toString().replace('K', '000');
+    capacity = capacity.toString().replace('M', '000000');
+
+    this.ringSize = Number(capacity);
+  }
+
   updateShowLogo(event) {
     this.store.dispatch(setShowLogo(event));
   }
