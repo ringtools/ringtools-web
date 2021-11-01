@@ -1,6 +1,7 @@
 import { state } from '@angular/animations';
 import { Action, createReducer, on } from '@ngrx/store';
 import * as SettingActions from '../actions/setting.actions';
+import { CbNodeOwner } from '../model/cb_node_owner.model';
 
 
 export const settingFeatureKey = 'setting';
@@ -10,13 +11,16 @@ export interface SettingState {
   viewMode: string
   pubsubServer: string
   showLogo: boolean
+  ringSize: number;
+  ringLeader?: CbNodeOwner;
 }
 
 export const initialState: SettingState = {
   ringName: '#SRROF_500Ksats_8thRING',
   viewMode: 'tg',
   pubsubServer: 'https://ringtools.djuri.nl',
-  showLogo: false
+  showLogo: false,
+  ringSize: null
 };
 
 
@@ -25,6 +29,14 @@ export const settingReducer = createReducer(
   on(SettingActions.setRingName, 
     (state: SettingState, {ringName}) => {
       return {...state, ringName: ringName }
+  }),
+  on(SettingActions.setRingLeader, 
+    (state: SettingState, {ringLeader}) => {
+      return {...state, ringLeader: ringLeader }
+  }),
+  on(SettingActions.setRingSize, 
+    (state: SettingState, {ringSize}) => {
+      return {...state, ringSize: ringSize }
   }),
   on(SettingActions.setViewMode, 
     (state: SettingState, {viewMode}) => {

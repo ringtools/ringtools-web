@@ -1,4 +1,5 @@
 import { createAction, props } from '@ngrx/store';
+import { CbNodeOwner } from '../model/cb_node_owner.model';
 
 export const setSettings = createAction(
   '[Setting] Set Settings'
@@ -7,6 +8,16 @@ export const setSettings = createAction(
 export const setRingName = createAction(
   '[Setting] set Ring Name',
   (ringName: string) => ({ringName})
+);
+
+export const setRingSize = createAction(
+  '[Setting] set Ring Size',
+  (ringSize: number) => ({ringSize})
+);
+
+export const setRingLeader = createAction(
+  '[Setting] set Ring Leader',
+  (ringLeader: CbNodeOwner) => ({ringLeader})
 );
 
 export const setViewMode = createAction(

@@ -11,6 +11,10 @@ import * as fromRoot from '../reducers';
 import { CbNodeOwner } from '../model/cb_node_owner.model';
 import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
 import { loadCbNodeOwners, setCbNodeOwners } from '../actions/cb-node-owner.actions';
+import { selectSettings } from '../selectors/setting.selectors';
+import { SettingState } from '../reducers/setting.reducer';
+import { selectRingSettings } from '../selectors/ring-setting.selectors';
+import { RingSetting } from '/Users/djuribaars/src/RoF/RoFweb/src/app/model/ring-setting.model';
 
 @Component({
   selector: 'app-design',
@@ -33,9 +37,11 @@ export class DesignComponent implements OnInit, OnDestroy {
   cbNodeOwners$: Observable<CbNodeOwner[]>;
   newSegments: any[] = [];
   participants: any;
-
+  settings:SettingState;
   currentNodeInfo: any;
   subs = new Subscription();
+  ringSettings$: Observable<RingSetting[]>;
+  ringSettings: RingSetting;
 
   constructor(
     private visNetworkService: VisNetworkService,
@@ -49,6 +55,16 @@ export class DesignComponent implements OnInit, OnDestroy {
     this.cbNodeOwners$.subscribe((data) => {
       this.segments = data;
     })
+
+    this.store.select(selectSettings).subscribe((settings) => {
+      this.settings = settings;
+    });
+
+    this.ringSettings$ = this.store.select(selectRingSettings);
+
+    // this.ringSettings$.subscribe((data) => {
+    //   this.ringSettings = data;
+    // })
 
     this.viewMode = ringData.getViewMode();
 
@@ -209,7 +225,7 @@ export class DesignComponent implements OnInit, OnDestroy {
   }
 
   public autoDesign() {
-    console.log('auto design start');
+//    console.log('auto design start');
     let unconnectedSegments = this.segments.map((val) => val.pub_key);
 
     this.edges.clear();

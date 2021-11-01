@@ -22,6 +22,7 @@ export class SettingsComponent implements OnInit {
   segments: CbNodeOwner[] | undefined;
   pubkeysText: any = '';
   ringName: any = '';
+  ringSize:number;
   pubsubServer: string = '';
   cbNodeOwners$: Observable<CbNodeOwner[]>;
   ringSettings$: Observable<RingSetting[]>;
@@ -55,7 +56,8 @@ export class SettingsComponent implements OnInit {
       this.segments = data;
     })
     this.pubkeysText = '';
-    this.ringName = ringData.getRingName();
+    this.ringName = this.ringData.getRingName();
+    this.ringSize = this.ringData.getRingSize();
 
     this.pubsubServer = this.ringData.getPubsubServer();
   }
@@ -88,8 +90,11 @@ export class SettingsComponent implements OnInit {
   }
 
   processRingname() {
-
     this.ringData.setRingName(this.ringName);
+  }
+
+  setRingSize() {
+    this.ringData.setRingSize(this.ringSize);
   }
 
   saveRingSettings() {

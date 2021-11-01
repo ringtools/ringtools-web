@@ -14,16 +14,19 @@ import { upsertNodeInfo } from '../actions/node-info.actions';
 import { upsertChannel } from '../actions/channel.actions';
 import { selectSettings } from '../selectors/setting.selectors';
 import { SettingState } from '../reducers/setting.reducer';
-import { setPubsubServer, setRingName, setViewMode } from '../actions/setting.actions';
+import { setPubsubServer, setRingLeader, setRingName, setRingSize, setViewMode } from '../actions/setting.actions';
 import { RingSetting } from '../model/ring-setting.model';
 import { DomSanitizer } from '@angular/platform-browser';
 import { upsertRingSetting } from '../actions/ring-setting.actions';
+import { CbNodeOwnerEffects } from '../effects/cb-node-owner.effects';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RingDataService {
   ringName = "#SRROF_500Ksats_8thRING"
+  ringSize:number;
+  ringLeader:CbNodeOwner;
 
   cbNodeOwners: CbNodeOwner[] = [];
 
@@ -177,8 +180,22 @@ export class RingDataService {
     return this.settings.ringName;
   }
 
+  getRingSize() {
+    return this.settings.ringSize;
+  }
+
   setRingName(ringName: string) {
     this.store.dispatch(setRingName(ringName));
+  }
+
+  setRingSize(ringSize: number) {
+    this.ringSize = ringSize;
+    this.store.dispatch(setRingSize(ringSize));
+  }
+
+  setRingLeader(ringLeader: CbNodeOwner) {
+    this.ringLeader = ringLeader;
+    this.store.dispatch(setRingLeader(ringLeader));
   }
 
   getNodeInfoApi(pubkey: string) {
@@ -303,8 +320,13 @@ export class RingDataService {
     return this.nodeNames.get(pubkey);
   }
 
+  getRingLeader() {
+    this.ringLeader;
+  }
+
   loadSettings(item: RingSetting) {
     this.setRingName(item.ringName);
+    this.setRingSize(item.ringSize);
     this.store.dispatch(loadCbNodeOwners(item.ringParticipants))
   }
 
@@ -314,7 +336,9 @@ export class RingDataService {
         ringName: this.getRingName(),
         ringParticipants: segments,
         cleanRingName: this.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''),
-        id: this.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
+        id: this.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''),
+        ringSize: this.ringSize,
+        ringLeader: this.ringLeader
       }
       this.store.dispatch(upsertRingSetting({ ringSetting: ringSettings }))
     }

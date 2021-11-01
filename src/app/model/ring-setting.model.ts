@@ -5,4 +5,6 @@ export class RingSetting {
   ringName!: string;
   cleanRingName!: string;
   ringParticipants!: CbNodeOwner[];
+  ringSize: number;
+  ringLeader?: CbNodeOwner;
 }
