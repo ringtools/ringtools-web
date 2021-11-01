@@ -14,7 +14,7 @@ import { loadCbNodeOwners, setCbNodeOwners } from '../actions/cb-node-owner.acti
 import { selectSettings } from '../selectors/setting.selectors';
 import { SettingState } from '../reducers/setting.reducer';
 import { selectRingSettings } from '../selectors/ring-setting.selectors';
-import { RingSetting } from '/Users/djuribaars/src/RoF/RoFweb/src/app/model/ring-setting.model';
+import { RingSetting } from '../model/ring-setting.model';
 
 @Component({
   selector: 'app-design',
