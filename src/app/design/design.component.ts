@@ -77,6 +77,10 @@ export class DesignComponent implements OnInit, OnDestroy {
     });
   }
 
+  public bestFit() {
+    this.visNetworkService.bestFit(this.visNetwork, this.nodes);
+  }
+
   buildNodes() {
     for (let node of this.segments) {
       let data = this.ringData.getNodeInfo(node.pub_key)
