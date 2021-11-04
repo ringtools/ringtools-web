@@ -11,6 +11,10 @@ import * as fromRoot from '../reducers';
 import { CbNodeOwner } from '../model/cb_node_owner.model';
 import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
 import { loadCbNodeOwners, setCbNodeOwners } from '../actions/cb-node-owner.actions';
+import { selectSettings } from '../selectors/setting.selectors';
+import { SettingState } from '../reducers/setting.reducer';
+import { selectRingSettings } from '../selectors/ring-setting.selectors';
+import { RingSetting } from '../model/ring-setting.model';
 
 @Component({
   selector: 'app-design',
@@ -33,9 +37,12 @@ export class DesignComponent implements OnInit, OnDestroy {
   cbNodeOwners$: Observable<CbNodeOwner[]>;
   newSegments: any[] = [];
   participants: any;
-
+  settings:SettingState;
   currentNodeInfo: any;
   subs = new Subscription();
+  ringSettings$: Observable<RingSetting[]>;
+  ringSettings: RingSetting;
+  selectedIgniter: any;
 
   constructor(
     private visNetworkService: VisNetworkService,
@@ -49,6 +56,16 @@ export class DesignComponent implements OnInit, OnDestroy {
     this.cbNodeOwners$.subscribe((data) => {
       this.segments = data;
     })
+
+    this.store.select(selectSettings).subscribe((settings) => {
+      this.settings = settings;
+    });
+
+    this.ringSettings$ = this.store.select(selectRingSettings);
+
+    // this.ringSettings$.subscribe((data) => {
+    //   this.ringSettings = data;
+    // })
 
     this.viewMode = ringData.getViewMode();
 
@@ -85,6 +102,10 @@ export class DesignComponent implements OnInit, OnDestroy {
     });
   }
 
+  public bestFit() {
+    this.visNetworkService.bestFit(this.visNetwork, this.nodes);
+  }
+  
   refreshNodes() {
     let nodes = this.nodes.map((node): Node => {
       let n: Node = {
@@ -202,6 +223,10 @@ export class DesignComponent implements OnInit, OnDestroy {
     }
   }
 
+  isRingLeader(no) {
+    return this.ringData.getRingLeader() == no
+  }
+
   public ngOnDestroy(): void {
     this.visNetworkService.off(this.visNetwork, 'click');
     this.subs.unsubscribe();
@@ -209,7 +234,7 @@ export class DesignComponent implements OnInit, OnDestroy {
   }
 
   public autoDesign() {
-    console.log('auto design start');
+//    console.log('auto design start');
     let unconnectedSegments = this.segments.map((val) => val.pub_key);
 
     this.edges.clear();
@@ -266,6 +291,7 @@ export class DesignComponent implements OnInit, OnDestroy {
 
   persistOrder() {
     this.store.dispatch(loadCbNodeOwners(this.segments))
+    this.ringData.saveRingSettings(this.segments);
   }
 
   /* @TODO: Implemnent graph export, right-click save should work as well */
@@ -276,6 +302,10 @@ export class DesignComponent implements OnInit, OnDestroy {
   /* @TODO: Move to service and add igniter.sh generation */
   downloadChannelsTxt() {
     this.ringData.downloadChannelsTxt();
+  }
+
+  downloadPubKeysTxt() {
+    this.ringData.downloadPubkeysTgTxt();
   }
 
   downloadIgniterPubkeys() {
@@ -293,5 +323,17 @@ export class DesignComponent implements OnInit, OnDestroy {
     igniterText += ')'
 
     this.ringData.downloadFile(igniterText);
+  }
+
+  reorderIgniter() {
+    console.log(this.selectedIgniter)
+
+    let idx = this.segments.indexOf(this.selectedIgniter);
+    let partsUntilIgniter = this.segments.slice(0, (idx + 1));
+    let partsFromIgniter = this.segments.slice((idx+1));
+    let newOrder = partsFromIgniter.concat(partsUntilIgniter);
+
+    this.store.dispatch(loadCbNodeOwners(newOrder))
+    this.ringData.saveRingSettings(this.segments);
   }
 }

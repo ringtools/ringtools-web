@@ -1,45 +1,63 @@
 <div class="container-fluid">
   <div class="row">
-    <div *ngIf="visNetworkData" class="col-md-8">
-      <h1>Ring Designer
-        <div class="btn-group btn-small small btn-group-toggle" ngbRadioGroup name="names"
-                    [(ngModel)]="viewMode" (ngModelChange)="viewChange($event)">
-                    <label ngbButtonLabel class="btn-primary btn-sm">
-                        <input ngbButton type="radio" value="node"> Nodename
-                    </label>
-                    <label ngbButtonLabel class="btn-primary btn-sm">
-                        <input ngbButton type="radio" value="tg"> TG username
-                    </label>
-                </div>
-      </h1>
+    <div *ngIf="visNetworkData" class="col-md-10">
+      <h3>Ring Designer
+        <div class="btn-group btn-small small btn-group-toggle" ngbRadioGroup name="names" [(ngModel)]="viewMode"
+          (ngModelChange)="viewChange($event)">
+          <label ngbButtonLabel class="btn-primary btn-sm">
+            <input ngbButton type="radio" value="node"> Nodename
+          </label>
+          <label ngbButtonLabel class="btn-primary btn-sm">
+            <input ngbButton type="radio" value="tg"> TG username
+          </label>
+        </div>
+      </h3>
       <div class="network-canvas" [visNetwork]="visNetwork" [visNetworkData]="visNetworkData"
         [visNetworkOptions]="visNetworkOptions" (initialized)="networkInitialized()"></div>
     </div>
-    <div class="col-md-4">
-      <h1>Ring order</h1>
+    <div class="col-md-2">
+      <h3>Ring order</h3>
       <ul class="list-group" dragula="PARTICIPANTS" id="participants" [(dragulaModel)]="segments">
         <li class="list-group-item" *ngFor="let s of segments">
           <ng-template [ngIf]="viewMode == 'tg'" [ngIfElse]="elseBlock">
             {{ s.user_name }}
-        </ng-template>
-        <ng-template #elseBlock>
-          {{ s.nodename }}
-        </ng-template>
+          </ng-template>
+          <ng-template #elseBlock>
+            {{ s.nodename }}
+          </ng-template>
 
         </li>
       </ul>
-      <div class="btn-group" role="group" aria-label="Basic example">
-        <button class="btn btn-primary"
-        (click)="persistOrder()">Persist</button>
-        <button class="btn btn-success"
-        (click)="downloadChannelsTxt()">Download channels.txt</button>
-        <button class="btn btn-secondary"
+      <button type="button" class="btn btn-warning btn-lg btn-block btn-sm" (click)="persistOrder()">Persist channel
+        order</button>
+      <button type="button" class="btn btn-info btn-lg btn-block btn-sm" (click)="bestFit()">Nodes view best
+        fit</button>
+      <hr />
+      <button type="button" class="btn btn-primary btn-lg btn-block btn-sm" (click)="downloadChannelsTxt()">Download
+        channels.txt</button>
+      <button type="button" class="btn btn-success btn-lg btn-block btn-sm" (click)="downloadPubKeysTxt()">Download
+        pubkeys.txt</button>
+      <button type="button" class="btn btn-secondary btn-lg btn-block btn-sm"
         (click)="downloadIgniterPubkeys()">Download igniter.sh pubkeys</button>
-      </div>
+      <hr />
+      <form class="form-inline">
+        <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Igniter</label>
+        <select class="form-control"  [(ngModel)]="selectedIgniter" name="selectedIgniter">
+          <option [value]="undefined">Select</option>
+          <ng-container  *ngFor="let s of segments">
+          <option [ngValue]="s">
+            <ng-template [ngIf]="viewMode == 'tg'" [ngIfElse]="elseBlock">
+              {{ s.user_name }}
+            </ng-template>
+            <ng-template #elseBlock>
+              {{ s.nodename }}
+            </ng-template>
+          </option>
+        </ng-container>
+        </select>
+        <button type="submit" class="btn btn-primary my-1" (click)="reorderIgniter()">Reorder</button>
 
-
-    </div>
-    <div class="col-md-12">
+      </form>
     </div>
   </div>
 </div>

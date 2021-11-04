@@ -22,6 +22,7 @@ export class SettingsComponent implements OnInit {
   segments: CbNodeOwner[] | undefined;
   pubkeysText: any = '';
   ringName: any = '';
+  ringSize:number;
   pubsubServer: string = '';
   cbNodeOwners$: Observable<CbNodeOwner[]>;
   ringSettings$: Observable<RingSetting[]>;
@@ -55,12 +56,23 @@ export class SettingsComponent implements OnInit {
       this.segments = data;
     })
     this.pubkeysText = '';
-    this.ringName = ringData.getRingName();
+    this.ringName = this.ringData.getRingName();
+    this.ringSize = this.ringData.getRingSize();
 
     this.pubsubServer = this.ringData.getPubsubServer();
   }
 
   ngOnInit(): void {
+  }
+
+
+  parseCapacityName() {
+    let capacity:String = this.ringName.match(/_(\d+[K|M])sats_/)[1];
+
+    capacity = capacity.toString().replace('K', '000');
+    capacity = capacity.toString().replace('M', '000000');
+
+    this.ringSize = Number(capacity);
   }
 
   updateShowLogo(event) {
@@ -88,20 +100,15 @@ export class SettingsComponent implements OnInit {
   }
 
   processRingname() {
-
     this.ringData.setRingName(this.ringName);
   }
 
+  setRingSize() {
+    this.ringData.setRingSize(this.ringSize);
+  }
+
   saveRingSettings() {
-    if (this.segments) {
-      let ringSettings: RingSetting = {
-        ringName: this.ringData.getRingName(),
-        ringParticipants: this.segments,
-        cleanRingName: this.ringData.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''),
-        id: this.ringData.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '')
-      }
-      this.store.dispatch(upsertRingSetting({ ringSetting: ringSettings }))
-    }
+    this.ringData.saveRingSettings(this.segments);
   }
 
   loadSettings(item) {
