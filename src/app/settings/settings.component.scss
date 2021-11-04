@@ -25,7 +25,11 @@
 }
 
 .node_key{
-  text-overflow: ellipsis;
   max-width: 1px;
-  overflow: hidden;
+  white-space: nowrap;
+
+  p{
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
