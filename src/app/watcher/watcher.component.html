@@ -1,7 +1,7 @@
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-4 chart-container h-50 d-inline-block">
-            <app-rof-circle [data]="getChartSegments()" [ringName]="getRingName()" [showLogo]="settings.showLogo" id="rofvisual" [ringLabels]="getRingLabels()"></app-rof-circle>
+        <div class="col-md-4 chart-container d-inline-block" id="circle">
+            <app-rof-circle class="w-100 h-100 d-flex" [data]="getChartSegments()" [ringName]="getRingName()" [showLogo]="settings.showLogo" id="rofvisual" [ringLabels]="getRingLabels()"></app-rof-circle>
         </div>
 
         <div class="col-md-8 participants">
