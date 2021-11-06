@@ -16,7 +16,7 @@ export interface SettingState {
 }
 
 export const initialState: SettingState = {
-  ringName: '#SRROF_500Ksats_8thRING',
+  ringName: 'Loading...',
   viewMode: 'tg',
   pubsubServer: 'https://ringtools.djuri.nl',
   showLogo: false,

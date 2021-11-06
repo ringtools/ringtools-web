@@ -12,6 +12,7 @@ import { selectRingSettings } from '../selectors/ring-setting.selectors';
 import { selectSettings } from '../selectors/setting.selectors';
 import { SettingState } from '../reducers/setting.reducer';
 import { setShowLogo } from '../actions/setting.actions';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-settings',
@@ -128,7 +129,10 @@ export class SettingsComponent implements OnInit {
   }
 
   addCbNodeOwner() {
-    this.ringData.getNodeInfoApi(this.addPubKey).subscribe((data) => {
+    this.addPubKey = String(this.addPubKey).trim()
+
+    this.ringData.getNodeInfoApi(this.addPubKey).subscribe({
+     next:  (data) => {
 
       if (data) {
         let no:CbNodeOwner = {
@@ -139,14 +143,29 @@ export class SettingsComponent implements OnInit {
           capacity_sat: data.total_capacity
         }
 
-        console.log(no);
+//        console.log(no);
     
         this.store.dispatch(addCbNodeOwner(no));
       }
-    })
+    },
+    error:  (error: HttpErrorResponse) => {
+      if (error.status == 404 && String(this.addPubKey).length == 66) {
+        let no:CbNodeOwner = {
+          pub_key: this.addPubKey,
+          nodename: String(this.addPubKey).substr(0, 20),
+          user_name: this.addTgUsername,
+          handle: this.addTgUsername,
+          capacity_sat: '0'
+        }
 
+        this.store.dispatch(addCbNodeOwner(no));
+      }
+    },
+    complete: () => {
 
-  }
+    }
+  });
+}
 
   removeCbNodeOwner(nodeOwner: CbNodeOwner) {
     this.store.dispatch(removeCbNodeOwner(nodeOwner));

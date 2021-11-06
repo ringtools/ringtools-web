@@ -19,12 +19,13 @@ import { RingSetting } from '../model/ring-setting.model';
 import { DomSanitizer } from '@angular/platform-browser';
 import { upsertRingSetting } from '../actions/ring-setting.actions';
 import { CbNodeOwnerEffects } from '../effects/cb-node-owner.effects';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RingDataService {
-  ringName = "#SRROF_500Ksats_8thRING"
+  ringName = "Loading..."
   ringSize:number;
   ringLeader:CbNodeOwner;
 
@@ -177,11 +178,11 @@ export class RingDataService {
   }
 
   getRingName() {
-    return this.ringName;
+    return this.settings.ringName;
   }
 
   getRingSize() {
-    return this.ringSize;
+    return this.settings.ringSize;
   }
 
   setRingName(ringName: string) 
@@ -201,7 +202,7 @@ export class RingDataService {
   }
 
   getNodeInfoApi(pubkey: string) {
-    return this.http.get<NodeInfo>(`${this.settings.pubsubServer}/node/${pubkey}`);
+    return this.http.get<NodeInfo>(`${environment.REST_ENDPOINT}/node/${pubkey}`);
   }
 
   getNodeInfo(pubkey: string) {
