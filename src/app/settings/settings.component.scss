@@ -27,3 +27,18 @@
 .list-group-item.small {
     padding: 0.25rem 0.75rem;
 }
+
+.node_key{
+  max-width: 15vw;
+  white-space: nowrap;
+
+  span, p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+}
+
+.external-services {
+    width: 50px;
+}

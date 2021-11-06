@@ -1,6 +1,6 @@
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12 col-lg-4" >
             <form>
                 <div class="form-group">
                     <label for="ringName">Ringname</label>
@@ -38,12 +38,12 @@
                   </div>
             </form>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-12 col-lg-8">
             <form>
                 <table class="table table-sm table-striped small">
                     <thead>
                         <tr>
-                            <th colspan="2" scope="col"></th>
+                            <th colspan="2" scope="col" class="external-services"></th>
                             <th scope="col">Public Key</th>
                             <th scope="col">Nodename</th>
                             <th scope="col">TG username</th>
@@ -54,19 +54,19 @@
                     <tbody>
                         <ng-container *ngFor="let item of cbNodeOwners$ | async">
                             <tr>
-                                <th>
+                                <td class="service-icon">
                                     <a [attr.href]="'https://amboss.space/node/' +  item.pub_key" target="_blank">
                                         <img src="/assets/amboss.png" class="service-icon">
                                     </a>
-                                </th>
-                                <th>
+                                </td>
+                                <td class="service-icon">
                                     <a [attr.href]="'https://1ml.com/node/' + item.pub_key" target="_blank">
                                         <img src="/assets/1ml.png" class="service-icon">
                                     </a>
-                                </th>
-                                <th scope="row">
-                                    {{ item.pub_key }}
-                                </th>
+                                </td>
+                                <td scope="row" class="node_key">
+                                    <span>{{ item.pub_key }}</span>
+                                </td>
                                 <td>{{ item.nodename }}</td>
                                 <td>{{ item.user_name }}</td>
                                 <td>{{ item.capacity_sat }}</td>
@@ -82,17 +82,17 @@
                                 Manual add
                             </th>
 
-                            <th scope="row" class="no-padding">
+                            <th scope="row" class="no-padding" colspan="1">
                                 <div class="form-check">
                                     <input class="form-check-input position-static" type="text" id="pubkey"
-                                        [(ngModel)]="addPubKey" name="pubKey">
+                                        [(ngModel)]="addPubKey" name="pubKey" placeholder="Public Key">
                                 </div>
                             </th>
                             <td>{{ tempNodename }}</td>
                             <td class="no-padding">
                                 <div class="form-check">
                                     <input class="form-check-input position-static" type="text" id="TG username"
-                                        [(ngModel)]="addTgUsername" name="tgUserName">
+                                        [(ngModel)]="addTgUsername" name="tgUserName" placeholder="TG username">
                                 </div>
                             </td>
                             <td><button class="btn btn-primary btn-small btn-sm" (click)="addCbNodeOwner()">Add</button>
