@@ -7,7 +7,7 @@ import { WatcherComponent } from './watcher/watcher.component';
 
 const routes: Routes = [
   {
-    path: '', component: DashboardComponent
+    path: '', component: DashboardComponent,  pathMatch: 'full'
   },
   {
     path: 'settings', component: SettingsComponent

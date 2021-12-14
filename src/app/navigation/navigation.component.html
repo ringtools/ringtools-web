@@ -8,7 +8,7 @@
     </button>
     <div class="collapse navbar-collapse" [ngbCollapse]="isMenuCollapsed">
       <ul class="navbar-nav">
-        <li routerLinkActive="active" *ngFor="let menuItem of links" class="nav-item">
+        <li routerLinkActive="active" *ngFor="let menuItem of links" class="nav-item" [routerLinkActiveOptions]="{ exact: true }">
           <a [routerLink]="[menuItem.route]" class="nav-link">
             {{menuItem.title}}
           </a>
