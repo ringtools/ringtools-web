@@ -4673,11 +4673,6 @@ locate-path@^5.0.0:
   dependencies:
     p-locate "^4.1.0"
 
-lodash-es@^4.17.15:
-  version "4.17.21"
-  resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.21.tgz#43e626c46e6591b7750beb2b50117390c609e3ee"
-  integrity sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==
-
 lodash.debounce@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
@@ -5001,14 +4996,6 @@ ng-otp-input@^1.8.1:
   integrity sha512-mWl2Jhp3UCkEHsjaNzQHib3PnsMA/kVg+mpntW2KlyP6QKLQ8+PHbINKeyT5E944HeYyxEQzrHOVcmijzDOhGw==
   dependencies:
     tslib "^2.2.0"
-
-ng2-charts@^3.0.0-rc.5:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/ng2-charts/-/ng2-charts-3.0.1.tgz#5e5ecc82142eb5df356bd3cf2008b037e6e5d253"
-  integrity sha512-mq1YtSYNxL6mIM2dYKAFi7HmxKvsdHnTtz6OJ0EwHwUZdfjR7MZu9yqU6ncEilTLo2ECeX6/e+sse+SWbUA5MA==
-  dependencies:
-    lodash-es "^4.17.15"
-    tslib "^2.3.0"
 
 ng2-dragula@^2.1.1:
   version "2.1.1"

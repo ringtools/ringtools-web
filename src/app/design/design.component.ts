@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DragulaService } from 'ng2-dragula';
 import { DataSet } from 'vis-data';
@@ -10,7 +9,7 @@ import { select, Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
 import { CbNodeOwner } from '../model/cb_node_owner.model';
 import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
-import { loadCbNodeOwners, setCbNodeOwners } from '../actions/cb-node-owner.actions';
+import { loadCbNodeOwners } from '../actions/cb-node-owner.actions';
 import { selectSettings } from '../selectors/setting.selectors';
 import { SettingState } from '../reducers/setting.reducer';
 import { selectRingSettings } from '../selectors/ring-setting.selectors';

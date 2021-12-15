@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, SecurityContext } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { NodeInfo } from '../model/node_info.model';
 import { RoutingPolicy } from '../model/routing_policy.model';
 import { CbNodeOwner } from '../model/cb_node_owner.model';
@@ -24,7 +24,6 @@ import {
 import { RingSetting } from '../model/ring-setting.model';
 import { DomSanitizer } from '@angular/platform-browser';
 import { upsertRingSetting } from '../actions/ring-setting.actions';
-import { CbNodeOwnerEffects } from '../effects/cb-node-owner.effects';
 import { environment } from 'src/environments/environment';
 
 @Injectable({

@@ -1,6 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
-import { RingDataService } from '../services/ring-data.service';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-dashboard',
@@ -8,12 +6,7 @@ import { RingDataService } from '../services/ring-data.service';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
-  viewMode = 'tg';
-  fileUrl:any;
-
-  constructor(
-    private ringData: RingDataService,
-    ){}
+  constructor(){}
 
   ngOnInit(): void {
   }

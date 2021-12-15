@@ -1,8 +1,7 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbNav } from '@ng-bootstrap/ng-bootstrap';
 import { RingDataService } from '../services/ring-data.service';
-import { select, Store } from '@ngrx/store';
+import { Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
 import { Observable } from 'rxjs';
 import { RingSetting } from '../model/ring-setting.model';

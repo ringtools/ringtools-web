@@ -13,7 +13,6 @@ import {
 import { RingSetting } from '../model/ring-setting.model';
 import {
   removeRingSetting,
-  upsertRingSetting,
 } from '../actions/ring-setting.actions';
 import { selectRingSettings } from '../selectors/ring-setting.selectors';
 import { selectSettings } from '../selectors/setting.selectors';

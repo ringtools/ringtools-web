@@ -12,7 +12,6 @@ import { NavigationComponent } from './navigation/navigation.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DesignComponent } from './design/design.component';
 import { VisModule } from './vis/vis.module';
-import { NgChartsModule } from 'ng2-charts';
 import { WatcherComponent } from './watcher/watcher.component';
 import { DragulaModule } from 'ng2-dragula';
 import { RofCircleComponent } from './rof-circle/rof-circle.component';
@@ -58,7 +57,6 @@ const config: SocketIoConfig = {
     HttpClientModule,
     NgbModule,
     VisModule,
-    NgChartsModule,
     DragulaModule.forRoot(),
     SocketIoModule.forRoot(config),
     EffectsModule.forRoot([
