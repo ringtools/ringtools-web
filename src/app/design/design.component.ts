@@ -15,6 +15,7 @@ import { selectSettings } from '../selectors/setting.selectors';
 import { SettingState } from '../reducers/setting.reducer';
 import { selectRingSettings } from '../selectors/ring-setting.selectors';
 import { RingSetting } from '../model/ring-setting.model';
+import { ToastService } from '../toast/toast.service';
 
 @Component({
   selector: 'app-design',
@@ -49,7 +50,7 @@ export class DesignComponent implements OnInit, OnDestroy {
     private dragulaService: DragulaService,
     private ringData: RingDataService,
     private store: Store<fromRoot.State>,
-    private http: HttpClient
+    private toastService: ToastService
   ) {
     this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
 
@@ -277,7 +278,6 @@ export class DesignComponent implements OnInit, OnDestroy {
       overflow++;
     }
 
-    console.log(newSegments, unconnectedSegments);
     let newMap: any[] = [];
     for (let node of newSegments) {
       newMap.push([node, this.ringData.getTgUserByPubkey(node)])
@@ -290,8 +290,13 @@ export class DesignComponent implements OnInit, OnDestroy {
   }
 
   persistOrder() {
-    this.store.dispatch(loadCbNodeOwners(this.segments))
-    this.ringData.saveRingSettings(this.segments);
+    try {
+      this.store.dispatch(loadCbNodeOwners(this.segments))
+      this.ringData.saveRingSettings(this.segments);
+      this.toastService.show('Node order persisted', { classname: 'bg-success' });
+    } catch (e) {
+      this.toastService.show('Error persisting order', { classname: 'bg-danger' });
+    }
   }
 
   /* @TODO: Implemnent graph export, right-click save should work as well */
@@ -326,14 +331,21 @@ export class DesignComponent implements OnInit, OnDestroy {
   }
 
   reorderIgniter() {
-    console.log(this.selectedIgniter)
-
     let idx = this.segments.indexOf(this.selectedIgniter);
+    if (idx == -1) {
+      this.toastService.show('No igniter selected', { classname: 'bg-danger' });
+      return;
+    }
+
     let partsUntilIgniter = this.segments.slice(0, (idx + 1));
     let partsFromIgniter = this.segments.slice((idx+1));
     let newOrder = partsFromIgniter.concat(partsUntilIgniter);
-
-    this.store.dispatch(loadCbNodeOwners(newOrder))
-    this.ringData.saveRingSettings(this.segments);
+    try {
+      this.store.dispatch(loadCbNodeOwners(newOrder))
+      this.ringData.saveRingSettings(this.segments);
+      this.toastService.show('Node reorder persisted', { classname: 'bg-success' });
+    } catch (e) {
+      this.toastService.show('Error reordering', { classname: 'bg-danger' });
+    }
   }
 }

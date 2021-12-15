@@ -22,6 +22,7 @@ import { setShowLogo } from '../actions/setting.actions';
 import { HttpErrorResponse } from '@angular/common/http';
 import * as LZString from 'lz-string';
 import { ActivatedRoute } from '@angular/router';
+import { ToastService } from '../toast/toast.service';
 
 @Component({
   selector: 'app-settings',
@@ -48,7 +49,8 @@ export class SettingsComponent implements OnInit {
   constructor(
     public ringData: RingDataService,
     private route: ActivatedRoute,
-    private store: Store<fromRoot.State>
+    private store: Store<fromRoot.State>,
+    public toastService: ToastService
   ) {
     this.ringSettings$ = this.store.select(selectRingSettings);
 
@@ -107,7 +109,14 @@ export class SettingsComponent implements OnInit {
   }
 
   updateShowLogo(event) {
-    this.store.dispatch(setShowLogo(event));
+    try {
+      this.store.dispatch(setShowLogo(event));
+      this.toastService.show('Setting changed', { classname: 'bg-success' });
+    } catch (e) {
+      this.toastService.show('Error changing setting', {
+        classname: 'bg-danger',
+      });
+    }
   }
 
   getSegments() {
@@ -126,20 +135,63 @@ export class SettingsComponent implements OnInit {
   }
 
   processGroupnodes() {
-    let segments = this.ringData.parseCsvToType(this.pubkeysText);
-    this.store.dispatch(loadCbNodeOwners(segments));
+    if (String(this.pubkeysText).trim().length == 0) {
+      this.toastService.show('Groupnodes input is empty', {
+        classname: 'bg-danger',
+      });
+      return;
+    }
+
+    try {
+      let segments = this.ringData.parseCsvToType(this.pubkeysText);
+      this.store.dispatch(loadCbNodeOwners(segments));
+      this.toastService.show('Imported groupnodes CSV', {
+        classname: 'bg-success',
+      });
+    } catch (e) {
+      this.toastService.show('Error importing groupnodes CSV', {
+        classname: 'bg-danger',
+      });
+    }
   }
 
   processRingname() {
-    this.ringData.setRingName(this.ringName);
+    try {
+      this.ringData.setRingName(this.ringName);
+      this.toastService.show(`Ring name set to ${this.ringName}`, {
+        classname: 'bg-success',
+      });
+    } catch (e) {
+      this.toastService.show('Error setting ring name', {
+        classname: 'bg-danger',
+      });
+    }
   }
 
   setRingSize() {
-    this.ringData.setRingSize(this.ringSize);
+    try {
+      this.ringData.setRingSize(this.ringSize);
+      this.toastService.show(`Ring size set to ${this.ringSize}`, {
+        classname: 'bg-success',
+      });
+    } catch (e) {
+      this.toastService.show('Error setting ring size', {
+        classname: 'bg-danger',
+      });
+    }
   }
 
   saveRingSettings() {
-    this.ringData.saveRingSettings(this.segments);
+    try {
+      this.ringData.saveRingSettings(this.segments);
+      this.toastService.show('Saved ring settings', {
+        classname: 'bg-success',
+      });
+    } catch (e) {
+      this.toastService.show('Error saving ring settings', {
+        classname: 'bg-danger',
+      });
+    }
   }
 
   convertToCsv(ringParticipants, header: boolean = true) {
@@ -156,19 +208,47 @@ export class SettingsComponent implements OnInit {
   }
 
   loadSettings(item) {
-    this.ringData.loadSettings(item);
+    try {
+      this.ringData.loadSettings(item);
 
-    let pkContents = this.convertToCsv(item.ringParticipants);
+      let pkContents = this.convertToCsv(item.ringParticipants);
 
-    this.pubkeysText = pkContents;
+      this.pubkeysText = pkContents;
+
+      this.toastService.show(`Ring load ${item.cleanRingName} successful`, {
+        classname: 'bg-success',
+      });
+    } catch (e) {
+      this.toastService.show('Error loading ring', {
+        classname: 'bg-error',
+      });
+    }
   }
 
   removeSettings(item) {
-    this.store.dispatch(removeRingSetting({ ringSetting: item.cleanRingName }));
+    try {
+      this.store.dispatch(removeRingSetting({ ringSetting: item.cleanRingName }));
+      this.toastService.show(`Ring remove ${item.cleanRingName} successful`, {
+        classname: 'bg-success',
+      });
+    } catch (e) {
+      this.toastService.show('Error removing ring', {
+        classname: 'bg-error',
+      });
+    }
   }
 
   addCbNodeOwner() {
     this.addPubKey = String(this.addPubKey).trim();
+
+    if (this.segments.findIndex((val) => val.pub_key == this.addPubKey) != -1) {
+      this.toastService.show(`Node ${this.addPubKey} already in list`, {
+        classname: 'bg-warning',
+      });
+
+      return;
+    }
+
 
     this.ringData.getNodeInfoApi(this.addPubKey).subscribe({
       next: (data) => {
@@ -184,9 +264,14 @@ export class SettingsComponent implements OnInit {
           //        console.log(no);
 
           this.store.dispatch(addCbNodeOwner(no));
+
+          this.toastService.show(`Added node ${data.node.alias}`, {
+            classname: 'bg-success',
+          });
         }
       },
       error: (error: HttpErrorResponse) => {
+        // node probably has no channels yet but key looks correct
         if (error.status == 404 && String(this.addPubKey).length == 66) {
           let no: CbNodeOwner = {
             pub_key: this.addPubKey,
@@ -197,6 +282,14 @@ export class SettingsComponent implements OnInit {
           };
 
           this.store.dispatch(addCbNodeOwner(no));
+
+          this.toastService.show(`Added node ${this.addPubKey}`, {
+            classname: 'bg-success',
+          });
+        } else {
+          this.toastService.show('Error adding node', {
+            classname: 'bg-danger',
+          });
         }
       },
       complete: () => {},
@@ -204,7 +297,16 @@ export class SettingsComponent implements OnInit {
   }
 
   removeCbNodeOwner(nodeOwner: CbNodeOwner) {
-    this.store.dispatch(removeCbNodeOwner(nodeOwner));
+    try {
+      this.store.dispatch(removeCbNodeOwner(nodeOwner));
+      this.toastService.show(`Removed node ${nodeOwner.nodename}`, {
+        classname: 'bg-success',
+      });
+    } catch (e) {
+      this.toastService.show('Error removing node', {
+        classname: 'bg-danger',
+      });
+    }
   }
 
   setPubSubServer() {}
@@ -218,6 +320,9 @@ export class SettingsComponent implements OnInit {
     let co = LZString.compressToEncodedURIComponent(JSON.stringify(ringData));
     let shareUrl = `${window.location.origin}${window.location.pathname}?load=${co}`;
     this.copyToClipboard(shareUrl);
+    this.toastService.show('Copied share URL to clipboard', {
+      classname: 'bg-success',
+    });
     this.shareUrl = shareUrl;
   }
 

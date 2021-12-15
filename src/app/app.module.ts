@@ -26,6 +26,7 @@ import { CbNodeOwnerEffects } from './effects/cb-node-owner.effects';
 import { LoginComponent } from './login/login.component';
 import { BaseLayoutComponent } from './layout/base/base.component';
 import { NgOtpInputModule } from 'ng-otp-input';
+import { ToastComponent } from './toast/toast.component';
 
 const config: SocketIoConfig = { 
   url: environment.WS_ENDPOINT ? environment.WS_ENDPOINT : "", 
@@ -46,7 +47,8 @@ const config: SocketIoConfig = {
     WatcherComponent,
     RofCircleComponent,
     LoginComponent,
-    BaseLayoutComponent
+    BaseLayoutComponent,
+    ToastComponent
   ],
   imports: [
     BrowserModule,

@@ -14,7 +14,13 @@ import { upsertNodeInfo } from '../actions/node-info.actions';
 import { upsertChannel } from '../actions/channel.actions';
 import { selectSettings } from '../selectors/setting.selectors';
 import { SettingState } from '../reducers/setting.reducer';
-import { setPubsubServer, setRingLeader, setRingName, setRingSize, setViewMode } from '../actions/setting.actions';
+import {
+  setPubsubServer,
+  setRingLeader,
+  setRingName,
+  setRingSize,
+  setViewMode,
+} from '../actions/setting.actions';
 import { RingSetting } from '../model/ring-setting.model';
 import { DomSanitizer } from '@angular/platform-browser';
 import { upsertRingSetting } from '../actions/ring-setting.actions';
@@ -22,12 +28,12 @@ import { CbNodeOwnerEffects } from '../effects/cb-node-owner.effects';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RingDataService {
-  ringName = "Loading..."
-  ringSize:number;
-  ringLeader:CbNodeOwner;
+  ringName = 'Loading...';
+  ringSize: number;
+  ringLeader: CbNodeOwner;
 
   cbNodeOwners: CbNodeOwner[] = [];
 
@@ -39,7 +45,10 @@ export class RingDataService {
 
   nodeNames: Map<string, string> = new Map<string, string>();
   nodeToTgMap: Map<string, CbNodeOwner> = new Map<string, CbNodeOwner>();
-  nodeInfo: Map<string, NodeInfo | undefined> = new Map<string, NodeInfo | undefined>();
+  nodeInfo: Map<string, NodeInfo | undefined> = new Map<
+    string,
+    NodeInfo | undefined
+  >();
 
   channels: any = [];
   isLoaded: boolean = false;
@@ -47,27 +56,25 @@ export class RingDataService {
   settings!: SettingState;
   colorScale!: any; // D3 color provider
 
-
   constructor(
     private http: HttpClient,
     private socket: Socket,
     private sanitizer: DomSanitizer,
     private store: Store<fromRoot.State>
   ) {
-
     this.store.select(selectCbNodeOwners).subscribe((res) => {
       let pubkeys = res.map((val) => {
         return val.pub_key;
-      })
+      });
 
       this.cbNodeOwners = res;
 
       for (let o of this.cbNodeOwners) {
-        this.nodeToTgMap.set(o.pub_key, o)
+        this.nodeToTgMap.set(o.pub_key, o);
       }
 
-      this.socket.emit("subscribe_pubkey", { data: pubkeys })
-    })
+      this.socket.emit('subscribe_pubkey', { data: pubkeys });
+    });
 
     this.store.select(selectSettings).subscribe((settings) => {
       this.settings = settings;
@@ -84,9 +91,8 @@ export class RingDataService {
     //this.populateTgMap();
     //    this.populateChannels();
 
-    this.socket.on("pubkey", (data: NodeInfo) => {
+    this.socket.on('pubkey', (data: NodeInfo) => {
       this.store.dispatch(upsertNodeInfo({ nodeInfo: data }));
-
 
       this.nodeInfo.set(data.node.pub_key, data);
 
@@ -94,18 +100,18 @@ export class RingDataService {
         this.isLoaded = true;
         this._isReady.next(this.isLoaded);
       }
-
     });
-    this.socket.on("channel", (data) => {
+    this.socket.on('channel', (data) => {
       this.store.dispatch(upsertChannel({ channel: data }));
 
       this.updateChannel(data);
     });
 
-    this.colorScale = d3.scaleLinear()
+    this.colorScale = d3
+      .scaleLinear()
       .domain([1, 3.5, 6])
       // @ts-ignore
-      .range(["#2c7bb6", "#ffffbf", "#d7191c"])
+      .range(['#2c7bb6', '#ffffbf', '#d7191c'])
       // @ts-ignore
       .interpolate(d3.interpolateHcl);
   }
@@ -116,7 +122,7 @@ export class RingDataService {
 
   getUsername(pub_key: string) {
     let ret = this.getTgUserByPubkey(pub_key);
-    if (ret.handle == "None") {
+    if (ret.handle == 'None') {
       return ret.user_name;
     }
     return `@${ret.handle}`;
@@ -126,14 +132,14 @@ export class RingDataService {
     let n1 = this.nodeInfo.get(channelData.node1_pub);
 
     let n1Channels = n1?.channels.filter((data) => {
-      return data.channel_id != channelData.channel_id
-    })
+      return data.channel_id != channelData.channel_id;
+    });
 
     let n2 = this.nodeInfo.get(channelData.node2_pub);
 
     let n2Channels = n2?.channels.filter((data) => {
-      return data.channel_id != channelData.channel_id
-    })
+      return data.channel_id != channelData.channel_id;
+    });
 
     /** @TODO: Because of immutable objects this is no longer possible */
     //    n1?.channels.push(channelData);
@@ -151,18 +157,17 @@ export class RingDataService {
     this._channelUpdate.next([n1, n2]);
   }
 
-
   repopulate() {
     this.channels = [];
     this.populateChannels();
 
-    this.socket.emit("unsubscribe_all")
+    this.socket.emit('unsubscribe_all');
 
     let pubkeys = this.cbNodeOwners.map((val) => {
       return val.pub_key;
-    })
+    });
 
-    this.socket.emit("subscribe_pubkey", { data: pubkeys })
+    this.socket.emit('subscribe_pubkey', { data: pubkeys });
   }
 
   setSegments(segments: any) {
@@ -185,8 +190,7 @@ export class RingDataService {
     return this.settings.ringSize;
   }
 
-  setRingName(ringName: string) 
-  {
+  setRingName(ringName: string) {
     this.ringName = ringName;
     this.store.dispatch(setRingName(ringName));
   }
@@ -202,7 +206,9 @@ export class RingDataService {
   }
 
   getNodeInfoApi(pubkey: string) {
-    return this.http.get<NodeInfo>(`${environment.REST_ENDPOINT}/node/${pubkey}`);
+    return this.http.get<NodeInfo>(
+      `${environment.REST_ENDPOINT}/node/${pubkey}`
+    );
   }
 
   getNodeInfo(pubkey: string) {
@@ -211,8 +217,8 @@ export class RingDataService {
 
   /**
    * @deprecated
-   * @param pubkey 
-   * @returns 
+   * @param pubkey
+   * @returns
    */
   getCachedNodeInfo(pubkey: string) {
     return this.getNodeInfo(pubkey);
@@ -235,13 +241,16 @@ export class RingDataService {
 
   getChannelPolicies(pubkey: string, channelWith: string) {
     let n = this.nodeInfo.get(pubkey);
-    let ret: [RoutingPolicy, RoutingPolicy] | [undefined, undefined] = [undefined, undefined];
+    let ret: [RoutingPolicy, RoutingPolicy] | [undefined, undefined] = [
+      undefined,
+      undefined,
+    ];
     if (n) {
       for (let edge of n.channels) {
         if (edge.node1_pub == channelWith) {
-          ret = [edge.node2_policy, edge.node1_policy]
+          ret = [edge.node2_policy, edge.node1_policy];
         } else if (edge.node2_pub == channelWith) {
-          ret = [edge.node1_policy, edge.node2_policy]
+          ret = [edge.node1_policy, edge.node2_policy];
         }
       }
     }
@@ -250,8 +259,7 @@ export class RingDataService {
   }
 
   setPubsubServer(pubsubServer: string) {
-    this.store.dispatch(setPubsubServer(pubsubServer))
-
+    this.store.dispatch(setPubsubServer(pubsubServer));
   }
 
   getPubsubServer() {
@@ -261,8 +269,7 @@ export class RingDataService {
   populateChannels() {
     for (let [key, node] of this.cbNodeOwners.entries()) {
       let data = this.getNodeInfo(node.pub_key);
-      if (!data)
-        return;
+      if (!data) return;
       this.nodeNames.set(node.pub_key, data.node.alias);
 
       this.nodeInfo.set(node.pub_key, data);
@@ -270,17 +277,19 @@ export class RingDataService {
       for (let edge of data.channels) {
         let nextIndex = (key + 1) % this.cbNodeOwners.length;
 
-        if (edge.node1_pub == this.cbNodeOwners[nextIndex].pub_key || edge.node2_pub == this.cbNodeOwners[nextIndex].pub_key) {
-          this.channels.push(edge)
+        if (
+          edge.node1_pub == this.cbNodeOwners[nextIndex].pub_key ||
+          edge.node2_pub == this.cbNodeOwners[nextIndex].pub_key
+        ) {
+          this.channels.push(edge);
         }
       }
-
-    };
+    }
   }
 
   /**
    * CSV
-   * @returns 
+   * @returns
    */
   parseCsvToType(contents: string) {
     let segmentLines = contents.split('\n');
@@ -294,7 +303,7 @@ export class RingDataService {
           pub_key: parts[2],
           new: Boolean(parts[3]),
           handle: parts[4],
-          capacity_sat: parts[5]
+          capacity_sat: parts[5],
         });
       }
     }
@@ -330,7 +339,7 @@ export class RingDataService {
   loadSettings(item: RingSetting) {
     this.setRingName(item.ringName);
     this.setRingSize(item.ringSize);
-    this.store.dispatch(loadCbNodeOwners(item.ringParticipants))
+    this.store.dispatch(loadCbNodeOwners(item.ringParticipants));
   }
 
   saveRingSettings(segments) {
@@ -338,17 +347,22 @@ export class RingDataService {
       let ringSettings: RingSetting = {
         ringName: this.getRingName(),
         ringParticipants: segments,
-        cleanRingName: this.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''),
-        id: this.getRingName().replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''),
+        cleanRingName: this.getRingName().replace(
+          /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g,
+          ''
+        ),
+        id: this.getRingName().replace(
+          /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g,
+          ''
+        ),
         ringSize: this.ringSize,
-        ringLeader: this.ringLeader
-      }
-      this.store.dispatch(upsertRingSetting({ ringSetting: ringSettings }))
+        ringLeader: this.ringLeader,
+      };
+      this.store.dispatch(upsertRingSetting({ ringSetting: ringSettings }));
     }
   }
 
   downloadChannelsTxt() {
-
     if (!this.getChannels().length) {
       this.populateChannels();
     }
@@ -356,20 +370,13 @@ export class RingDataService {
     let data = '';
 
     for (let channel of this.getChannels()) {
-      data += channel.channel_id + "\r\n";
+      data += channel.channel_id + '\r\n';
     }
 
-    let element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
-    element.setAttribute('download', 'channels.txt');
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element)
+    this.doDownloadFileWithData(data, 'channels.txt');
   }
 
   downloadPubkeysTgTxt() {
-
     if (!this.getChannels().length) {
       this.populateChannels();
     }
@@ -380,28 +387,23 @@ export class RingDataService {
       data += `${no.pub_key},${this.getUsername(no.pub_key)}\r\n`;
     }
 
-    // const blob = new Blob([data], { type: 'application/octet-stream' });
+    this.doDownloadFileWithData(data, 'pubkeys.txt');
+  }
 
-    // let fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(window.URL.createObjectURL(blob));
-    // let sanitized = this.sanitizer.sanitize(SecurityContext.RESOURCE_URL, fileUrl);
-
-    //if (sanitized) {
-      let element = document.createElement('a');
-      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
-      element.setAttribute('download', 'pubkeys.txt');
-      element.style.display = 'none';
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element)
-  //  }
+  doDownloadFileWithData(data, filename) {
+    let element = document.createElement('a');
+    element.setAttribute(
+      'href',
+      'data:text/plain;charset=utf-8,' + encodeURIComponent(data)
+    );
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
   }
 
   downloadFile(data) {
-    const blob = new Blob([data], { type: 'application/octet-stream' });
-
-    let fileUrl = this.sanitizer.bypassSecurityTrustResourceUrl(window.URL.createObjectURL(blob));
-    let sanitized = this.sanitizer.sanitize(SecurityContext.RESOURCE_URL, fileUrl);
-    if (sanitized)
-      window.open(sanitized, "_blank");
+    this.doDownloadFileWithData(data, 'file.txt');
   }
 }
