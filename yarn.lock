@@ -6235,6 +6235,13 @@ neo-async@^2.6.2:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
+ng-otp-input@^1.8.1:
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/ng-otp-input/-/ng-otp-input-1.8.1.tgz#3fe1ee9b9ceea6dc158ec8b4222bbe9121a02529"
+  integrity sha512-mWl2Jhp3UCkEHsjaNzQHib3PnsMA/kVg+mpntW2KlyP6QKLQ8+PHbINKeyT5E944HeYyxEQzrHOVcmijzDOhGw==
+  dependencies:
+    tslib "^2.2.0"
+
 ng2-charts@^3.0.0-rc.5:
   version "3.0.0-rc.5"
   resolved "https://registry.yarnpkg.com/ng2-charts/-/ng2-charts-3.0.0-rc.5.tgz#418ecb22628454b8d1add25da8468076353ae582"

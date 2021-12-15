@@ -1,0 +1,20 @@
+<div class="text-center">
+    <form class="form-login shadow-sm p-3 mb-5 rounded">
+        <div class="row justify-content-md-center">
+            <div class="col-md-4">
+                <img src="/assets/logo.svg" alt="Ringtools-Web" height="200px">
+            </div>
+            <div class="col-md-8 col-login">
+                <label for="inputPassword" class="sr-only">Password</label>
+                <input type="password" id="inputPassword" class="form-control form-control-lg" placeholder="Password"
+                    required>
+                <label for="inputOtp" class="sr-only">OTP</label>
+                <ng-otp-input *ngIf="otpEnabled" (onInputChange)="onOtpChange($event)"
+                    [config]="{length:6, allowNumbersOnly: true, inputClass: 'form-control', containerClass: 'otpContainer'}">
+                </ng-otp-input>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Log in</button>
+            </div>
+        </div>
+
+    </form>
+</div>

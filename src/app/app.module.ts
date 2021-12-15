@@ -23,6 +23,9 @@ import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { reducers, metaReducers } from './reducers';
 import { CbNodeOwnerEffects } from './effects/cb-node-owner.effects';
+import { LoginComponent } from './login/login.component';
+import { BaseLayoutComponent } from './layout/base/base.component';
+import { NgOtpInputModule } from 'ng-otp-input';
 
 const config: SocketIoConfig = { 
   url: environment.WS_ENDPOINT ? environment.WS_ENDPOINT : "", 
@@ -41,7 +44,9 @@ const config: SocketIoConfig = {
     NavigationComponent,
     DesignComponent,
     WatcherComponent,
-    RofCircleComponent
+    RofCircleComponent,
+    LoginComponent,
+    BaseLayoutComponent
   ],
   imports: [
     BrowserModule,
@@ -59,7 +64,8 @@ const config: SocketIoConfig = {
     ]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
     StoreModule.forRoot(reducers, { metaReducers }),
-    !environment.production ? StoreDevtoolsModule.instrument() : []
+    !environment.production ? StoreDevtoolsModule.instrument() : [],
+    NgOtpInputModule
   ],
   providers: [],
   bootstrap: [AppComponent]
