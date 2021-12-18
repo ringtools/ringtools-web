@@ -18,7 +18,7 @@ export interface SettingState {
 export const initialState: SettingState = {
   ringName: 'Loading...',
   viewMode: 'tg',
-  pubsubServer: 'https://ringtools.djuri.nl',
+  pubsubServer: 'https://s.rof.tools',
   showLogo: false,
   ringSize: null
 };
