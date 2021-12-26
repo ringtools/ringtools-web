@@ -333,7 +333,6 @@ export class RofCircleComponent implements OnInit, OnChanges {
         //If the end angle lies beyond a quarter of a circle (90 degrees or pi/2) 
         //flip the end and start position
         let cond = datum.endAngle > 90;
-        //      console.log(datum.endAngle, cond, Number(cond), Number(cond) * Math.PI/180, datum.endAngle > 90 * Math.PI/180)
         if (datum.endAngle > 90 * Math.PI / 180 && datum.endAngle < 300 * Math.PI / 180) {
           var startLoc = /M(.*?)A/,		//Everything between the first capital M and first capital A
             middleLoc = /A(.*?)0 0 1/,	//Everything between the first capital A and 0 0 1
@@ -380,7 +379,6 @@ export class RofCircleComponent implements OnInit, OnChanges {
       .style("fill", "#ffffff")
       .attr("xlink:href", function (d, i) { return "#donutArc" + i; })
       .text( (d) => { 
-//        console.log('called for', d, this.ringLabelData)
         return d.data.name; 
       });
   }

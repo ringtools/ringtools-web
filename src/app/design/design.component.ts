@@ -7,9 +7,9 @@ import { VisNetworkService } from '../vis/network/vis-network.service';
 import { Observable, Subscription } from 'rxjs';
 import { select, Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
-import { CbNodeOwner } from '../model/cb_node_owner.model';
-import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
-import { loadCbNodeOwners } from '../actions/cb-node-owner.actions';
+import { NodeOwner } from '../model/node_owner.model';
+import { selectNodeOwners } from '../selectors/node-owner.selectors';
+import { loadNodeOwners } from '../actions/node-owner.actions';
 import { selectSettings } from '../selectors/setting.selectors';
 import { SettingState } from '../reducers/setting.reducer';
 import { selectRingSettings } from '../selectors/ring-setting.selectors';
@@ -32,8 +32,8 @@ export class DesignComponent implements OnInit, OnDestroy {
   allNodes = [];
   allEdges = [];
   selectedNode = '';
-  cbNodeOwners: CbNodeOwner[] = [];
-  cbNodeOwners$: Observable<CbNodeOwner[]>;
+  nodeOwners: NodeOwner[] = [];
+  nodeOwners$: Observable<NodeOwner[]>;
   newSegments: any[] = [];
   participants: any;
   settings:SettingState;
@@ -49,10 +49,10 @@ export class DesignComponent implements OnInit, OnDestroy {
     private store: Store<fromRoot.State>,
     private toastService: ToastService
   ) {
-    this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
+    this.nodeOwners$ = this.store.pipe(select(selectNodeOwners));
 
-    this.cbNodeOwners$.subscribe((data) => {
-      this.cbNodeOwners = data;
+    this.nodeOwners$.subscribe((data) => {
+      this.nodeOwners = data;
     })
 
     this.store.select(selectSettings).subscribe((settings) => {
@@ -125,7 +125,7 @@ export class DesignComponent implements OnInit, OnDestroy {
   }
 
   buildNodes() {
-    for (let node of this.cbNodeOwners) {
+    for (let node of this.nodeOwners) {
       let data = this.ringData.getNodeInfo(node.pub_key)
       if (!data)
         break;
@@ -215,18 +215,18 @@ export class DesignComponent implements OnInit, OnDestroy {
   }
 
   reorderIgniter() {
-    let idx = this.cbNodeOwners.indexOf(this.selectedIgniter);
+    let idx = this.nodeOwners.indexOf(this.selectedIgniter);
     if (idx == -1) {
       this.toastService.show('No igniter selected', { classname: 'bg-danger' });
       return;
     }
 
-    let partsUntilIgniter = this.cbNodeOwners.slice(0, (idx + 1));
-    let partsFromIgniter = this.cbNodeOwners.slice((idx+1));
+    let partsUntilIgniter = this.nodeOwners.slice(0, (idx + 1));
+    let partsFromIgniter = this.nodeOwners.slice((idx+1));
     let newOrder = partsFromIgniter.concat(partsUntilIgniter);
     try {
-      this.store.dispatch(loadCbNodeOwners(newOrder))
-      this.ringData.saveRingSettings(this.cbNodeOwners);
+      this.store.dispatch(loadNodeOwners(newOrder))
+      this.ringData.saveRingSettings(this.nodeOwners);
       this.toastService.show('Node reorder persisted', { classname: 'bg-success' });
     } catch (e) {
       this.toastService.show('Error reordering', { classname: 'bg-danger' });

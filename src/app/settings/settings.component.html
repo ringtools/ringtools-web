@@ -51,7 +51,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <ng-container *ngFor="let item of cbNodeOwners$ | async">
+                        <ng-container *ngFor="let item of nodeOwners$ | async">
                             <tr>
                                 <td class="service-icon">
                                     <a [attr.href]="'https://amboss.space/node/' +  item.pub_key" target="_blank">
@@ -67,8 +67,8 @@
                                     <span>{{ item.pub_key }}</span>
                                 </td>
                                 <td>{{ item.nodename }}</td>
-                                <td>{{ item.user_name }}</td>
-                                <td><button class="btn btn-danger btn-small btn-sm delete-btn" (click)="removeCbNodeOwner(item)">
+                                <td>{{ getUsername(item) }}</td>
+                                <td><button class="btn btn-danger btn-small btn-sm delete-btn" (click)="removeNodeOwner(item)">
                                     <i class="bi bi-trash"></i>
                                 </button>
                                 </td>
@@ -93,7 +93,7 @@
                                         [(ngModel)]="addTgUsername" name="tgUserName" placeholder="TG username">
                                 </div>
                             </td>
-                            <td><button class="btn btn-primary btn-small btn-sm" (click)="addCbNodeOwner()">Add</button>
+                            <td><button class="btn btn-primary btn-small btn-sm" (click)="addNodeOwner()">Add</button>
                             </td>
                         </tr>
                     </tbody>
@@ -106,7 +106,7 @@
             <ul class="list-group small">
                 <li class="list-group-item d-flex justify-content-between align-items-center small"
                     *ngFor="let item of ringSettings$ | async">
-                    {{ item.cleanRingName }} ({{ item.ringSize }})
+                    <span [innerHTML]="emojiPrefix(item)"></span>
                     <div class="btn-group btn-small small btn-group-toggle" ngbRadioGroup>
                         <label ngbButtonLabel class="btn-success btn-sm">
                             <input ngbButton type="radio" value="node" (click)="loadSettings(item)"> Load

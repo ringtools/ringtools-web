@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { RingDataService } from '../services/ring-data.service';
-import { CbNodeOwner } from '../model/cb_node_owner.model';
+import { NodeOwner } from '../model/node_owner.model';
 import { select, Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
-import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
+import { selectNodeOwners } from '../selectors/node-owner.selectors';
 import { Observable } from 'rxjs';
 import {
-  addCbNodeOwner,
-  loadCbNodeOwners,
-  removeCbNodeOwner,
-} from '../actions/cb-node-owner.actions';
+  addNodeOwner,
+  loadNodeOwners,
+  removeNodeOwner,
+} from '../actions/node-owner.actions';
 import { RingSetting } from '../model/ring-setting.model';
 import {
   removeRingSetting,
@@ -22,6 +22,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import * as LZString from 'lz-string';
 import { ActivatedRoute } from '@angular/router';
 import { ToastService } from '../toast/toast.service';
+import { CbNodeOwner } from '../model/cb_node_owner.model';
+import { parseToEmoji } from '../utils/utils';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-settings',
@@ -29,12 +32,11 @@ import { ToastService } from '../toast/toast.service';
   styleUrls: ['./settings.component.scss'],
 })
 export class SettingsComponent implements OnInit {
-  segments: CbNodeOwner[] | undefined;
+  nodeOwners: NodeOwner[] | undefined;
   pubkeysText: any = '';
   ringName: any = '';
   ringSize: number;
-  pubsubServer: string = '';
-  cbNodeOwners$: Observable<CbNodeOwner[]>;
+  nodeOwners$: Observable<NodeOwner[]>;
   ringSettings$: Observable<RingSetting[]>;
   ringSettings: RingSetting[] = [];
   tempNodename = '';
@@ -49,7 +51,8 @@ export class SettingsComponent implements OnInit {
     public ringData: RingDataService,
     private route: ActivatedRoute,
     private store: Store<fromRoot.State>,
-    public toastService: ToastService
+    public toastService: ToastService,
+    public sanitizer: DomSanitizer
   ) {
     this.ringSettings$ = this.store.select(selectRingSettings);
 
@@ -61,43 +64,65 @@ export class SettingsComponent implements OnInit {
       this.settings = settings;
 
       this.showLogo = settings.showLogo;
+      this.ringName = this.ringData.getRingName();
       this.ringSize = this.ringData.getRingSize();
 
     });
 
-    this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
+    this.nodeOwners$ = this.store.pipe(select(selectNodeOwners));
 
-    this.cbNodeOwners$.subscribe((data) => {
-      this.segments = data;
+    this.nodeOwners$.subscribe((data) => {
+      this.nodeOwners = data;
     });
     this.pubkeysText = '';
-    this.ringName = this.ringData.getRingName();
-    this.ringSize = this.ringData.getRingSize();
-
-    this.pubsubServer = this.ringData.getPubsubServer();
   }
 
   ngOnInit(): void {
     const loadRing = this.route.snapshot.queryParamMap.get('load');
 
     if (loadRing) {
-      let importData = JSON.parse(
-        LZString.decompressFromEncodedURIComponent(loadRing)
-      );
-      this.ringData.setRingName(importData['name']);
-      this.ringData.setRingSize(importData['size']);
-
-      // This can be beter, listen to the setRingName/Size action
-      this.ringName = importData['name'];
-      this.ringSize = importData['size'];
-
-      this.pubkeysText =
-        'user_name,nodename,pub_key,new,handle,capacity_sat\r\n';
-      this.pubkeysText += importData['data'];
-
-      let segments = this.ringData.parseCsvToType(this.pubkeysText);
-      this.store.dispatch(loadCbNodeOwners(segments));
+      this.parseOldLoadQueryString(loadRing)
     }
+
+    const loadRingNew = this.route.snapshot.queryParamMap.get('l');
+    if (loadRingNew) {
+      this.parseLoadQueryString(loadRingNew)
+    }
+  }
+
+
+  /**
+   * @deprecated
+   * @param loadRing 
+   */
+  parseOldLoadQueryString(loadRing) {
+    let importData = JSON.parse(
+      LZString.decompressFromEncodedURIComponent(loadRing)
+    );
+    this.ringData.setRingName(importData['name']);
+    this.ringData.setRingSize(importData['size']);
+
+    // This can be beter, listen to the setRingName/Size action
+    this.ringName = importData['name'];
+    this.ringSize = importData['size'];
+
+    this.pubkeysText =
+      'user_name,nodename,pub_key,new,handle,capacity_sat\r\n';
+    this.pubkeysText += importData['data'];
+
+    let segments = this.ringData.parseCsvToType(this.pubkeysText);
+    this.store.dispatch(loadNodeOwners(segments));
+  }
+
+  parseLoadQueryString(loadRing) {
+    let importData = JSON.parse(
+      LZString.decompressFromEncodedURIComponent(loadRing)
+    );
+    this.ringData.setRingName(importData['name']);
+    this.ringData.setRingSize(importData['size']);
+
+    let segments = this.ringData.parseNewExportFormat(importData['data']);
+    this.store.dispatch(loadNodeOwners(segments));
   }
 
   parseCapacityName() {
@@ -121,7 +146,7 @@ export class SettingsComponent implements OnInit {
   }
 
   getSegments() {
-    return this.segments;
+    return this.nodeOwners;
   }
 
   processPubkeys() {
@@ -145,7 +170,8 @@ export class SettingsComponent implements OnInit {
 
     try {
       let segments = this.ringData.parseCsvToType(this.pubkeysText);
-      this.store.dispatch(loadCbNodeOwners(segments));
+
+      this.store.dispatch(loadNodeOwners(segments));
       this.toastService.show('Imported groupnodes CSV', {
         classname: 'bg-success',
       });
@@ -184,7 +210,7 @@ export class SettingsComponent implements OnInit {
 
   saveRingSettings() {
     try {
-      this.ringData.saveRingSettings(this.segments);
+      this.ringData.saveRingSettings(this.nodeOwners);
       this.toastService.show('Saved ring settings', {
         classname: 'bg-success',
       });
@@ -195,24 +221,34 @@ export class SettingsComponent implements OnInit {
     }
   }
 
-  convertToCsv(ringParticipants, header: boolean = true) {
+  convertToCsv(ringParticipants:CbNodeOwner[], header: boolean = true) {
     let pkContents = '';
 
     if (header)
       pkContents = 'user_name,nodename,pub_key,new,handle,capacity_sat\r\n';
 
     for (let p of ringParticipants) {
-      pkContents += `${p.user_name},${p.nodename},${p.pub_key},${p.new},${p.handle},${p.capacity_sat}\r\n`;
+      pkContents += `${p.first_name},${p.nodename},${p.pub_key},false,${p.username},0\r\n`;
     }
 
     return pkContents;
   }
 
+
+// nu
+// http://localhost:4200/settings?load=N4IgJghgLhIFwgK4DswFMBmBLZawBoAGAJmMIE4BjCAdmIGZiA2AI2IiYFZjPyjSK1Oo1bsuPckzRMmGDAEYALJkWtpNcosqLOhABxgWejMc7UWTevSZ6InMIa0t8KdNlwFXmHHhepvHgA6AE6ByF7uvgAiaAAyaAC2-BAQxBbyxPL0dGiEGDw6lGByhIpglMQYnHrEVITyaEb05QZ6nAqUdMXanCxoevSd1J7+kSNuPuMBeCFhEZP4AEJoEJQAFouICQBysUT0LPJgisoK5DT08vLkGOQW5BCE3Bgsijdo5IRgxizodzRHNBZFifBxyHRoSrkLJMYhvPwTDwI6ZTMazcKjBYAQQAzlBggB7ZAEsAAG32elUKT0tn6AK+hBYRRpWRqGCY8iYb04vXIzEIX2IYB4EHotwwNEI-XOLAwlAqxG0cORYxVC3mQVCGMRvli2yiAEkAEoAaQAygB5bYUmgQG7ENCUDCEGSaKq3SjcPS5do0LT0WiKNiStiUuTMVLyPTyGjVchiphgcgPBrENVIjW+TNgdHZ-ZGVMsR6EbIQPrtLL56OQosC0vlhTWPR0CAnJguj55MCceS9AGaEg2TjZDBgGhoRjtRQMJh2xjprOYjNLmZavMkQix+gfUjlYfxzIl-ib4c7oWe+gH+QlsqcvCEShixSrF1MSgc4Ue+N86d6EiKDBrEVXoGlnSgF1RdUVxzNdoP2HgjGKGhtDAKUMFWYdCHg3oDAlFC0Iw+gSEvVQ-w5Sg9D5ChrgFGpyD0IwWE3ejAIDF4iIuOxSG9CDeOzXM4LNKA0EwfZ8hYA5N0UJQiOHPoxEfRQiLYF0JQLWp6E4ETrGyRlPgfWoWQgGpmjfYpIOXHULNXMIQHwEBkAgBI0HgEAzSNI0LQAMQAfU4ABZHFoBxHymCgNYjQNbYAHE7JAHEsAALxcuBdAFdKAF8gA
+// nu
+// http://localhost:4200/settings?load=N4IgJghgLhIFwgK4DswFMBmBLZawBoAGAJmMIE4BjCAdmIGZiA2AI2IiYFZjPym0mTDBgCMAFkxjWAmuTGUxnQgA4wLZRg2dqLJvXpNlETmDXyW+FOmy4wAHyuYceIuwjFdI4iPp00hDB5FSjBhQjEwSmIMTmViKkIRNHV6SNVlTlFKOlCFThY0ZXps6gJHGzwHVCdbInoWETAxCVFyGnoREXIMcl1yCEJuDBYxbrRyQjANFnRemka0HxYJ02FFNGjyHyZiUctqivty5wJCemUpCAhlI0L5ycIWEJufOIwmESZRznzyZkJJsQwDwIPQehgaIRCm0WBhKFFiApdvtrCcqqjamdlDQIN1iGhKBhCII5DEepRuMp-JkaPJ6LQxGxIWwLsJmO4RMoRDRYuQwUwwOR+kliCiapVjpj6lyNiwBmccQVMttsexmkxieMAmBOCJ8vM5CRDJxfBgwDQ0IxMmIGExcYwxYd0eLTmQefRxqRIia+d4zhFPnhCJQwWIIJRiUxKB9geS+X8bcoSGIMAZEfkknbKI60ZKXGceOpQjQFGAoRhwyaSPQ5IZiSJKMo-hQugC4uRlOoWIRZBp9BBhvQe-TuMQqTnbM7DnVAix6j2xOIhyaCuwo-QxEO2MSIeovHzOGhLXpmRNg-EXtcGGAo6EygcTiB8CBkBAALZoeAgADKACVfwA8gAYgA+pwACyADO0CQSBTBQAAFr+ACSAByADiT4gJBWAAF6fnASgAsRAC+QA
+
+
+
   loadSettings(item) {
     try {
       this.ringData.loadSettings(item);
 
-      let pkContents = this.convertToCsv(item.ringParticipants);
+      let rpCb:CbNodeOwner[] = item.ringParticipants;
+
+      let pkContents = this.convertToCsv(rpCb);
 
       this.pubkeysText = pkContents;
 
@@ -224,6 +260,10 @@ export class SettingsComponent implements OnInit {
         classname: 'bg-error',
       });
     }
+  }
+
+  emojiPrefix(ring) {
+    return this.sanitizer.bypassSecurityTrustHtml(`${parseToEmoji(ring.cleanRingName)}&nbsp;&nbsp;${ring.cleanRingName} (${ring.ringSize})`);
   }
 
   removeSettings(item) {
@@ -239,10 +279,10 @@ export class SettingsComponent implements OnInit {
     }
   }
 
-  addCbNodeOwner() {
+  addNodeOwner() {
     this.addPubKey = String(this.addPubKey).trim();
 
-    if (this.segments.findIndex((val) => val.pub_key == this.addPubKey) != -1) {
+    if (this.nodeOwners.findIndex((val) => val.pub_key == this.addPubKey) != -1) {
       this.toastService.show(`Node ${this.addPubKey} already in list`, {
         classname: 'bg-warning',
       });
@@ -254,16 +294,14 @@ export class SettingsComponent implements OnInit {
     this.ringData.getNodeInfoApi(this.addPubKey).subscribe({
       next: (data) => {
         if (data) {
-          let no: CbNodeOwner = {
+          let no: NodeOwner = {
             pub_key: this.addPubKey,
             nodename: data.node.alias,
-            user_name: this.addTgUsername,
-            handle: this.addTgUsername,
-            capacity_sat: data.total_capacity,
-            new: false
+            first_name: this.addTgUsername,
+            username: this.addTgUsername,
           };
 
-          this.store.dispatch(addCbNodeOwner(no));
+          this.store.dispatch(addNodeOwner(no));
 
           this.toastService.show(`Added node ${data.node.alias}`, {
             classname: 'bg-success',
@@ -273,16 +311,14 @@ export class SettingsComponent implements OnInit {
       error: (error: HttpErrorResponse) => {
         // node probably has no channels yet but key looks correct
         if (error.status == 404 && String(this.addPubKey).length == 66) {
-          let no: CbNodeOwner = {
+          let no: NodeOwner = {
             pub_key: this.addPubKey,
-            nodename: String(this.addPubKey).substr(0, 20),
-            user_name: this.addTgUsername,
-            handle: this.addTgUsername,
-            new: false,
-            capacity_sat: '0',
+            nodename: String(this.addPubKey).substring(0, 20),
+            first_name: this.addTgUsername,
+            username: this.addTgUsername,
           };
 
-          this.store.dispatch(addCbNodeOwner(no));
+          this.store.dispatch(addNodeOwner(no));
 
           this.toastService.show(`Added node ${this.addPubKey}`, {
             classname: 'bg-success',
@@ -297,9 +333,9 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  removeCbNodeOwner(nodeOwner: CbNodeOwner) {
+  removeNodeOwner(nodeOwner: NodeOwner) {
     try {
-      this.store.dispatch(removeCbNodeOwner(nodeOwner));
+      this.store.dispatch(removeNodeOwner(nodeOwner));
       this.toastService.show(`Removed node ${nodeOwner.nodename}`, {
         classname: 'bg-success',
       });
@@ -314,12 +350,12 @@ export class SettingsComponent implements OnInit {
 
   exportJSON() {
     let ringData = {
-      data: this.convertToCsv(this.ringData.cbNodeOwners, false),
+      data: this.ringData.convertToExportFormat(this.ringData.nodeOwners),
       name: this.ringData.getRingName(),
       size: this.ringData.getRingSize(),
     };
     let co = LZString.compressToEncodedURIComponent(JSON.stringify(ringData));
-    let shareUrl = `${window.location.origin}${window.location.pathname}?load=${co}`;
+    let shareUrl = `${window.location.origin}${window.location.pathname}?l=${co}`;
     this.copyToClipboard(shareUrl);
     this.toastService.show('Copied share URL to clipboard', {
       classname: 'bg-success',
@@ -335,5 +371,12 @@ export class SettingsComponent implements OnInit {
     };
     document.addEventListener('copy', listener);
     document.execCommand('copy');
+  }
+
+  getUsername(nodeOwner) {
+    if (nodeOwner.username == 'None') {
+      return nodeOwner.first_name;
+    }
+    return `@${nodeOwner.username}`;
   }
 }

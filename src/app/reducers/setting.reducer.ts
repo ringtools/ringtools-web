@@ -1,7 +1,7 @@
 import { state } from '@angular/animations';
 import { Action, createReducer, on } from '@ngrx/store';
 import * as SettingActions from '../actions/setting.actions';
-import { CbNodeOwner } from '../model/cb_node_owner.model';
+import { NodeOwner } from '../model/node_owner.model';
 
 
 export const settingFeatureKey = 'setting';
@@ -12,7 +12,7 @@ export interface SettingState {
   pubsubServer: string
   showLogo: boolean
   ringSize: number;
-  ringLeader?: CbNodeOwner;
+  ringLeader?: NodeOwner;
 }
 
 export const initialState: SettingState = {

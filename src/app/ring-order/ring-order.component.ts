@@ -2,18 +2,15 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { DragulaService } from 'ng2-dragula';
 import { Observable, Subscription } from 'rxjs';
-import { loadCbNodeOwners } from '../actions/cb-node-owner.actions';
-import { CbNodeOwner } from '../model/cb_node_owner.model';
-import { NodeInfo } from '../model/node_info.model';
+import { NodeOwner } from '../model/node_owner.model';
 import { RingSetting } from '../model/ring-setting.model';
 import * as fromRoot from '../reducers';
 import { SettingState } from '../reducers/setting.reducer';
-import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
+import { selectNodeOwners } from '../selectors/node-owner.selectors';
 import { selectRingSettings } from '../selectors/ring-setting.selectors';
 import { selectSettings } from '../selectors/setting.selectors';
 import { RingDataService } from '../services/ring-data.service';
 import { ToastService } from '../toast/toast.service';
-import { getUsername } from '../utils/utils';
 
 
 @Component({
@@ -22,8 +19,8 @@ import { getUsername } from '../utils/utils';
   styleUrls: ['./ring-order.component.scss']
 })
 export class RingOrderComponent implements OnInit, OnDestroy {
-  cbNodeOwners: CbNodeOwner[] = [];
-  cbNodeOwners$: Observable<CbNodeOwner[]>;
+  nodeOwners: NodeOwner[] = [];
+  nodeOwners$: Observable<NodeOwner[]>;
 
   Participants = 'PARTICIPANTS'
   viewMode!: string;
@@ -35,28 +32,21 @@ export class RingOrderComponent implements OnInit, OnDestroy {
   ringSettings: RingSetting;
 
   constructor(
-    private ringData: RingDataService,
     private store: Store<fromRoot.State>,
-    private toastService: ToastService,
     private dragulaService: DragulaService,
   ) {
-    this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
+    this.nodeOwners$ = this.store.pipe(select(selectNodeOwners));
 
-    this.cbNodeOwners$.subscribe((data) => {
-      this.cbNodeOwners = data;
+    this.nodeOwners$.subscribe((data) => {
+      this.nodeOwners = data;
     })
 
     this.store.select(selectSettings).subscribe((settings) => {
       this.settings = settings;
+      this.viewMode  = settings.viewMode;
     });
 
     this.ringSettings$ = this.store.select(selectRingSettings);
-
-    // this.ringSettings$.subscribe((data) => {
-    //   this.ringSettings = data;
-    // })
-
-    this.viewMode = ringData.getViewMode();
 
     dragulaService.createGroup("PARTICIPANTS", {
       removeOnSpill: true
@@ -71,10 +61,10 @@ export class RingOrderComponent implements OnInit, OnDestroy {
     this.dragulaService.destroy('PARTICIPANTS');
   }
 
-  getCbUsername(nodeOwner: CbNodeOwner) {
-    if (nodeOwner.handle == 'None') {
-      return nodeOwner.user_name;
+  getCbUsername(nodeOwner: NodeOwner) {
+    if (nodeOwner.username == 'None') {
+      return nodeOwner.first_name;
     }
-    return `${nodeOwner.user_name} (@${nodeOwner.handle})`;
+    return `${nodeOwner.first_name} (@${nodeOwner.username})`;
   }
 }

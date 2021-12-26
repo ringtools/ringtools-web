@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { CbNodeOwner } from '../model/cb_node_owner.model';
+import { NodeOwner } from '../model/node_owner.model';
 
 export const setSettings = createAction(
   '[Setting] Set Settings'
@@ -17,7 +17,7 @@ export const setRingSize = createAction(
 
 export const setRingLeader = createAction(
   '[Setting] set Ring Leader',
-  (ringLeader: CbNodeOwner) => ({ringLeader})
+  (ringLeader: NodeOwner) => ({ringLeader})
 );
 
 export const setViewMode = createAction(

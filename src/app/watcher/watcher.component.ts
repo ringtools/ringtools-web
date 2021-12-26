@@ -1,18 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { Observable, take } from 'rxjs';
-import { CbNodeOwner } from '../model/cb_node_owner.model';
+import { NodeOwner } from '../model/node_owner.model';
 import { RingParticipant } from '../model/ring_participant.model';
 import { RingDataService } from '../services/ring-data.service';
 import * as fromRoot from '../reducers';
-import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
-import { upsertChannel } from '../actions/channel.actions';
-import { ChannelEdge } from '../model/channel_edge.model';
-import { selectNodeInfos  } from '../selectors/node-info.selectors';
+import { selectNodeOwners } from '../selectors/node-owner.selectors';
 import { NodeInfo } from '../model/node_info.model';
 import * as svg from 'save-svg-as-png';
 import { selectSettings } from '../selectors/setting.selectors';
 import { SettingState } from '../reducers/setting.reducer';
+import { getUsername } from '../utils/utils';
 
 @Component({
   selector: 'app-watcher',
@@ -21,8 +19,8 @@ import { SettingState } from '../reducers/setting.reducer';
 })
 export class WatcherComponent implements OnInit {
   viewMode: string;
-  cbNodeOwners: CbNodeOwner[] = [];
-  cbNodeOwners$: Observable<CbNodeOwner[]>
+  nodeOwners: NodeOwner[] = [];
+  nodeOwners$: Observable<NodeOwner[]>
   ringLabels: string[];
   settings: SettingState;
   isReady:boolean = false;
@@ -34,17 +32,17 @@ export class WatcherComponent implements OnInit {
     public ringData: RingDataService,
     private store: Store<fromRoot.State>
   ) {
-    this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
+    this.nodeOwners$ = this.store.pipe(select(selectNodeOwners));
 
     this.store.select(selectSettings).subscribe((settings) => {
       this.settings = settings;
       this.viewMode = settings.viewMode;
     });
 
-    this.cbNodeOwners$.subscribe((data) => {
-      this.cbNodeOwners = data;
+    this.nodeOwners$.subscribe((data) => {
+      this.nodeOwners = data;
 
-      this.ringLabels = this.cbNodeOwners.map((val) => {
+      this.ringLabels = this.nodeOwners.map((val) => {
         if (this.viewMode == "node")
           return val.nodename;
         return this.ringData.getUsername(val.pub_key)
@@ -69,7 +67,7 @@ export class WatcherComponent implements OnInit {
   }
 
   getSegments() {
-    return this.cbNodeOwners;
+    return this.nodeOwners;
   }
 
   getIsReady() {
@@ -82,7 +80,7 @@ export class WatcherComponent implements OnInit {
         if (this.viewMode == "node")
           return { name: val.nodename, active: false }
         else
-          return { name: val.user_name, active: false }
+          return { name: val.first_name, active: false }
       })
     }
     let ret = this.participants.map((val, i) => {
@@ -104,7 +102,7 @@ export class WatcherComponent implements OnInit {
   viewChange(event: any) {
     this.ringData.setViewMode(event);
 
-    this.ringLabels = this.cbNodeOwners.map((val) => {
+    this.ringLabels = this.nodeOwners.map((val) => {
       if (this.viewMode == "node")
         return val.nodename;
       return this.ringData.getUsername(val.pub_key)
@@ -135,17 +133,7 @@ export class WatcherComponent implements OnInit {
   }
 
   getUsername(node: NodeInfo | undefined) {  
-    if (!node)
-      return;
-
-    let ret = this.cbNodeOwners.find((val) => {
-      return val.pub_key == node.node.pub_key
-    })
-
-    if (ret.handle == "None") {
-      return ret.user_name;
-    }
-    return `@${ret.handle}`;
+    return getUsername(node, this.nodeOwners);
   }
 
   refreshParticipants() {

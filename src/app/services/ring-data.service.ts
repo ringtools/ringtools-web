@@ -2,14 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NodeInfo } from '../model/node_info.model';
 import { RoutingPolicy } from '../model/routing_policy.model';
-import { CbNodeOwner } from '../model/cb_node_owner.model';
+import { NodeOwner } from '../model/node_owner.model';
 import * as d3 from 'd3';
 import { Socket } from 'ngx-socket-io';
 import { Subject } from 'rxjs';
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
-import { loadCbNodeOwners } from '../actions/cb-node-owner.actions';
-import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
+import { loadNodeOwners } from '../actions/node-owner.actions';
+import { selectNodeOwners } from '../selectors/node-owner.selectors';
 import { upsertNodeInfo } from '../actions/node-info.actions';
 import { upsertChannel } from '../actions/channel.actions';
 import { selectSettings } from '../selectors/setting.selectors';
@@ -25,7 +25,7 @@ import { RingSetting } from '../model/ring-setting.model';
 import { DomSanitizer } from '@angular/platform-browser';
 import { upsertRingSetting } from '../actions/ring-setting.actions';
 import { environment } from 'src/environments/environment';
-import { NodeOwner } from '../model/node_owner.model';
+import { CbNodeOwner } from '../model/cb_node_owner.model';
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +35,7 @@ export class RingDataService {
   ringSize: number;
   ringLeader: NodeOwner;
 
-  cbNodeOwners: NodeOwner[] = [];
+  nodeOwners: NodeOwner[] = [];
 
   private _channelUpdate = new Subject();
   channelUpdate$ = this._channelUpdate.asObservable();
@@ -62,14 +62,14 @@ export class RingDataService {
     private sanitizer: DomSanitizer,
     private store: Store<fromRoot.State>
   ) {
-    this.store.select(selectCbNodeOwners).subscribe((res) => {
+    this.store.select(selectNodeOwners).subscribe((res) => {
       let pubkeys = res.map((val) => {
         return val.pub_key;
       });
 
-      this.cbNodeOwners = res;
+      this.nodeOwners = res;
 
-      for (let o of this.cbNodeOwners) {
+      for (let o of this.nodeOwners) {
         this.nodeToTgMap.set(o.pub_key, o);
       }
 
@@ -87,7 +87,7 @@ export class RingDataService {
 
       this.nodeInfo.set(data.node.pub_key, data);
 
-      if (this.nodeInfo.size == this.cbNodeOwners.length) {
+      if (this.nodeInfo.size == this.nodeOwners.length) {
         this.isLoaded = true;
         this._isReady.next(this.isLoaded);
       }
@@ -113,10 +113,10 @@ export class RingDataService {
 
   getUsername(pub_key: string) {
     let ret = this.getTgUserByPubkey(pub_key);
-    if (ret.handle == 'None') {
-      return ret.user_name;
+    if (ret.username == 'None') {
+      return ret.first_name;
     }
-    return `@${ret.handle}`;
+    return `@${ret.username}`;
   }
 
   updateChannel(channelData) {
@@ -154,7 +154,7 @@ export class RingDataService {
 
     this.socket.emit('unsubscribe_all');
 
-    let pubkeys = this.cbNodeOwners.map((val) => {
+    let pubkeys = this.nodeOwners.map((val) => {
       return val.pub_key;
     });
 
@@ -162,7 +162,7 @@ export class RingDataService {
   }
 
   setSegments(segments: any) {
-    this.store.dispatch(loadCbNodeOwners(segments));
+    this.store.dispatch(loadNodeOwners(segments));
   }
 
   setViewMode(viewMode: string) {
@@ -191,7 +191,7 @@ export class RingDataService {
     this.store.dispatch(setRingSize(ringSize));
   }
 
-  setRingLeader(ringLeader: CbNodeOwner) {
+  setRingLeader(ringLeader: NodeOwner) {
     this.ringLeader = ringLeader;
     this.store.dispatch(setRingLeader(ringLeader));
   }
@@ -258,7 +258,7 @@ export class RingDataService {
   }
 
   populateChannels() {
-    for (let [key, node] of this.cbNodeOwners.entries()) {
+    for (let [key, node] of this.nodeOwners.entries()) {
       let data = this.getNodeInfo(node.pub_key);
       if (!data) return;
       this.nodeNames.set(node.pub_key, data.node.alias);
@@ -266,11 +266,11 @@ export class RingDataService {
       this.nodeInfo.set(node.pub_key, data);
 
       for (let edge of data.channels) {
-        let nextIndex = (key + 1) % this.cbNodeOwners.length;
+        let nextIndex = (key + 1) % this.nodeOwners.length;
 
         if (
-          edge.node1_pub == this.cbNodeOwners[nextIndex].pub_key ||
-          edge.node2_pub == this.cbNodeOwners[nextIndex].pub_key
+          edge.node1_pub == this.nodeOwners[nextIndex].pub_key ||
+          edge.node2_pub == this.nodeOwners[nextIndex].pub_key
         ) {
           this.channels.push(edge);
         }
@@ -284,21 +284,19 @@ export class RingDataService {
    */
   parseCsvToType(contents: string) {
     let segmentLines = contents.split('\n');
-    let segments: CbNodeOwner[] = [];
+    let segments: NodeOwner[] = [];
     for (let line of segmentLines.slice(1)) {
       let parts = line.split(',');
       if (parts.length > 1) {
-        segments.push({
-          user_name: parts[0],
+        let nodeOwner:NodeOwner = {
+          first_name: parts[0],
           nodename: parts[1],
           pub_key: parts[2],
-          new: Boolean(parts[3]),
-          handle: parts[4],
-          capacity_sat: parts[5],
-        });
+          username: parts[4],
+        };
+        segments.push(nodeOwner);
       }
     }
-
     return segments;
   }
 
@@ -330,7 +328,7 @@ export class RingDataService {
   loadSettings(item: RingSetting) {
     this.setRingName(item.ringName);
     this.setRingSize(item.ringSize);
-    this.store.dispatch(loadCbNodeOwners(item.ringParticipants));
+    this.store.dispatch(loadNodeOwners(item.ringParticipants));
   }
 
   saveRingSettings(segments) {
@@ -374,7 +372,7 @@ export class RingDataService {
 
     let data = '';
 
-    for (let no of this.cbNodeOwners) {
+    for (let no of this.nodeOwners) {
       data += `${no.pub_key},${this.getUsername(no.pub_key)}\r\n`;
     }
 
@@ -396,5 +394,34 @@ export class RingDataService {
 
   downloadFile(data) {
     this.doDownloadFileWithData(data, 'file.txt');
+  }
+
+  convertToExportFormat(ringParticipants) {
+    let pkContents = '';
+    let add = '';
+    for (let p of ringParticipants) {
+      pkContents += `${add}${p.first_name},${p.username},${p.pub_key},${p.nodename}`;
+      add = "|";
+    }
+
+    return pkContents;
+  }
+
+  parseNewExportFormat(data) {
+    let segmentLines = data.split('|');
+    let segments: NodeOwner[] = [];
+    for (let line of segmentLines.slice(1)) {
+      let parts = line.split(',');
+      if (parts.length > 1) {
+        let nodeOwner:NodeOwner = {
+          first_name: parts[0],
+          username: parts[1],
+          pub_key: parts[2],
+          nodename: parts[3],
+        };
+        segments.push(nodeOwner);
+      }
+    }
+    return segments;
   }
 }

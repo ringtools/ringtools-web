@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { CbNodeOwner } from '../model/cb_node_owner.model';
+import { NodeOwner } from '../model/node_owner.model';
 import { NodeInfo } from '../model/node_info.model';
 
 const colorScale = d3
@@ -12,18 +12,35 @@ const colorScale = d3
 
 const getUsername = (
   node: NodeInfo | undefined,
-  cbNodeOwners: CbNodeOwner[]
+  nodeOwners: NodeOwner[]
 ) => {
   if (!node) return;
 
-  let ret = cbNodeOwners.find((val) => {
+  let ret = nodeOwners.find((val) => {
     return val.pub_key == node.node.pub_key;
   });
 
-  if (ret.handle == 'None') {
-    return ret.user_name;
+  if (ret.username == 'None') {
+    return ret.first_name;
   }
-  return `@${ret.handle}`;
+  return `@${ret.username}`;
 };
 
-export { colorScale, getUsername };
+
+const parseToEmoji = (ringName) => {
+  let colorMap: Map<String, string> = new Map<string,string>([
+    ['500K', '&#128308;'],
+    ['1M', '&#128992;'],
+    ['2M', '&#128993;'],
+    ['3M', '&#128994;'],
+    ['5M', '&#129001;'],
+    ['10M', '&#128154;'],
+    ['50M', '&#127752;'],
+  ]);
+
+  let capacity: String = ringName.match(/_(\d+[K|M])sats_/)[1];
+
+  return colorMap.get(capacity);
+}
+
+export { colorScale, getUsername, parseToEmoji };

@@ -1,15 +1,13 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { CbNodeOwner } from '../model/cb_node_owner.model';
-import { RingDataService } from '../services/ring-data.service';
+import { Component, Input } from '@angular/core';
+import { NodeOwner } from '../model/node_owner.model';
 import * as fromRoot from '../reducers';
 import { select, Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { selectCbNodeOwners } from '../selectors/cb-node-owner.selectors';
+import { selectNodeOwners } from '../selectors/node-owner.selectors';
 import { SettingState } from '../reducers/setting.reducer';
 import { selectSettings } from '../selectors/setting.selectors';
 import { colorScale, getUsername } from '../utils/utils';
 import { NodeInfo } from '../model/node_info.model';
-import { RingParticipant } from '../model/ring_participant.model';
 
 @Component({
   selector: 'app-stats-table',
@@ -19,8 +17,8 @@ import { RingParticipant } from '../model/ring_participant.model';
 export class StatsTableComponent {
   @Input() participants;
   settings:SettingState;
-  cbNodeOwners: CbNodeOwner[] = [];
-  cbNodeOwners$: Observable<CbNodeOwner[]>
+  nodeOwners: NodeOwner[] = [];
+  nodeOwners$: Observable<NodeOwner[]>
 
   constructor(
     private store: Store<fromRoot.State>,
@@ -29,10 +27,10 @@ export class StatsTableComponent {
       this.settings = settings;
     });
 
-    this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
+    this.nodeOwners$ = this.store.pipe(select(selectNodeOwners));
 
-    this.cbNodeOwners$.subscribe((data) => {
-      this.cbNodeOwners = data;
+    this.nodeOwners$.subscribe((data) => {
+      this.nodeOwners = data;
     })
   }
 
@@ -41,6 +39,6 @@ export class StatsTableComponent {
   }
 
   getUsername(node: NodeInfo | undefined) {
-    return getUsername(node, this.cbNodeOwners);
+    return getUsername(node, this.nodeOwners);
   }
 }

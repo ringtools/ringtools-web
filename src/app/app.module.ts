@@ -21,7 +21,7 @@ import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { reducers, metaReducers } from './reducers';
-import { CbNodeOwnerEffects } from './effects/cb-node-owner.effects';
+import { NodeOwnerEffects } from './effects/node-owner.effects';
 import { LoginComponent } from './login/login.component';
 import { BaseLayoutComponent } from './layout/base/base.component';
 import { NgOtpInputModule } from 'ng-otp-input';
@@ -66,7 +66,7 @@ const config: SocketIoConfig = {
     DragulaModule.forRoot(),
     SocketIoModule.forRoot(config),
     EffectsModule.forRoot([
-      CbNodeOwnerEffects
+      NodeOwnerEffects
     ]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
     StoreModule.forRoot(reducers, { metaReducers }),

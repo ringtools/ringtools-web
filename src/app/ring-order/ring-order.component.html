@@ -1,6 +1,6 @@
 <h3>Ring order</h3>
-<ul class="list-group" dragula="PARTICIPANTS" id="participants" [(dragulaModel)]="cbNodeOwners">
-    <li class="list-group-item d-flex justify-content-between" *ngFor="let s of cbNodeOwners">
+<ul class="list-group" dragula="PARTICIPANTS" id="participants" [(dragulaModel)]="nodeOwners">
+    <li class="list-group-item d-flex justify-content-between" *ngFor="let s of nodeOwners">
         <ng-template [ngIf]="settings.viewMode == 'tg'" [ngIfElse]="elseBlock">
             {{ getCbUsername(s) }}
         </ng-template>

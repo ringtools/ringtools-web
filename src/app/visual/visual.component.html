@@ -22,10 +22,10 @@
           <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Igniter</label>
           <select class="form-control"  [(ngModel)]="selectedIgniter" name="selectedIgniter">
             <option [value]="undefined">Select</option>
-            <ng-container  *ngFor="let s of cbNodeOwners">
+            <ng-container  *ngFor="let s of nodeOwners">
             <option [ngValue]="s">
               <ng-template [ngIf]="viewMode == 'tg'" [ngIfElse]="elseBlock">
-                {{ s.user_name }}
+                {{ s.first_name }}
               </ng-template>
               <ng-template #elseBlock>
                 {{ s.nodename }}

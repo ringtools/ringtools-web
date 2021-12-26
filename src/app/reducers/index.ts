@@ -7,7 +7,7 @@ import {
 } from '@ngrx/store';
 import { localStorageSync, rehydrateApplicationState } from 'ngrx-store-localstorage';
 import { environment } from '../../environments/environment';
-import { cbNodeOwnerFeatureKey, cbNodeReducer } from './cb-node-owner.reducer';
+import { nodeOwnerFeatureKey, nodeOwnerReducer } from './node-owner.reducer';
 import { channelReducer } from './channel.reducer';
 import { nodeInfoReducer } from './node-info.reducer';
 import { ringSettingReducer, ringSettingsFeatureKey } from './ring-setting.reducer';
@@ -18,7 +18,7 @@ export interface State {
 }
 
 export const reducers: ActionReducerMap<State> = {
-  cbNodeOwner: cbNodeReducer,
+  nodeOwner: nodeOwnerReducer,
   channel: channelReducer,
   nodeInfo: nodeInfoReducer,
   ringSettings: ringSettingReducer,
@@ -28,7 +28,7 @@ export const reducers: ActionReducerMap<State> = {
 export function localStorageSyncReducer(reducer: ActionReducer<any>): ActionReducer<any> {
   return localStorageSync(
     {
-      keys: [ringSettingsFeatureKey, cbNodeOwnerFeatureKey, settingFeatureKey],
+      keys: [ringSettingsFeatureKey, nodeOwnerFeatureKey, settingFeatureKey],
       rehydrate: true
     })(reducer);
 }
