@@ -26,7 +26,6 @@ import { LoginComponent } from './login/login.component';
 import { BaseLayoutComponent } from './layout/base/base.component';
 import { NgOtpInputModule } from 'ng-otp-input';
 import { ToastComponent } from './toast/toast.component';
-import { VisualComponent } from './visual/visual.component';
 import { RingOrderComponent } from './ring-order/ring-order.component';
 import { FileExporterComponent } from './file-exporter/file-exporter.component';
 
@@ -51,7 +50,6 @@ const config: SocketIoConfig = {
     LoginComponent,
     BaseLayoutComponent,
     ToastComponent,
-    VisualComponent,
     RingOrderComponent,
     FileExporterComponent
   ],
