@@ -1,7 +1,8 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-4 chart-container d-inline-block" id="circle">
-            <app-rof-circle class="w-100 h-100 d-flex" [data]="getChartSegments()" [ringName]="getRingName()" [showLogo]="settings.showLogo" id="rofvisual" [ringLabels]="getRingLabels()"></app-rof-circle>
+            <app-rof-circle class="w-100 h-100 d-flex" [data]="getChartSegments()" [ringName]="getRingName()"
+                [showLogo]="settings.showLogo" id="rofvisual" [ringLabels]="getRingLabels()"></app-rof-circle>
         </div>
 
         <div class="col-md-8 participants">
@@ -17,45 +18,10 @@
                 </div>
             </h2>
 
-            <table class="table table-sm table-striped small">
-                <thead>
-                    <tr>
-                        <th scope="col">Channel ID</th>
-                        <th scope="col">Node 1</th>
-                        <th scope="col">Node 2</th>
-                        <th scope="col">N1 Base fee</th>
-                        <th scope="col">N1 Fee rate</th>
-                        <th scope="col">N2 Base fee</th>
-                        <th scope="col">N2 Fee rate</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <ng-container *ngFor="let item of getParticipants(); let i = index">
-                        <tr [class.error]="item.channel_id && (!item.initiator_fee || !item.receiver_fee)">
-                            <th scope="row" [style.background-color]="getColor(i)" class="channelCol">{{ item.channel_id }}</th>
-                            <ng-template [ngIf]="ringData.getViewMode() == 'tg'" [ngIfElse]="elseBlock">
-                                <td>{{ getUsername(item.initiator) }}</td>
-                                <td>{{ getUsername(item.receiver) }}</td>
-                            </ng-template>
-                            <ng-template #elseBlock>
-                                <td *ngIf="item.initiator">{{ item.initiator?.node?.alias }}</td>
-                                <td *ngIf="item.receiver">{{ item.receiver?.node?.alias }}</td>
-                            </ng-template>
-                            <td><span *ngIf="item.initiator_fee">{{ item.initiator_fee.fee_base_msat }}</span></td>
-                            <td><span *ngIf="item.initiator_fee">{{ item.initiator_fee.fee_rate_milli_msat }}</span>
-                            </td>
-                            <td><span *ngIf="item.receiver_fee">{{ item.receiver_fee.fee_base_msat }}</span></td>
-                            <td><span *ngIf="item.receiver_fee">{{ item.receiver_fee.fee_rate_milli_msat }}</span></td>
-                        </tr>
-                    </ng-container>
-                </tbody>
-            </table>
+            <app-stats-table [participants]="getParticipants()"></app-stats-table>
             <button (click)="downloadAsPng()" class="btn btn-primary">Download Visual</button>
             &nbsp;
             <small>Red channels: Fee policy missing</small>
-            <!--<button (click)="upsertPolicy()">Upsert Policy</button>
-
-            <pre>{{ ndata | json }}</pre>-->
         </div>
     </div>
 </div>

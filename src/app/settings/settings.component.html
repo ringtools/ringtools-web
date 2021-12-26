@@ -16,7 +16,7 @@
                     <button (click)="setRingSize()" class="btn btn-primary mb-2">Save Ring Size</button>
                 </div>
                 <div class="form-group">
-                    <label for="pubkeys">Import groupnodes from 🧀 CheeseRobot ₿</label>
+                    <label for="pubkeys">Import groupnodes from 🧀 CheeseRobot ₿ <small>(or use <a href="https://t.me/ringtools_bot" target="_blank">@ringtools_bot</a> command <code>/ringurl</code>)</small></label>
                     <textarea class="form-control" id="pubkeys" rows="3" [(ngModel)]="pubkeysText"
                         [ngModelOptions]="{standalone: true}" spellcheck="false"></textarea>
                     <button (click)="processGroupnodes()" class="btn btn-primary mb-2">Import Groupnodes</button>
@@ -47,7 +47,6 @@
                             <th scope="col">Public Key</th>
                             <th scope="col">Nodename</th>
                             <th scope="col">TG username</th>
-                            <th scope="col">Capacity</th>
                             <th scope="col">&nbsp;</th>
                         </tr>
                     </thead>
@@ -69,7 +68,6 @@
                                 </td>
                                 <td>{{ item.nodename }}</td>
                                 <td>{{ item.user_name }}</td>
-                                <td>{{ item.capacity_sat }}</td>
                                 <td><button class="btn btn-danger btn-small btn-sm delete-btn" (click)="removeCbNodeOwner(item)">
                                     <i class="bi bi-trash"></i>
                                 </button>

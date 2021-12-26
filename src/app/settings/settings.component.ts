@@ -61,6 +61,8 @@ export class SettingsComponent implements OnInit {
       this.settings = settings;
 
       this.showLogo = settings.showLogo;
+      this.ringSize = this.ringData.getRingSize();
+
     });
 
     this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
@@ -258,9 +260,8 @@ export class SettingsComponent implements OnInit {
             user_name: this.addTgUsername,
             handle: this.addTgUsername,
             capacity_sat: data.total_capacity,
+            new: false
           };
-
-          //        console.log(no);
 
           this.store.dispatch(addCbNodeOwner(no));
 
@@ -277,6 +278,7 @@ export class SettingsComponent implements OnInit {
             nodename: String(this.addPubKey).substr(0, 20),
             user_name: this.addTgUsername,
             handle: this.addTgUsername,
+            new: false,
             capacity_sat: '0',
           };
 

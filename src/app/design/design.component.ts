@@ -22,7 +22,6 @@ import { ToastService } from '../toast/toast.service';
   styleUrls: ['./design.component.scss']
 })
 export class DesignComponent implements OnInit, OnDestroy {
-  Participants = 'PARTICIPANTS'
   viewMode!: string;
 
   public visNetwork: string = 'networkId1';
@@ -33,7 +32,7 @@ export class DesignComponent implements OnInit, OnDestroy {
   allNodes = [];
   allEdges = [];
   selectedNode = '';
-  segments: CbNodeOwner[] = [];
+  cbNodeOwners: CbNodeOwner[] = [];
   cbNodeOwners$: Observable<CbNodeOwner[]>;
   newSegments: any[] = [];
   participants: any;
@@ -46,7 +45,6 @@ export class DesignComponent implements OnInit, OnDestroy {
 
   constructor(
     private visNetworkService: VisNetworkService,
-    private dragulaService: DragulaService,
     private ringData: RingDataService,
     private store: Store<fromRoot.State>,
     private toastService: ToastService
@@ -54,7 +52,7 @@ export class DesignComponent implements OnInit, OnDestroy {
     this.cbNodeOwners$ = this.store.pipe(select(selectCbNodeOwners));
 
     this.cbNodeOwners$.subscribe((data) => {
-      this.segments = data;
+      this.cbNodeOwners = data;
     })
 
     this.store.select(selectSettings).subscribe((settings) => {
@@ -69,9 +67,7 @@ export class DesignComponent implements OnInit, OnDestroy {
 
     this.viewMode = ringData.getViewMode();
 
-    dragulaService.createGroup("PARTICIPANTS", {
-      removeOnSpill: true
-    });
+  
   }
 
   viewChange(event: any) {
@@ -94,7 +90,6 @@ export class DesignComponent implements OnInit, OnDestroy {
     // open your console/dev tools to see the click params
     this.visNetworkService.click.subscribe((eventData: any[]) => {
       if (eventData[0] === this.visNetwork) {
-        //        console.log(eventData[1]);
         this.selectedNode = eventData[1].nodes[0];
 
         this.currentNodeInfo = this.ringData.getCachedNodeInfo(this.selectedNode);
@@ -130,7 +125,7 @@ export class DesignComponent implements OnInit, OnDestroy {
   }
 
   buildNodes() {
-    for (let node of this.segments) {
+    for (let node of this.cbNodeOwners) {
       let data = this.ringData.getNodeInfo(node.pub_key)
       if (!data)
         break;
@@ -147,14 +142,6 @@ export class DesignComponent implements OnInit, OnDestroy {
         id: data.node.pub_key,
         color: data.node.color,
         label: label
-        // /* @ts-ignore */
-        // label: () => {
-        //   if (this.viewMode == 'node') {
-        //     return data.node.alias;
-        //   } else {
-        //     return this.ringData.getTgUserByPubkey(data.node.pub_key)
-        //   }
-        // }
       };
 
       this.nodes.add(nodeInfo)
@@ -173,10 +160,6 @@ export class DesignComponent implements OnInit, OnDestroy {
             e.label = "no info";
             e.color = "#ffcc00";
           }
-          // else if (edge.node1_policy.disabled == "true" || edge.node2_policy.disabled == "true") {
-          //   e.label = "disabled: true";
-          //   e.color = "#ff0000";
-          // }
 
           this.edges.add(e);
         }
@@ -186,8 +169,6 @@ export class DesignComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.segments = this.segments;
-
     this.nodes = new DataSet<Node>();
     this.edges = new DataSet<Edge>([
     ]);
@@ -205,12 +186,7 @@ export class DesignComponent implements OnInit, OnDestroy {
         randomSeed: 681154853
       },
       edges: {
-        arrows: {
-          // to: {
-          //   enabled: true,
-          //  // scaleFactor: 5
-          // }
-        }
+
       }
     };
 
@@ -230,118 +206,27 @@ export class DesignComponent implements OnInit, OnDestroy {
   public ngOnDestroy(): void {
     this.visNetworkService.off(this.visNetwork, 'click');
     this.subs.unsubscribe();
-    this.dragulaService.destroy('PARTICIPANTS');
   }
 
-  public autoDesign() {
-//    console.log('auto design start');
-    let unconnectedSegments = this.segments.map((val) => val.pub_key);
-
-    this.edges.clear();
-
-    let newSegments: any[] = [];
-
-    let nextNode = unconnectedSegments[0];
-    let firstNode = unconnectedSegments[0];
-    let overflow = 0;
-
-    while (unconnectedSegments && overflow < (this.segments.length)) {
-      let nextIndex = 0;
-      let currentNode = nextNode;
-      let c: number | null = null;
-
-      if (unconnectedSegments.length > 2) {
-
-        while (c) {
-          nextIndex = (nextIndex + 1)
-          c = this.ringData.nodeHasChannelWith(currentNode, unconnectedSegments[nextIndex]);
-
-          // TODO: Put in front of new unconnectedsegments so it won't be connected last
-        }
-        nextNode = unconnectedSegments[nextIndex]
-
-      } else if (unconnectedSegments.length == 2) {
-        nextNode = unconnectedSegments[0]
-      } else {
-        nextNode = firstNode;
-      }
-
-      unconnectedSegments = unconnectedSegments.filter(item => item !== currentNode)
-
-      if (currentNode != nextNode) {
-        this.edges.add({ from: currentNode, to: nextNode });
-        console.log(`${currentNode} => ${nextNode}`, unconnectedSegments.length);
-
-        newSegments.push(currentNode);
-      }
-      overflow++;
-    }
-
-    let newMap: any[] = [];
-    for (let node of newSegments) {
-      newMap.push([node, this.ringData.getTgUserByPubkey(node)])
-    }
-
-    console.log(newMap, this.participants);
-
-    this.ringData.setSegments(newMap);
-    this.segments = newMap;
-  }
-
-  persistOrder() {
-    try {
-      this.store.dispatch(loadCbNodeOwners(this.segments))
-      this.ringData.saveRingSettings(this.segments);
-      this.toastService.show('Node order persisted', { classname: 'bg-success' });
-    } catch (e) {
-      this.toastService.show('Error persisting order', { classname: 'bg-danger' });
-    }
-  }
-
+ 
   /* @TODO: Implemnent graph export, right-click save should work as well */
   exportGraph() {
     //this.visNetworkService.vis
   }
 
-  /* @TODO: Move to service and add igniter.sh generation */
-  downloadChannelsTxt() {
-    this.ringData.downloadChannelsTxt();
-  }
-
-  downloadPubKeysTxt() {
-    this.ringData.downloadPubkeysTgTxt();
-  }
-
-  downloadIgniterPubkeys() {
-    let igniterText = 'declare pub_keys=(\r\n';
-
-    for (let s of this.segments) {
-      let handle = s.handle;
-
-      if (handle == 'None')
-        handle = s.user_name
-
-      igniterText += `    ${s.pub_key} # ${handle}\r\n`
-    }
-
-    igniterText += ')'
-
-    this.ringData.downloadFile(igniterText);
-  }
-
   reorderIgniter() {
-    let idx = this.segments.indexOf(this.selectedIgniter);
+    let idx = this.cbNodeOwners.indexOf(this.selectedIgniter);
     if (idx == -1) {
       this.toastService.show('No igniter selected', { classname: 'bg-danger' });
       return;
     }
 
-    let partsUntilIgniter = this.segments.slice(0, (idx + 1));
-    let partsFromIgniter = this.segments.slice((idx+1));
+    let partsUntilIgniter = this.cbNodeOwners.slice(0, (idx + 1));
+    let partsFromIgniter = this.cbNodeOwners.slice((idx+1));
     let newOrder = partsFromIgniter.concat(partsUntilIgniter);
     try {
       this.store.dispatch(loadCbNodeOwners(newOrder))
-      this.ringData.saveRingSettings(this.segments);
+      this.ringData.saveRingSettings(this.cbNodeOwners);
       this.toastService.show('Node reorder persisted', { classname: 'bg-success' });
     } catch (e) {
       this.toastService.show('Error reordering', { classname: 'bg-danger' });

@@ -1,0 +1,42 @@
+<div class="container-fluid">
+    <div class="row">
+      <div  class="col-md-10">
+        <h3>Ring Designer
+          <div class="btn-group btn-small small btn-group-toggle" ngbRadioGroup name="names" [(ngModel)]="viewMode"
+            (ngModelChange)="viewChange($event)">
+            <label ngbButtonLabel class="btn-primary btn-sm">
+              <input ngbButton type="radio" value="node"> Nodename
+            </label>
+            <label ngbButtonLabel class="btn-primary btn-sm">
+              <input ngbButton type="radio" value="tg"> TG username
+            </label>
+          </div>
+        </h3>
+        <div id="graphContainer"></div>
+      </div>
+      <div class="col-md-2">
+        <app-ring-order></app-ring-order>
+        <app-file-exporter></app-file-exporter>
+        <hr />
+        <form class="form-inline">
+          <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Igniter</label>
+          <select class="form-control"  [(ngModel)]="selectedIgniter" name="selectedIgniter">
+            <option [value]="undefined">Select</option>
+            <ng-container  *ngFor="let s of cbNodeOwners">
+            <option [ngValue]="s">
+              <ng-template [ngIf]="viewMode == 'tg'" [ngIfElse]="elseBlock">
+                {{ s.user_name }}
+              </ng-template>
+              <ng-template #elseBlock>
+                {{ s.nodename }}
+              </ng-template>
+            </option>
+          </ng-container>
+          </select>
+          <button type="submit" class="btn btn-primary my-1" (click)="reorderIgniter()">Reorder</button>
+  
+        </form>
+      </div>
+    </div>
+  </div>
+  

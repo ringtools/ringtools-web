@@ -32,7 +32,6 @@ export const selectNodeByPubKey = pub_key => createSelector(
     selectNodeInfoState,
    // fromNodeInfo.selectAllNodeInfoPubkey,
     (entities) => { 
-        console.log(entities);
         return entities[pub_key]
     }
    // (state: fromCbNodeOwner.CbNodeOwnerState) => state.cbNodeOwners

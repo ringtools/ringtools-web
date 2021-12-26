@@ -21,7 +21,7 @@ import { SettingState } from '../reducers/setting.reducer';
 })
 export class WatcherComponent implements OnInit {
   viewMode: string;
-  segments: CbNodeOwner[] = [];
+  cbNodeOwners: CbNodeOwner[] = [];
   cbNodeOwners$: Observable<CbNodeOwner[]>
   ringLabels: string[];
   settings: SettingState;
@@ -42,9 +42,9 @@ export class WatcherComponent implements OnInit {
     });
 
     this.cbNodeOwners$.subscribe((data) => {
-      this.segments = data;
+      this.cbNodeOwners = data;
 
-      this.ringLabels = this.segments.map((val) => {
+      this.ringLabels = this.cbNodeOwners.map((val) => {
         if (this.viewMode == "node")
           return val.nodename;
         return this.ringData.getUsername(val.pub_key)
@@ -69,7 +69,7 @@ export class WatcherComponent implements OnInit {
   }
 
   getSegments() {
-    return this.segments;
+    return this.cbNodeOwners;
   }
 
   getIsReady() {
@@ -104,7 +104,7 @@ export class WatcherComponent implements OnInit {
   viewChange(event: any) {
     this.ringData.setViewMode(event);
 
-    this.ringLabels = this.segments.map((val) => {
+    this.ringLabels = this.cbNodeOwners.map((val) => {
       if (this.viewMode == "node")
         return val.nodename;
       return this.ringData.getUsername(val.pub_key)
@@ -132,16 +132,13 @@ export class WatcherComponent implements OnInit {
         this.participants.push(p);
       }
     }
-
-//     this.isReady = true;
-   // console.log("initialization ready");
   }
 
-  getUsername(node: NodeInfo | undefined) {
+  getUsername(node: NodeInfo | undefined) {  
     if (!node)
       return;
 
-    let ret = this.segments.find((val) => {
+    let ret = this.cbNodeOwners.find((val) => {
       return val.pub_key == node.node.pub_key
     })
 
@@ -166,48 +163,8 @@ export class WatcherComponent implements OnInit {
     }
   }
 
-  /* @TODO: Remove this, for testing channel updates. This does not seem to be the right way. */
-  upsertPolicy() {
-    this.store.select(selectNodeInfos)
-      .subscribe((data) => {
-        console.log(data);
-      })
-
-
-    let chan: ChannelEdge = {
-      "channel_id": 776652133031018497,
-      "chan_point": "64c712513e44befb22bff54a88e61229ecf7c9d3d87b31aaebedbe412dfc463c:1",
-      "last_update": 1635186302,
-      "node1_pub": "038b19417ee84b5469217efb333b677caec115e0298823e71148d2741b40cb62d1",
-      "node2_pub": "03b364b19e60dcbc0063f0ea15e2cf87bdbc4ac9e4e898049652c3e8e3c04f3a6f",
-      "capacity": 5000000,
-      "node1_policy": {
-        "time_lock_delta": 40,
-        "min_htlc": 1000,
-        "fee_base_msat": 1337,
-        "fee_rate_milli_msat": 230,
-        "max_htlc_msat": 4950000000,
-        "last_update": 1635186302,
-        "disabled": false
-      },
-      "node2_policy": {
-        "time_lock_delta": 40,
-        "min_htlc": 1000,
-        "fee_rate_milli_msat": 1,
-        "max_htlc_msat": 4950000000,
-        "last_update": 1635185218,
-        "fee_base_msat": 2442,
-        "disabled": false
-      }
-    };
-
-    this.store.dispatch(upsertChannel({ channel: chan }))
-
-  }
-
   getColor(i) {
-    let scale = this.ringData.getColorScale()(i);
-    return scale;
+    return this.ringData.getColorScale()(i);;
   }
 
   getRingLabels() {
@@ -221,13 +178,6 @@ export class WatcherComponent implements OnInit {
     svg.saveSvgAsPng(document.getElementById("rofvisual").children[0], `${ringName}.png`, {
       backgroundColor: "#000",
       scale: 1.5,
-      // fonts: [
-      //   {
-      //     url: '/assets/fonts/lato-v20-latin-regular.woff2',
-      //     format: 'application/font-woff2',
-      //     text: "@font-face { font-family: 'Lato'; font-style: normal; font-weight: 400; src: url('/assets/fonts/lato-v20-latin-regular.eot');  url('/assets/fonts/lato-v20-latin-regular.woff2') format('woff2');"
-      //   }
-      // ],
     })
   }
 
@@ -235,13 +185,6 @@ export class WatcherComponent implements OnInit {
     svg.saveSvgAsPng(document.getElementById("rofvisual").children[0], "ring-of-fire-visual.png", {
       backgroundColor: "#000",
       scale: 1.5,
-      // fonts: [
-      //   {
-      //     url: '/assets/fonts/lato-v20-latin-regular.woff2',
-      //     format: 'application/font-woff2',
-      //     text: "@font-face { font-family: 'Lato'; font-style: normal; font-weight: 400; src: url('/assets/fonts/lato-v20-latin-regular.eot');  url('/assets/fonts/lato-v20-latin-regular.woff2') format('woff2');"
-      //   }
-      // ],
     })
   }
 

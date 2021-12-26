@@ -1,3 +1,15 @@
 .table-striped tbody tr.error {
     background: red;
 }
+
+.node_key{
+    max-width: 10vw;
+    white-space: nowrap;
+  
+    span, p {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+  }
+  

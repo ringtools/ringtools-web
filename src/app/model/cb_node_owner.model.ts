@@ -1,9 +1,33 @@
-export class CbNodeOwner {
-    user_name: string = '';
+import { NodeOwner } from "./node_owner.model";
+
+export class CbNodeOwner extends NodeOwner {
     nodename: string = '';
-    pub_key: string = '';
-    new?: boolean = false;
-    handle: string = '';
-    capacity_sat?: string = '';
-    order?: number;
+
+    get user_name(): string {
+        return this.first_name;
+    }
+
+    set user_name(userName)  {
+        this.first_name = userName;
+    }
+
+    set handle(handle) {
+        this.username = handle;
+    }
+
+    get handle(): string {
+        return this.username;
+    }
+
+    set new(isNew) {
+        
+    }
+
+    get new(): boolean {
+        return false;
+    }
+
+    get capacity_sat(): string {
+        return '0';
+    }
 }

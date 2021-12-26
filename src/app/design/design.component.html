@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <div class="row">
-    <div *ngIf="visNetworkData" class="col-md-10">
+    <div *ngIf="visNetworkData" class="col-md-8">
       <h3>Ring Designer
         <div class="btn-group btn-small small btn-group-toggle" ngbRadioGroup name="names" [(ngModel)]="viewMode"
           (ngModelChange)="viewChange($event)">
@@ -15,49 +15,36 @@
       <div class="network-canvas" [visNetwork]="visNetwork" [visNetworkData]="visNetworkData"
         [visNetworkOptions]="visNetworkOptions" (initialized)="networkInitialized()"></div>
     </div>
-    <div class="col-md-2">
-      <h3>Ring order</h3>
-      <ul class="list-group" dragula="PARTICIPANTS" id="participants" [(dragulaModel)]="segments">
-        <li class="list-group-item" *ngFor="let s of segments">
-          <ng-template [ngIf]="viewMode == 'tg'" [ngIfElse]="elseBlock">
-            {{ s.user_name }}
-          </ng-template>
-          <ng-template #elseBlock>
-            {{ s.nodename }}
-          </ng-template>
+    <div class="col-md-4">
+      <app-ring-order></app-ring-order>
 
-        </li>
-      </ul>
-      <button type="button" class="btn btn-warning btn-lg btn-block btn-sm" (click)="persistOrder()">Persist channel
-        order</button>
-      <button type="button" class="btn btn-info btn-lg btn-block btn-sm" (click)="bestFit()">Nodes view best
-        fit</button>
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <form class="form-inline">
+            <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Ringleader</label>
+            <select class="form-control"  [(ngModel)]="selectedIgniter" name="selectedIgniter">
+              <option [value]="undefined">Select</option>
+              <ng-container  *ngFor="let s of cbNodeOwners">
+              <option [ngValue]="s">
+                <ng-template [ngIf]="viewMode == 'tg'" [ngIfElse]="elseBlock">
+                  {{ s.user_name }}
+                </ng-template>
+                <ng-template #elseBlock>
+                  {{ s.nodename }}
+                </ng-template>
+              </option>
+            </ng-container>
+            </select>
+            <button type="submit" class="btn btn-primary my-1" (click)="reorderIgniter()">Reorder</button>
+    
+          </form>
+        </div>
+        <div class="col-md-6">
+          <app-file-exporter></app-file-exporter>
+        </div>
+      </div>
       <hr />
-      <button type="button" class="btn btn-primary btn-lg btn-block btn-sm" (click)="downloadChannelsTxt()">Download
-        channels.txt</button>
-      <button type="button" class="btn btn-success btn-lg btn-block btn-sm" (click)="downloadPubKeysTxt()">Download
-        pubkeys.txt</button>
-      <button type="button" class="btn btn-secondary btn-lg btn-block btn-sm"
-        (click)="downloadIgniterPubkeys()">Download igniter.sh pubkeys</button>
-      <hr />
-      <form class="form-inline">
-        <label class="my-1 mr-2" for="inlineFormCustomSelectPref">Igniter</label>
-        <select class="form-control"  [(ngModel)]="selectedIgniter" name="selectedIgniter">
-          <option [value]="undefined">Select</option>
-          <ng-container  *ngFor="let s of segments">
-          <option [ngValue]="s">
-            <ng-template [ngIf]="viewMode == 'tg'" [ngIfElse]="elseBlock">
-              {{ s.user_name }}
-            </ng-template>
-            <ng-template #elseBlock>
-              {{ s.nodename }}
-            </ng-template>
-          </option>
-        </ng-container>
-        </select>
-        <button type="submit" class="btn btn-primary my-1" (click)="reorderIgniter()">Reorder</button>
 
-      </form>
     </div>
   </div>
 </div>

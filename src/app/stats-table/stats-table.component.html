@@ -11,21 +11,22 @@
         </tr>
     </thead>
     <tbody>
-        <ng-container *ngFor="let item of getChannels()">
-            <tr [class.error]="!item.node1_policy || !item.node2_policy">
-                <th scope="row">{{ item.channel_id }}</th>
-                <ng-template [ngIf]="ringData.getViewMode() == 'tg'" [ngIfElse]="elseBlock">
-                    <td>{{ getUsername(item.node1_pub) }}</td>
-                    <td>{{ getUsername(item.node2_pub) }}</td>
+        <ng-container *ngFor="let item of participants; let i = index">
+            <tr [class.error]="item.channel_id && (!item.initiator_fee || !item.receiver_fee)">
+                <th scope="row" [style.background-color]="getColor(i)" class="channelCol">{{ item.channel_id }}</th>
+                <ng-template [ngIf]="settings.viewMode == 'tg'" [ngIfElse]="elseBlock">
+                    <td>{{ getUsername(item.initiator) }}</td>
+                    <td>{{ getUsername(item.receiver) }}</td>
                 </ng-template>
                 <ng-template #elseBlock>
-                    <td>{{ getAlias(item.node1_pub) }}</td>
-                    <td>{{ getAlias(item.node2_pub) }}</td>
+                    <td *ngIf="item.initiator" class="node_key"><span>{{ item.initiator?.node?.alias }}</span></td>
+                    <td *ngIf="item.receiver" class="node_key"><span>{{ item.receiver?.node?.alias }}</span></td>
                 </ng-template>
-                <td *ngIf="item.node1_policy && item.node1_policy.disabled == false">{{ item.node1_policy.fee_base_msat }}</td>
-                <td *ngIf="item.node1_policy && item.node1_policy.disabled == false">{{ item.node1_policy.fee_rate_milli_msat }}</td>
-                <td *ngIf="item.node2_policy && item.node2_policy.disabled == false">{{ item.node2_policy.fee_base_msat }}</td>
-                <td *ngIf="item.node2_policy && item.node2_policy.disabled == false">{{ item.node2_policy.fee_rate_milli_msat }}</td>
+                <td><span *ngIf="item.initiator_fee">{{ item.initiator_fee.fee_base_msat }}</span></td>
+                <td><span *ngIf="item.initiator_fee">{{ item.initiator_fee.fee_rate_milli_msat }}</span>
+                </td>
+                <td><span *ngIf="item.receiver_fee">{{ item.receiver_fee.fee_base_msat }}</span></td>
+                <td><span *ngIf="item.receiver_fee">{{ item.receiver_fee.fee_rate_milli_msat }}</span></td>
             </tr>
         </ng-container>
     </tbody>

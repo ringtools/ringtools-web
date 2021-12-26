@@ -5,6 +5,7 @@ import { DesignComponent } from './design/design.component';
 import { BaseLayoutComponent } from './layout/base/base.component';
 import { LoginComponent } from './login/login.component';
 import { SettingsComponent } from './settings/settings.component';
+import { VisualComponent } from './visual/visual.component';
 import { WatcherComponent } from './watcher/watcher.component';
 
 const routes: Routes = [
@@ -19,6 +20,9 @@ const routes: Routes = [
       },
       {
         path: 'design', component: DesignComponent
+      },
+      {
+        path: 'visual', component: VisualComponent
       },
       {
         path: 'watch', component: WatcherComponent

@@ -25,6 +25,7 @@ import { RingSetting } from '../model/ring-setting.model';
 import { DomSanitizer } from '@angular/platform-browser';
 import { upsertRingSetting } from '../actions/ring-setting.actions';
 import { environment } from 'src/environments/environment';
+import { NodeOwner } from '../model/node_owner.model';
 
 @Injectable({
   providedIn: 'root',
@@ -32,9 +33,9 @@ import { environment } from 'src/environments/environment';
 export class RingDataService {
   ringName = 'Loading...';
   ringSize: number;
-  ringLeader: CbNodeOwner;
+  ringLeader: NodeOwner;
 
-  cbNodeOwners: CbNodeOwner[] = [];
+  cbNodeOwners: NodeOwner[] = [];
 
   private _channelUpdate = new Subject();
   channelUpdate$ = this._channelUpdate.asObservable();
@@ -43,7 +44,7 @@ export class RingDataService {
   isReady$ = this._isReady.asObservable();
 
   nodeNames: Map<string, string> = new Map<string, string>();
-  nodeToTgMap: Map<string, CbNodeOwner> = new Map<string, CbNodeOwner>();
+  nodeToTgMap: Map<string, NodeOwner> = new Map<string, NodeOwner>();
   nodeInfo: Map<string, NodeInfo | undefined> = new Map<
     string,
     NodeInfo | undefined
@@ -79,16 +80,7 @@ export class RingDataService {
       this.settings = settings;
     });
 
-    // this.store.select(selectNodeInfos).subscribe((res) => {
-    //   console.log('node', res)
-    // });
 
-    // this.store.select(selectAllCbNodeOwners).subscribe((cb) => {
-    //   console.log('cb', cb);
-    // })
-
-    //this.populateTgMap();
-    //    this.populateChannels();
 
     this.socket.on('pubkey', (data: NodeInfo) => {
       this.store.dispatch(upsertNodeInfo({ nodeInfo: data }));

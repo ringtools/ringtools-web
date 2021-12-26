@@ -18,8 +18,9 @@ export class NavigationComponent implements OnInit {
 
   links = [
     { title: 'Home', route: '' },
-    { title: 'Design', route: 'design' },
     { title: 'Watch', route: 'watch' },
+    { title: 'Design', route: 'design' },
+    // { title: 'Visual', route: 'visual' },
     { title: 'Settings', route: 'settings' }
   ];
   ringSettings$: Observable<RingSetting[]>;

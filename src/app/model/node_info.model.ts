@@ -18,7 +18,6 @@ export class NodeInfo {
                 hasChannel = edge.channel_id;
             }
         }
-        console.log(this.node.pub_key, pub_key, hasChannel)
 
         return hasChannel;
     }
