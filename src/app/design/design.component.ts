@@ -24,6 +24,8 @@ import { ToastService } from '../toast/toast.service';
 export class DesignComponent implements OnInit, OnDestroy {
   viewMode!: string;
 
+  action: string;
+
   public visNetwork: string = 'networkId1';
   public visNetworkData!: Data;
   public nodes!: DataSet<Node>;
@@ -231,5 +233,9 @@ export class DesignComponent implements OnInit, OnDestroy {
     } catch (e) {
       this.toastService.show('Error reordering', { classname: 'bg-danger' });
     }
+  }
+
+  receiveAction($event) {
+    this.action = $event;
   }
 }

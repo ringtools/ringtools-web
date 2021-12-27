@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { loadNodeOwners } from '../actions/node-owner.actions';
@@ -30,13 +30,7 @@ export class FileExporterComponent {
   }
 
   persistOrder() {
-    try {
-      this.store.dispatch(loadNodeOwners(this.nodeOwners))
-      this.ringData.saveRingSettings(this.nodeOwners);
-      this.toastService.show('Node order persisted', { classname: 'bg-success' });
-    } catch (e) {
-      this.toastService.show('Error persisting order', { classname: 'bg-danger' });
-    }
+      this.ringData.doAction('persistOrder');
   }
   
     /* @TODO: Move to service and add igniter.sh generation */

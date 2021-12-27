@@ -5,7 +5,7 @@ import { RoutingPolicy } from '../model/routing_policy.model';
 import { NodeOwner } from '../model/node_owner.model';
 import * as d3 from 'd3';
 import { Socket } from 'ngx-socket-io';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { Store } from '@ngrx/store';
 import * as fromRoot from '../reducers';
 import { loadNodeOwners } from '../actions/node-owner.actions';
@@ -34,6 +34,9 @@ export class RingDataService {
   ringName = 'Loading...';
   ringSize: number;
   ringLeader: NodeOwner;
+
+  private actionSource = new BehaviorSubject('default message');
+  currentAction = this.actionSource.asObservable();
 
   nodeOwners: NodeOwner[] = [];
 
@@ -423,5 +426,9 @@ export class RingDataService {
       }
     }
     return segments;
+  }
+
+  doAction(action: string) {
+    this.actionSource.next(action);
   }
 }

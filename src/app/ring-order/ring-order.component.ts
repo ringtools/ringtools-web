@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { DragulaService } from 'ng2-dragula';
 import { Observable, Subscription } from 'rxjs';
+import { loadNodeOwners } from '../actions/node-owner.actions';
 import { NodeOwner } from '../model/node_owner.model';
 import { RingSetting } from '../model/ring-setting.model';
 import * as fromRoot from '../reducers';
@@ -33,7 +34,9 @@ export class RingOrderComponent implements OnInit, OnDestroy {
 
   constructor(
     private store: Store<fromRoot.State>,
+    private toastService: ToastService,
     private dragulaService: DragulaService,
+    private ringData: RingDataService
   ) {
     this.nodeOwners$ = this.store.pipe(select(selectNodeOwners));
 
@@ -51,6 +54,10 @@ export class RingOrderComponent implements OnInit, OnDestroy {
     dragulaService.createGroup("PARTICIPANTS", {
       removeOnSpill: true
     });
+
+    this.ringData.currentAction.subscribe(action => {
+      if (action == 'persistOrder') this.persistOrder();
+    })
   }
 
   ngOnInit(): void {
@@ -66,5 +73,15 @@ export class RingOrderComponent implements OnInit, OnDestroy {
       return nodeOwner.first_name;
     }
     return `${nodeOwner.first_name} (@${nodeOwner.username})`;
+  }
+
+  persistOrder() {
+    try {
+      this.store.dispatch(loadNodeOwners(this.nodeOwners))
+      this.ringData.saveRingSettings(this.nodeOwners);
+      this.toastService.show('Node order persisted', { classname: 'bg-success' });
+    } catch (e) {
+      this.toastService.show('Error persisting order', { classname: 'bg-danger' });
+    }
   }
 }

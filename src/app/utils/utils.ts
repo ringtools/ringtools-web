@@ -38,9 +38,11 @@ const parseToEmoji = (ringName) => {
     ['50M', '&#127752;'],
   ]);
 
-  let capacity: String = ringName.match(/_(\d+[K|M])sats_/)[1];
+  let capacity: String = ringName.match(/_(\d+[K|M])sats_/);
 
-  return colorMap.get(capacity);
+  if (capacity)
+    return colorMap.get(capacity[1]);
+  return '';
 }
 
 export { colorScale, getUsername, parseToEmoji };
