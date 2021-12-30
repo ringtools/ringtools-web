@@ -28,6 +28,7 @@ import { NgOtpInputModule } from 'ng-otp-input';
 import { ToastComponent } from './toast/toast.component';
 import { RingOrderComponent } from './ring-order/ring-order.component';
 import { FileExporterComponent } from './file-exporter/file-exporter.component';
+import { RingOnlyComponent } from './ring-only/ring-only.component';
 
 const config: SocketIoConfig = { 
   url: environment.WS_ENDPOINT ? environment.WS_ENDPOINT : "", 
@@ -51,7 +52,8 @@ const config: SocketIoConfig = {
     BaseLayoutComponent,
     ToastComponent,
     RingOrderComponent,
-    FileExporterComponent
+    FileExporterComponent,
+    RingOnlyComponent
   ],
   imports: [
     BrowserModule,

@@ -69,7 +69,7 @@ export class RingOrderComponent implements OnInit, OnDestroy {
   }
 
   getCbUsername(nodeOwner: NodeOwner) {
-    if (nodeOwner.username == 'None') {
+    if (nodeOwner.username == 'None' || nodeOwner.username == 'undefined') {
       return nodeOwner.first_name;
     }
     return `${nodeOwner.first_name} (@${nodeOwner.username})`;

@@ -20,11 +20,30 @@ const getUsername = (
     return val.pub_key == node.node.pub_key;
   });
 
-  if (ret.username == 'None') {
+  if (ret.username == 'None' || ret.username == 'undefined') {
     return ret.first_name;
   }
   return `@${ret.username}`;
 };
+
+const stringToBoolean = (string: string) => {
+  switch(string.toLowerCase().trim()){
+      case "true": 
+      case "yes": 
+      case "1": 
+        return true;
+
+      case "false": 
+      case "no": 
+      case "0": 
+      case null: 
+        return false;
+
+      default: 
+        return Boolean(string);
+  }
+}
+
 
 
 const parseToEmoji = (ringName) => {
@@ -45,4 +64,4 @@ const parseToEmoji = (ringName) => {
   return '';
 }
 
-export { colorScale, getUsername, parseToEmoji };
+export { colorScale, getUsername, parseToEmoji, stringToBoolean };

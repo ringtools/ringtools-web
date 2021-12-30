@@ -13,6 +13,8 @@ export class RofCircleComponent implements OnInit, OnChanges {
   @Input() data: any[] = [];
   @Input() ringName: string = '';
   @Input() showLogo: boolean = false;
+  @Input() withFire: boolean = false;
+  @Input() withArrow: boolean = true;
   @Input() ringLabels: string[] = [];
 
   hostElement: any; // Native element hosting the SVG container
@@ -72,8 +74,17 @@ export class RofCircleComponent implements OnInit, OnChanges {
     
     this.removeExistingChartFromParent();
     this.setChartDimensions();
+    if (this.withFire) {
+      this.addFire();
+    }
+
     this.setColorScale();
     this.addGraphicsElement();
+
+    console.log(this.withFire);
+
+  
+
     this.setupArcGenerator();
     
 
@@ -81,9 +92,14 @@ export class RofCircleComponent implements OnInit, OnChanges {
     this.addLabelsToTheDonut();
     this.defineMarkers();
 
+
+
     if (this.showLogo) {
       this.addCenterLogo();
-      this.addCircleArrow();
+
+      if (this.withArrow) {
+        this.addCircleArrow();
+      }
     } else {
       this.addCenterLabel();
     }
@@ -246,6 +262,16 @@ export class RofCircleComponent implements OnInit, OnChanges {
       .attr('width', '100%')
       .attr('height', '100%')
       .attr('viewBox', '0 0 ' + viewBoxWidth + ' ' + viewBoxHeight);
+
+
+  }
+
+  private addFire() {
+    this.svg.append('image').attr('href', '/assets/fire.webp')
+    .attr('height', 500)
+    .attr('width', 500)
+    .attr('x', -40)
+    .attr('y', -40);
   }
 
   private addGraphicsElement() {

@@ -116,7 +116,7 @@ export class RingDataService {
 
   getUsername(pub_key: string) {
     let ret = this.getTgUserByPubkey(pub_key);
-    if (ret.username == 'None') {
+    if (ret.username == 'None' || ret.username == 'undefined') {
       return ret.first_name;
     }
     return `@${ret.username}`;
@@ -413,7 +413,7 @@ export class RingDataService {
   parseNewExportFormat(data) {
     let segmentLines = data.split('|');
     let segments: NodeOwner[] = [];
-    for (let line of segmentLines.slice(1)) {
+    for (let line of segmentLines) {
       let parts = line.split(',');
       if (parts.length > 1) {
         let nodeOwner:NodeOwner = {
