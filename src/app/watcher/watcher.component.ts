@@ -164,7 +164,7 @@ export class WatcherComponent implements OnInit {
 
 
     svg.saveSvgAsPng(document.getElementById("rofvisual").children[0], `${ringName}.png`, {
-      backgroundColor: "#000",
+ //     backgroundColor: "#000",
       scale: 1.5,
     })
   }

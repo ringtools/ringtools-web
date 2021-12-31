@@ -18,6 +18,7 @@
         </li>
       </ul>
       <div ngbDropdown class="d-flex">
+        <span  class="navbar-text testnet" *ngIf="testnet">Testnet 	🧪 &nbsp;</span>
         <button class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle>{{ getRingName() }}</button>
         <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
           <button ngbDropdownItem *ngFor="let item of ringSettings$ | async" (click)="loadSettings(item)">{{

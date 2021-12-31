@@ -53,13 +53,13 @@
                     <tbody>
                         <ng-container *ngFor="let item of nodeOwners$ | async">
                             <tr>
-                                <td class="service-icon">
+                                <td class="service-icon amboss">
                                     <a [attr.href]="'https://amboss.space/node/' +  item.pub_key" target="_blank">
                                         <img src="/assets/amboss.png" class="service-icon">
                                     </a>
                                 </td>
-                                <td class="service-icon">
-                                    <a [attr.href]="'https://1ml.com/node/' + item.pub_key" target="_blank">
+                                <td class="service-icon 1ml">
+                                    <a [attr.href]="get1MlLink(item)" target="_blank">
                                         <img src="/assets/1ml.png" class="service-icon">
                                     </a>
                                 </td>

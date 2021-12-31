@@ -5,7 +5,8 @@
 export const environment = {
   production: false,
   WS_ENDPOINT: process.env.WS_ENDPOINT,
-  REST_ENDPOINT: process.env.REST_ENDPOINT
+  REST_ENDPOINT: process.env.REST_ENDPOINT,
+  networkClass: process.env.TESTNET ? 'testnet' : ''
 };
 
 /*

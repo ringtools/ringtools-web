@@ -25,6 +25,7 @@ import { ToastService } from '../toast/toast.service';
 import { CbNodeOwner } from '../model/cb_node_owner.model';
 import { parseToEmoji } from '../utils/utils';
 import { DomSanitizer } from '@angular/platform-browser';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-settings',
@@ -378,5 +379,10 @@ export class SettingsComponent implements OnInit {
       return nodeOwner.first_name;
     }
     return `@${nodeOwner.username}`;
+  }
+
+  get1MlLink(node) {
+    let add = environment.networkClass == 'testnet' ? 'testnet/' : '';
+    return `https://1ml.com/${add}node/${node.pub_key}`
   }
 }

@@ -1,3 +1,46 @@
 .roflogo {
     padding: 10px;
 }
+
+.testnet {
+    color: #fff;
+    text-align: center;
+
+    animation: pulsate 5s ease-in-out infinite alternate;  
+    // text-shadow:
+    // 0 0 7px #fff,
+    // 0 0 10px #fff,
+    // 0 0 21px #fff,
+    // 0 0 42px #0fa,
+    // 0 0 82px #0fa,
+    // 0 0 92px #0fa,
+    // 0 0 102px #0fa,
+    // 0 0 151px #0fa;
+}
+
+@keyframes pulsate {
+    100% {
+      /* Larger blur radius */
+      text-shadow:
+        0 0 6px #fff,
+        0 0 10px #fff,
+        0 0 15px #fff,
+        0 0 35px #0fa,
+        0 0 70px #0fa,
+        0 0 80px #0fa,
+        0 0 90px #0fa,
+        0 0 147px #0fa;
+    }
+   0% {
+      /* A slightly smaller blur radius */
+      text-shadow:
+        0 0 4px #fff,
+        0 0 6px #fff,
+        0 0 8px #fff,
+        0 0 28px #0fa,
+        0 0 63px #0fa,
+        0 0 70px #0fa,
+        0 0 84px #0fa,
+        0 0 143px #0fa;
+    }
+  }

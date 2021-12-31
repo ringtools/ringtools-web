@@ -1,18 +1,16 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-8">
-      <h1>Welcome to Ringtools Web</h1>
+      <h1>Welcome to Ringtools Web <span   *ngIf="testnet">for Testnet 🧪 </span></h1>
       <p> Although there is quite some nice functionality, it is not without issues.
         Please report them on <a href="https://github.com/ringtools/ringtools-web/issues" target="_blank"><i
             class="bi bi-github"></i> GitHub</a> if you encounter them, enjoy!</p>
       <h4>How does this work</h4>
       <p>
-        Ring Participants and their information (loaded from the CSV) will be stored in your browser (LocalStorage)<br>
-        Node information based on the public key of the nodes will be retrieved from LND node without any channels, this
-        might result in slower updates because of less gossip.</p>
+        Ring Participants and their information (loaded from the CSV) will be stored in your browser (LocalStorage)</p>
       <h4>Known issues</h4>
       <ul>
-        <li>Channel updates broke after implementing ngrx state.</li>
+        <li>Channel updates broke after implementing ngrx state, sometimes you need to manually refresh the watch section</li>
       </ul>
       <h4>Acknowledgements</h4>
       <ul>
@@ -30,6 +28,7 @@
 <footer class="container-fluid fixed-bottom p-4">
   <div class="row text-center">
     <div class="col-lg-12">
+      <span  class="testnet" *ngIf="testnet">Testnet 	🧪  |</span>
       <a href="http://docs.rof.tools/" target="_blank"><i
         class="bi bi-book"></i>
       Documentation</a> | 

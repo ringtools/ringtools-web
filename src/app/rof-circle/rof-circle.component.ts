@@ -80,21 +80,11 @@ export class RofCircleComponent implements OnInit, OnChanges {
 
     this.setColorScale();
     this.addGraphicsElement();
-
-    console.log(this.withFire);
-
-  
-
     this.setupArcGenerator();
-    
-
     this.addSlicesToTheDonut();
     this.addLabelsToTheDonut();
     this.defineMarkers();
-
-
-
-    if (this.showLogo) {
+      if (this.showLogo) {
       this.addCenterLogo();
 
       if (this.withArrow) {

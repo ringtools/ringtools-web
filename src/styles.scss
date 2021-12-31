@@ -64,3 +64,14 @@
 
   margin-bottom: 15px;
 }
+
+.testnet {
+  img:not(.service-icon) {
+    transform: scaleX(-1);
+    filter:hue-rotate(90deg);
+  }
+
+  .service-icon.amboss {
+    display: none;
+  }
+}

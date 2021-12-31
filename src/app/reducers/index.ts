@@ -25,11 +25,14 @@ export const reducers: ActionReducerMap<State> = {
   setting: settingReducer
 };
 
+//let lsKeys = .map(k => environment.networkClass ? `${environment.networkClass}-${k}` : k);
+
 export function localStorageSyncReducer(reducer: ActionReducer<any>): ActionReducer<any> {
   return localStorageSync(
     {
       keys: [ringSettingsFeatureKey, nodeOwnerFeatureKey, settingFeatureKey],
-      rehydrate: true
+      rehydrate: true,
+      storageKeySerializer: (k) => environment.networkClass ? `${environment.networkClass}.${k}` : k
     })(reducer);
 }
 

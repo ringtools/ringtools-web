@@ -6,6 +6,7 @@ import * as fromRoot from '../reducers';
 import { Observable } from 'rxjs';
 import { RingSetting } from '../model/ring-setting.model';
 import { selectRingSettings } from '../selectors/ring-setting.selectors';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-navigation',
@@ -15,6 +16,7 @@ import { selectRingSettings } from '../selectors/ring-setting.selectors';
 export class NavigationComponent implements OnInit {
   public isMenuCollapsed = false;
   ringName = '';
+  testnet = environment.networkClass == 'testnet';
 
   links = [
     { title: 'Home', route: '' },
