@@ -26,6 +26,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { upsertRingSetting } from '../actions/ring-setting.actions';
 import { environment } from 'src/environments/environment';
 import { CbNodeOwner } from '../model/cb_node_owner.model';
+import { SocketNameSpace } from '../socket/socket-namespace';
 
 @Injectable({
   providedIn: 'root',
@@ -58,6 +59,8 @@ export class RingDataService {
   viewMode = 'tg';
   settings!: SettingState;
   colorScale!: any; // D3 color provider
+  nodeSocket: SocketNameSpace;
+  channelSocket: SocketNameSpace;
 
   constructor(
     private http: HttpClient,
@@ -65,6 +68,9 @@ export class RingDataService {
     private sanitizer: DomSanitizer,
     private store: Store<fromRoot.State>
   ) {
+    this.nodeSocket = new SocketNameSpace('node');
+    this.channelSocket = new SocketNameSpace('channel');
+
     this.store.select(selectNodeOwners).subscribe((res) => {
       let pubkeys = res.map((val) => {
         return val.pub_key;
@@ -76,7 +82,7 @@ export class RingDataService {
         this.nodeToTgMap.set(o.pub_key, o);
       }
 
-      this.socket.emit('subscribe_pubkey', { data: pubkeys });
+      this.nodeSocket.emit('subscribe', pubkeys);
     });
 
     this.store.select(selectSettings).subscribe((settings) => {
@@ -84,8 +90,7 @@ export class RingDataService {
     });
 
 
-
-    this.socket.on('pubkey', (data: NodeInfo) => {
+    this.nodeSocket.on('node', (data: NodeInfo) => {
       this.store.dispatch(upsertNodeInfo({ nodeInfo: data }));
 
       this.nodeInfo.set(data.node.pub_key, data);
@@ -95,7 +100,7 @@ export class RingDataService {
         this._isReady.next(this.isLoaded);
       }
     });
-    this.socket.on('channel', (data) => {
+    this.channelSocket.on('channel', (data) => {
       this.store.dispatch(upsertChannel({ channel: data }));
 
       this.updateChannel(data);
