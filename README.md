@@ -1,3 +1,9 @@
+## 🚨 This project is deprecated
+
+Please use [ringtools-web-v2](https://github.com/ringtools/ringtools-web-v2) which has better and cleaner code, together with the more efficient [ringtools-server-ts](https://github.com/ringtools/ringtools-server-ts). They also have less superfluous dependencies and run better on SBC's like Raspberry Pi's. See the [documentation](https://docs.rof.tools/) as well.
+
+I have updated dependencies one last time for security before archiving on 2022-03-15. 
+
 # Satoshi Radio RoF RingTools for web
 
 Based on functionality of [StijnBTC/Ringtools](https://github.com/StijnBTC/Ringtools)<br>
